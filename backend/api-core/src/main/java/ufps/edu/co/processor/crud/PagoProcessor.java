@@ -217,8 +217,19 @@ public class PagoProcessor {
         validarAspiranteAutenticado(aspirante, authenticatedUserId, validarTitular);
 
         BigDecimal monto = calcularMontoInscripcionEnPesos();
-        long montoEnCents = valoresglobalesProcessor.calcularValorInscripcionCentavos();
         String referencia = construirReferencia(pago, aspirante);
+
+        PagoreciboinscripcionDTO pagoreciboinscripcion = pagoreciboinscripcionService.findCurrentByIdAspirante(idAspirante);
+        if (pagoreciboinscripcion != null) {
+            if (pagoreciboinscripcion.getValorpago() != null) {
+                monto = pagoreciboinscripcion.getValorpago();
+            }
+            if (pagoreciboinscripcion.getReferenciapago() != null && !pagoreciboinscripcion.getReferenciapago().isBlank()) {
+                referencia = pagoreciboinscripcion.getReferenciapago();
+            }
+        }
+
+        long montoEnCents = calcularCentavosDesdePesos(monto);
         return construirReceiptData(pago, aspirante, referencia, monto, montoEnCents, resolverCurrency());
     }
 
@@ -232,6 +243,22 @@ public class PagoProcessor {
 
         validarAspiranteAutenticado(data.idPersona(), authenticatedUserId, validarTitular);
 
+        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, "INSCRIPCION");
+        validarPagoPerteneceAspirante(pago, idAspirante);
+
+        PagoreciboinscripcionDTO pagoreciboinscripcion = pagoreciboinscripcionService.findCurrentByIdAspirante(idAspirante);
+        BigDecimal monto = calcularMontoInscripcionEnPesos();
+        @SuppressWarnings("unused") String referencia = construirReferencia(pago, null);
+
+        if (pagoreciboinscripcion != null) {
+            if (pagoreciboinscripcion.getValorpago() != null) {
+                monto = pagoreciboinscripcion.getValorpago();
+            }
+            if (pagoreciboinscripcion.getReferenciapago() != null && !pagoreciboinscripcion.getReferenciapago().isBlank()) {
+                referencia = pagoreciboinscripcion.getReferenciapago();
+            }
+        }
+
         return new PagoCheckoutPreviewDTO(
             data.programa(),
             data.periodo(),
@@ -239,7 +266,7 @@ public class PagoProcessor {
             formatearDocumento(data.numerodocumento()),
             data.facultad(),
             data.tipo(),
-            calcularMontoInscripcionEnPesos());
+            monto);
     }
 
     public PagoOutput confirmarWebhook(WompiWebhookRequest request) {

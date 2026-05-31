@@ -116,6 +116,8 @@ public class ValoresglobalesProcessor {
         return false;
     }
 
+    @SuppressWarnings("unused")
+    @Deprecated(since = "2024-06", forRemoval = true)
     private String familyPrefixFor(String clave, String requestedPrefix) {
         for (String candidatePrefix : resolvePrefixAliases(requestedPrefix)) {
             if (clave.startsWith(candidatePrefix + "_")) {
