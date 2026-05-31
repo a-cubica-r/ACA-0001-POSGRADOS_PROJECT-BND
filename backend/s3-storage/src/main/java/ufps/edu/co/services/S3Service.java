@@ -60,6 +60,31 @@ public class S3Service {
         return new UploadResult(key, url);
     }
 
+    public UploadResult uploadBytes(byte[] content, String contentType, String originalName) {
+        String safeOriginalName = originalName != null ? originalName : "file.pdf";
+        int dotIndex = safeOriginalName.lastIndexOf(".");
+        String baseName = (dotIndex > 0) ? safeOriginalName.substring(0, dotIndex) : safeOriginalName;
+        String extension = (dotIndex > 0) ? safeOriginalName.substring(dotIndex) : ".pdf";
+        String sanitizedName = baseName.replaceAll("[^a-zA-Z0-9._-]", "-").toLowerCase();
+        String key = UUID.randomUUID().toString() + "-" + sanitizedName + extension;
+
+        try {
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(key)
+                            .contentType(contentType != null ? contentType : "application/octet-stream")
+                            .contentLength(content != null ? Long.valueOf(content.length) : 0L)
+                            .build(),
+                    RequestBody.fromBytes(content != null ? content : new byte[0]));
+        } catch (Exception e) {
+            throw new RuntimeException("Error al subir archivo a S3: " + e.getMessage(), e);
+        }
+
+        String url = "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + key;
+        return new UploadResult(key, url);
+    }
+
     public byte[] downloadDocument(DOCUMENTO_FIND input) {
         DocumentoOutput output = documentoProcessor.findById(input);
         String key = output.keyfile();

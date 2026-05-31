@@ -23,6 +23,7 @@
 		<module>backend/s3-storage</module>
 		<module>backend/mail-module</module>
 		<module>backend/api-wompi</module>
+		<module>backend/check-builder</module>
 		<!-- PLATFORM -->
 		<module>platform/application</module>
 		<module>platform/security</module>

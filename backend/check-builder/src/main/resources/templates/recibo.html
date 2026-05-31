@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 7pt;
+      color: #000;
+      width: 570pt;
+      padding: 18pt 18pt 0 18pt;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    .header {
+      display: table;
+      width: 100%;
+      margin-bottom: 14pt;
+    }
+    .header-left {
+      display: table-cell;
+      vertical-align: middle;
+      width: 70%;
+    }
+    .header-left img {
+      height: 52pt;
+    }
+    .header-nit {
+      font-size: 6pt;
+      color: #888;
+      margin-top: 2pt;
+      margin-left: 4pt;
+    }
+    .header-right {
+      display: table-cell;
+      vertical-align: top;
+      width: 30%;
+    }
+    .fecha-box {
+      border: 0.8pt solid #000;
+      width: 100%;
+      font-size: 6.5pt;
+    }
+    .fecha-box .fila {
+      background: #d9d9d9;
+      text-align: center;
+      padding: 3pt 2pt;
+      border-bottom: 0.4pt solid #000;
+      font-weight: bold;
+    }
+    .fecha-box .valor {
+      text-align: center;
+      padding: 2pt;
+      border-bottom: 0.4pt solid #000;
+      font-weight: normal;
+    }
+    .fecha-box .codigo {
+      text-align: center;
+      font-size: 18pt;
+      font-weight: bold;
+      padding: 3pt 2pt;
+    }
+    .version {
+      text-align: right;
+      font-size: 7pt;
+      margin-top: 2pt;
+    }
+
+    /* ── BLOQUE RECIBO ──────────────────────────────────────── */
+    .bloque {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 0;
+    }
+    .bloque td, .bloque th {
+      border: 0.4pt solid #000;
+      padding: 2pt 3pt;
+      vertical-align: middle;
+    }
+
+    /* Filas de encabezado oscuro */
+    .hdr-dark {
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 8.5pt;
+      font-weight: bold;
+      text-align: center;
+      padding: 4pt;
+    }
+    /* Filas grises */
+    .hdr-gray {
+      background: #d9d9d9;
+      font-weight: bold;
+      text-align: center;
+      font-size: 7.5pt;
+    }
+    /* Celda label */
+    .lbl {
+      background: #f2f2f2;
+      font-weight: bold;
+      width: 52pt;
+    }
+    /* Panel derecho: logos + barcode */
+    .panel-der {
+      vertical-align: top;
+      padding: 0;
+    }
+    .panel-der-inner {
+      width: 100%;
+      height: 100%;
+    }
+    .zona-logos {
+      text-align: center;
+      padding: 6pt 4pt 4pt 4pt;
+    }
+    .zona-logos .titulo-bancos {
+      font-size: 10pt;
+      font-weight: bold;
+      margin-bottom: 5pt;
+    }
+    .logos-row {
+      display: table;
+      width: 100%;
+      margin-bottom: 4pt;
+    }
+    .logo-cell {
+      display: table-cell;
+      text-align: center;
+      vertical-align: middle;
+      width: 50%;
+    }
+    .logo-cell img {
+      height: 18pt;
+      max-width: 100%;
+    }
+    .logo-sg img {
+      height: 14pt;
+    }
+    .zona-barcode {
+      border-top: 0.4pt solid #000;
+      text-align: center;
+      padding: 4pt 3pt 3pt 3pt;
+    }
+    .zona-barcode img.barcode {
+      width: 100%;
+      height: 38pt;
+      display: block;
+    }
+    .barcode-txt {
+      font-size: 4pt;
+      margin-top: 2pt;
+    }
+    .pago-efectivo {
+      font-size: 6.5pt;
+      font-weight: bold;
+      margin-top: 2pt;
+    }
+
+    /* ── CELDA VACÍA (espacio entre concepto y total) ──────── */
+    .celda-vacia {
+      background: #fff;
+      height: 40pt;
+    }
+
+    /* ── PIE DEL BLOQUE ─────────────────────────────────────── */
+    .pie {
+      text-align: center;
+      margin-top: 10pt;
+      margin-bottom: 6pt;
+    }
+    .pie-titulo {
+      font-size: 8pt;
+      font-weight: bold;
+    }
+    .pie-nota {
+      font-size: 6pt;
+      line-height: 1.5;
+      margin-top: 3pt;
+    }
+
+    /* ── LÍNEA DE CORTE ─────────────────────────────────────── */
+    .corte {
+      margin: 14pt 0 14pt 0;
+      border-top: 0.6pt dashed #bbb;
+      position: relative;
+    }
+    .corte-icon {
+      position: absolute;
+      left: 0;
+      top: -7pt;
+      font-size: 10pt;
+      color: #aaa;
+    }
+
+    /* ── BLOQUE BANCO (desprendible inferior) ───────────────── */
+    .zona-banco-inferior {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      border: 0.4pt solid #000;
+    }
+    .banco-bc-cell {
+      display: table-cell;
+      width: 56%;
+      vertical-align: middle;
+      text-align: center;
+      padding: 4pt;
+      border-right: 0.4pt solid #000;
+    }
+    .banco-bc-cell img.barcode {
+      width: 100%;
+      height: 38pt;
+      display: block;
+    }
+    .banco-info-cell {
+      display: table-cell;
+      width: 44%;
+      vertical-align: top;
+    }
+    .banco-info-row {
+      display: table;
+      width: 100%;
+      border-bottom: 0.4pt solid #000;
+    }
+    .banco-info-lbl {
+      display: table-cell;
+      background: #f2f2f2;
+      font-weight: bold;
+      width: 50%;
+      padding: 3pt;
+      font-size: 7pt;
+      border-right: 0.4pt solid #000;
+    }
+    .banco-info-val {
+      display: table-cell;
+      padding: 3pt;
+      font-size: 7pt;
+    }
+    .banco-valor-row {
+      display: table;
+      width: 100%;
+    }
+    .banco-valor-lbl {
+      display: table-cell;
+      width: 50%;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 9pt;
+      font-weight: bold;
+      padding: 6pt 3pt;
+      border-right: 0.4pt solid #000;
+    }
+    .banco-valor-num {
+      display: table-cell;
+      width: 50%;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 12pt;
+      font-weight: bold;
+      padding: 6pt 3pt;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  HEADER                                                    -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="header">
+  <div class="header-left">
+    <img th:src="'data:image/jpeg;base64,' + ${logoUfps}" alt="UFPS"/>
+    <div class="header-nit" th:text="${nit}">Nit. 890500622-6</div>
+  </div>
+  <div class="header-right">
+    <div class="fecha-box">
+      <div class="fila">Fecha generación</div>
+      <div class="valor" th:text="${fechaGeneracion}">Sábado 30 de Mayo de 2026</div>
+      <div class="fila">Código de Recibo / Referencia de Pago</div>
+      <div class="codigo" th:text="${codigoRecibo}">821111</div>
+    </div>
+    <div class="version" th:text="${version}">V. 1.0</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  BLOQUE ESTUDIANTE                                         -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<table class="bloque">
+
+  <!-- Título -->
+  <tr>
+    <td colspan="5" class="hdr-dark"
+        th:text="'RECIBO DE PAGO INSCRIPCIÓN A POSGRADOS - ' + ${periodo}">
+      RECIBO DE PAGO INSCRIPCIÓN A POSGRADOS - 20261
+    </td>
+  </tr>
+
+  <!-- Programa -->
+  <tr>
+    <td colspan="5" class="hdr-gray" th:text="${programa}">
+      MAESTRÍA EN CIENCIAS COMPUTACIONALES
+    </td>
+  </tr>
+
+  <!-- Sub-cabecera: Datos persona | Bancos -->
+  <tr>
+    <td colspan="2" class="hdr-gray" style="width:44%">Datos de la persona</td>
+    <td colspan="3" class="hdr-gray" style="width:56%">Bancos</td>
+  </tr>
+  <tr>
+    <td colspan="2" style="background:#fff; border:0.4pt solid #000;"></td>
+    <td class="hdr-gray" style="width:18.6%">BOGOTÁ</td>
+    <td class="hdr-gray" style="width:18.6%">BANCOLOMBIA</td>
+    <td class="hdr-gray" style="width:18.6%">BBVA</td>
+  </tr>
+
+  <!-- Nombre -->
+  <tr>
+    <td class="lbl">Nombre</td>
+    <td th:text="${nombre}">ARENAS RAMOS ADOLFO ALEJANDRO</td>
+    <td rowspan="4" style="text-align:center; vertical-align:middle">-</td>
+    <td rowspan="4" style="text-align:center; vertical-align:middle"
+        th:text="${convenioBancolombia}">Convenio 61003</td>
+    <td rowspan="4" style="text-align:center; vertical-align:middle"
+        th:text="${convenioBbva}">Convenio 4668</td>
+  </tr>
+  <tr>
+    <td class="lbl">Tipo</td>
+    <td th:text="${tipoPersona}">Aspirante</td>
+  </tr>
+  <tr>
+    <td class="lbl">Documento</td>
+    <td th:text="${documento}">1152370421</td>
+  </tr>
+  <tr>
+    <td class="lbl">Correo</td>
+    <td th:text="${correo}">adolfo.arenas@ufps.edu.co</td>
+  </tr>
+
+  <!-- INFORMACIÓN DEL PAGO -->
+  <tr>
+    <td colspan="5" class="hdr-dark">INFORMACIÓN DEL PAGO A REALIZAR</td>
+  </tr>
+
+  <!-- Sub-header Datos del pago | Panel logos+barcode -->
+  <tr>
+    <td colspan="2" class="hdr-gray" style="width:44%">Datos del pago</td>
+    <td colspan="3" class="panel-der" rowspan="7" style="width:56%; padding:0;">
+      <!-- PANEL DERECHO: logos + barcode -->
+      <div class="zona-logos">
+        <div class="titulo-bancos">PAGUE EN LOS BANCOS</div>
+        <div class="logos-row">
+          <div class="logo-cell">
+            <img th:src="'data:image/png;base64,' + ${logoBbogota}" alt="Banco de Bogotá"/>
+          </div>
+          <div class="logo-cell">
+            <img th:src="'data:image/png;base64,' + ${logoBancolombia}" alt="Bancolombia"/>
+          </div>
+        </div>
+        <div class="logo-sg">
+          <img th:src="'data:image/png;base64,' + ${logoSupergiros}" alt="SuperGiros"/>
+        </div>
+      </div>
+      <div class="zona-barcode">
+        <!--
+          El barcode se genera en el backend como imagen PNG en base64.
+          Usar ZXing: BarcodeFormat.CODE_128
+        -->
+        <img class="barcode"
+             th:src="'data:image/png;base64,' + ${barcodeBase64}"
+             alt="Código de barras"/>
+        <div class="barcode-txt" th:text="${barcodeDato}">(415)...</div>
+        <div class="pago-efectivo">PAGO SOLO EN EFECTIVO Y/O CHEQUE</div>
+      </div>
+    </td>
+  </tr>
+
+  <!-- Tipo de pago -->
+  <tr>
+    <td class="lbl">Tipo de pago</td>
+    <td th:text="${tipoPago}">Inscripción a Posgrados</td>
+  </tr>
+
+  <!-- Fecha límite -->
+  <tr>
+    <td class="lbl">Fecha límite</td>
+    <td th:text="${fechaLimite}">Domingo 31 de Mayo de 2026</td>
+  </tr>
+
+  <!-- Concepto / Valor header -->
+  <tr>
+    <td class="lbl" style="background:#f2f2f2; font-weight:bold;">Concepto</td>
+    <td style="background:#f2f2f2; font-weight:bold; text-align:right;">Valor</td>
+  </tr>
+
+  <!-- Concepto fila -->
+  <tr>
+    <td th:text="${concepto}">Derechos de inscripción posgrado</td>
+    <td style="text-align:right;" th:text="${valor}">50,000</td>
+  </tr>
+
+  <!-- Celda vacía -->
+  <tr>
+    <td colspan="2" class="celda-vacia"></td>
+  </tr>
+
+  <!-- Total -->
+  <tr>
+    <td style="background:#f2f2f2; font-weight:bold; font-size:9pt;">Total</td>
+    <td style="background:#f2f2f2; font-weight:bold; font-size:9pt; text-align:right;"
+        th:text="${total}">50,000</td>
+  </tr>
+
+</table>
+
+<!-- Pie estudiante -->
+<div class="pie">
+  <div class="pie-titulo">Desprendible para el Estudiante</div>
+  <div class="pie-nota">
+    Este recibo debe ser impreso únicamente en impresora láser. Su pago será reportado de 24 a 48 horas después de su cancelación.<br/>
+    Si el pago no es aplicado pasadas 48 horas, el aspirante deberá enviar un correo a <strong>gerencia.electronica@ufps.edu.co</strong><br/>
+    con el soporte de pago escaneado (recibo de pago con sello del banco o soporte de pago en línea),<br/>
+    código de aspirante, número de documento, número de recibo y nombres completos.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  LÍNEA DE CORTE                                            -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="corte">
+  <span class="corte-icon">✂</span>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  BLOQUE BANCO                                              -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<table class="bloque">
+
+  <tr>
+    <td colspan="5" class="hdr-dark"
+        th:text="'RECIBO DE PAGO INSCRIPCIÓN A POSGRADOS - ' + ${periodo}">
+      RECIBO DE PAGO INSCRIPCIÓN A POSGRADOS - 20261
+    </td>
+  </tr>
+  <tr>
+    <td colspan="5" class="hdr-gray" th:text="${programa}">
+      MAESTRÍA EN CIENCIAS COMPUTACIONALES
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="hdr-gray" style="width:44%">Datos de la persona</td>
+    <td colspan="3" class="hdr-gray" style="width:56%">Bancos</td>
+  </tr>
+  <tr>
+    <td colspan="2" style="background:#fff; border:0.4pt solid #000;"></td>
+    <td class="hdr-gray" style="width:18.6%">BOGOTÁ</td>
+    <td class="hdr-gray" style="width:18.6%">BANCOLOMBIA</td>
+    <td class="hdr-gray" style="width:18.6%">BBVA</td>
+  </tr>
+  <tr>
+    <td class="lbl">Nombre</td>
+    <td th:text="${nombre}">ARENAS RAMOS ADOLFO ALEJANDRO</td>
+    <td rowspan="4" style="text-align:center;vertical-align:middle">-</td>
+    <td rowspan="4" style="text-align:center;vertical-align:middle"
+        th:text="${convenioBancolombia}">Convenio 61003</td>
+    <td rowspan="4" style="text-align:center;vertical-align:middle"
+        th:text="${convenioBbva}">Convenio 4668</td>
+  </tr>
+  <tr><td class="lbl">Tipo</td><td th:text="${tipoPersona}">Aspirante</td></tr>
+  <tr><td class="lbl">Documento</td><td th:text="${documento}">1152370421</td></tr>
+  <tr><td class="lbl">Correo</td><td th:text="${correo}">adolfo.arenas@ufps.edu.co</td></tr>
+
+  <tr>
+    <td colspan="5" class="hdr-dark">INFORMACIÓN DEL PAGO A REALIZAR</td>
+  </tr>
+
+  <!-- Zona inferior banco: barcode izq | info der -->
+  <tr>
+    <td colspan="5" style="padding:0; border:none;">
+      <div class="zona-banco-inferior">
+        <!-- Barcode -->
+        <div class="banco-bc-cell">
+          <img class="barcode"
+               th:src="'data:image/png;base64,' + ${barcodeBase64}"
+               alt="Código de barras"/>
+          <div class="barcode-txt" th:text="${barcodeDato}">(415)...</div>
+          <div class="pago-efectivo">PAGO SOLO EN EFECTIVO Y/O CHEQUE</div>
+        </div>
+        <!-- Info + Valor -->
+        <div class="banco-info-cell">
+          <div class="banco-info-row">
+            <div class="banco-info-lbl">Tipo de pago:</div>
+            <div class="banco-info-val" th:text="${tipoPago}">Inscripción a Posgrados</div>
+          </div>
+          <div class="banco-info-row">
+            <div class="banco-info-lbl">Fecha límite</div>
+            <div class="banco-info-val" th:text="${fechaLimite}">31/05/2026</div>
+          </div>
+          <div class="banco-valor-row">
+            <div class="banco-valor-lbl">Valor a pagar</div>
+            <div class="banco-valor-num" th:text="${total}">50,000</div>
+          </div>
+        </div>
+      </div>
+    </td>
+  </tr>
+
+</table>
+
+<!-- Pie banco -->
+<div class="pie" style="margin-top:8pt;">
+  <div class="pie-titulo">Desprendible para el Banco</div>
+</div>
+
+</body>
+</html>
