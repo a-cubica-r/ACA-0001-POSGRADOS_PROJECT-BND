@@ -406,7 +406,13 @@ public class PagoProcessor {
         String referencia = construirReferencia(pago, aspirante);
 
         PagoreciboinscripcionDTO pagoreciboinscripcion = pagoreciboinscripcionService
-                .findCurrentByIdAspirante(idAspirante);
+            .findCurrentByIdAspirante(idAspirante);
+        if (pagoreciboinscripcion == null) {
+            pagoreciboinscripcion = pagoreciboinscripcionService.findAll().stream()
+                .filter(item -> item.getIdPago() != null && Objects.equals(item.getIdPago(), pago.id()))
+                .findFirst()
+                .orElse(null);
+        }
         if (pagoreciboinscripcion != null) {
             if (pagoreciboinscripcion.getValorpago() != null) {
                 monto = pagoreciboinscripcion.getValorpago();
@@ -432,6 +438,12 @@ public class PagoProcessor {
 
         BigDecimal montoTotal = calcularMontoMatriculaEnPesos(idAspirante);
         PagorecibomatriculaDTO recibo = pagorecibomatriculaService.findCurrentByIdAspirante(idAspirante);
+        if (recibo == null) {
+            recibo = pagorecibomatriculaService.findAll().stream()
+                .filter(item -> item.getIdPago() != null && Objects.equals(item.getIdPago(), pago.id()))
+                .findFirst()
+                .orElse(null);
+        }
         BigDecimal monto = recibo != null && recibo.getValorpago() != null ? recibo.getValorpago()
                 : validarMontoElegidoMatricula(montoElegido, montoTotal);
         String referencia = recibo != null && recibo.getReferenciapago() != null
@@ -457,7 +469,13 @@ public class PagoProcessor {
         validarPagoPerteneceAspirante(pago, idAspirante);
 
         PagoreciboinscripcionDTO pagoreciboinscripcion = pagoreciboinscripcionService
-                .findCurrentByIdAspirante(idAspirante);
+            .findCurrentByIdAspirante(idAspirante);
+        if (pagoreciboinscripcion == null) {
+            pagoreciboinscripcion = pagoreciboinscripcionService.findAll().stream()
+                .filter(item -> item.getIdPago() != null && Objects.equals(item.getIdPago(), pago.id()))
+                .findFirst()
+                .orElse(null);
+        }
         BigDecimal monto = calcularMontoInscripcionEnPesos();
         @SuppressWarnings("unused")
         String referencia = construirReferencia(pago, null);
@@ -472,6 +490,22 @@ public class PagoProcessor {
             }
         }
 
+        String urlrecibo = null;
+        String urlfactura = null;
+        String estadoName = null;
+        if (pagoreciboinscripcion != null) {
+            urlrecibo = pagoreciboinscripcion.getUrlrecibo();
+            urlfactura = pagoreciboinscripcion.getUrlfactura();
+            if (pagoreciboinscripcion.getEstado() != null) {
+                estadoName = pagoreciboinscripcion.getEstado().getTipo();
+            } else if (pagoreciboinscripcion.getIdEstado() != null) {
+                EstadoDTO est = estadoService.findById(pagoreciboinscripcion.getIdEstado());
+                if (est != null) {
+                    estadoName = est.getTipo();
+                }
+            }
+        }
+
         return new PagoCheckoutPreviewDTO(
                 data.programa(),
                 data.periodo(),
@@ -479,7 +513,10 @@ public class PagoProcessor {
                 formatearDocumento(data.numerodocumento()),
                 data.facultad(),
                 data.tipo(),
-                monto);
+                monto,
+                urlrecibo,
+                urlfactura,
+                estadoName);
     }
 
     @Transactional(readOnly = true)
@@ -500,6 +537,22 @@ public class PagoProcessor {
         BigDecimal monto = recibo != null && recibo.getValorpago() != null ? recibo.getValorpago()
                 : validarMontoElegidoMatricula(montoElegido, montoTotal);
 
+        String urlrecibo = null;
+        String urlfactura = null;
+        String estadoName = null;
+        if (recibo != null) {
+            urlrecibo = recibo.getUrlrecibo();
+            urlfactura = recibo.getUrlfactura();
+            if (recibo.getEstado() != null) {
+                estadoName = recibo.getEstado().getTipo();
+            } else if (recibo.getIdEstado() != null) {
+                EstadoDTO est = estadoService.findById(recibo.getIdEstado());
+                if (est != null) {
+                    estadoName = est.getTipo();
+                }
+            }
+        }
+
         return new PagoCheckoutPreviewDTO(
                 data.programa(),
                 data.periodo(),
@@ -507,7 +560,10 @@ public class PagoProcessor {
                 formatearDocumento(data.numerodocumento()),
                 data.facultad(),
                 data.tipo(),
-                monto);
+                monto,
+                urlrecibo,
+                urlfactura,
+                estadoName);
     }
 
     public PagoOutput confirmarWebhook(WompiWebhookRequest request) {

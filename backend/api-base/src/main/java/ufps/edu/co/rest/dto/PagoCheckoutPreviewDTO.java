@@ -10,5 +10,8 @@ public record PagoCheckoutPreviewDTO(
         String documento,
         String facultad,
         String tipo,
-        BigDecimal valor) implements Serializable {
+        BigDecimal valor,
+        String urlrecibo,
+        String urlfactura,
+        String estado) implements Serializable {
 }
