@@ -39,13 +39,13 @@ public class DocumentopersonaEntity implements Serializable {
 
     //--- OTHER DATA FIELDS 
     @Column(name="numerodocumento", nullable=false)
-    private int        numerodocumento ;
+    private Integer        numerodocumento ;
 
     @Column(name="id_tipodocumento", nullable=false)
-    private int        idTipodocumento ;
+    private Integer        idTipodocumento ;
 
     @Column(name="id_lugarexpedicion", nullable=false)
-    private int        idLugarexpedicion ;
+    private Integer        idLugarexpedicion ;
 
     //--- LINKS ( RELATIONSHIPS )
     @ManyToOne

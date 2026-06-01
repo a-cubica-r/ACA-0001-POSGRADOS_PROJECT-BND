@@ -38,13 +38,13 @@ public class PagoEntity implements Serializable {
 
     //--- OTHER DATA FIELDS 
     @Column(name="id_aspirante", nullable=false)
-    private int        idAspirante ;
+    private Integer        idAspirante ;
 
     @Column(name="id_estado", nullable=false)
-    private int        idEstado ;
+    private Integer        idEstado ;
 
     @Column(name="id_pagoconcepto", nullable=false)
-    private int        idPagoconcepto ;
+    private Integer        idPagoconcepto ;
 
     //--- LINKS ( RELATIONSHIPS )
     @ManyToOne

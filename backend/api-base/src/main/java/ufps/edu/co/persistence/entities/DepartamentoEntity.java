@@ -39,7 +39,7 @@ public class DepartamentoEntity implements Serializable {
 
     //--- OTHER DATA FIELDS 
     @Column(name="id_pais", nullable=false)
-    private int        idPais ;
+    private Integer        idPais ;
 
     @Column(name="nombre", nullable=false, length=100)
     private String     nombre ;

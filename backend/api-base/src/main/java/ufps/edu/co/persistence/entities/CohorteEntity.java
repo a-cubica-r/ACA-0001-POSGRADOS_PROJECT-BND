@@ -42,28 +42,28 @@ public class CohorteEntity implements Serializable {
     private String     nombre ;
 
     @Column(name="cupos", nullable=false)
-    private int        cupos ;
+    private Integer        cupos ;
 
     @Column(name="id_estado", nullable=false)
-    private int        idEstado ;
+    private Integer        idEstado ;
 
     @Column(name="id_semestre", nullable=false)
-    private int        idSemestre ;
+    private Integer        idSemestre ;
 
     @Column(name="id_modalidad", nullable=false)
-    private int        idModalidad ;
+    private Integer        idModalidad ;
 
     @Column(name="id_plazodocumentacion", nullable=false)
-    private int        idPlazodocumentacion ;
+    private Integer        idPlazodocumentacion ;
 
     @Column(name="id_plazoinscripcion", nullable=false)
-    private int        idPlazoinscripcion ;
+    private Integer        idPlazoinscripcion ;
 
     @Column(name="id_plazopago", nullable=false)
-    private int        idPlazopago ;
+    private Integer        idPlazopago ;
 
     @Column(name="id_programa", nullable=false)
-    private int        idPrograma ;
+    private Integer        idPrograma ;
 
     //--- LINKS ( RELATIONSHIPS )
     @OneToMany(mappedBy="cohorte")

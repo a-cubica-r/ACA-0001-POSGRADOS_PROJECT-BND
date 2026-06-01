@@ -39,7 +39,7 @@ public class MunicipioEntity implements Serializable {
 
     //--- OTHER DATA FIELDS 
     @Column(name="id_departamento", nullable=false)
-    private int        idDepartamento ;
+    private Integer        idDepartamento ;
 
     @Column(name="nombre", nullable=false, length=100)
     private String     nombre ;

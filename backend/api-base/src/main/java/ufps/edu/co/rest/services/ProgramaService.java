@@ -64,9 +64,9 @@ public class ProgramaService extends GenericService<ProgramaEntity, ProgramaDTO>
                 .build() : null;
         OtrosvaloresDTO otrosDto = e.getOtrosvalores() != null ? OtrosvaloresDTO.builder()
                 .id(e.getOtrosvalores().getId())
-                .carnet(e.getOtrosvalores().isCarnet())
-                .estampilla(e.getOtrosvalores().isEstampilla())
-                .seguro(e.getOtrosvalores().isSeguro())
+                .carnet(e.getOtrosvalores().getCarnet())
+                .estampilla(e.getOtrosvalores().getEstampilla())
+                .seguro(e.getOtrosvalores().getSeguro())
                 .build() : null;
         TiporegistroDTO tiporegistroDto = e.getTiporegistro() != null ? TiporegistroDTO.builder()
                 .id(e.getTiporegistro().getId())

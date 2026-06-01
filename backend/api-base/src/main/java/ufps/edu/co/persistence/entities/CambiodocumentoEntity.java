@@ -45,10 +45,10 @@ public class CambiodocumentoEntity implements Serializable {
     private String     motivo ;
 
     @Column(name="id_documentoactual", nullable=false)
-    private int        idDocumentoactual ;
+    private Integer        idDocumentoactual ;
 
     @Column(name="id_documentoanterior", nullable=false)
-    private int        idDocumentoanterior ;
+    private Integer        idDocumentoanterior ;
 
     //--- LINKS ( RELATIONSHIPS )
     @ManyToOne

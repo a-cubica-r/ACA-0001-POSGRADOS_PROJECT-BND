@@ -46,13 +46,13 @@ public class AdministrativoEntity implements Serializable {
     private LocalDate  fechasalida ;
 
     @Column(name="id_cargo", nullable=false)
-    private int        idCargo ;
+    private Integer        idCargo ;
 
     @Column(name="id_estado", nullable=false)
-    private int        idEstado ;
+    private Integer        idEstado ;
 
     @Column(name="id_persona", nullable=false)
-    private int        idPersona ;
+    private Integer        idPersona ;
 
     //--- LINKS ( RELATIONSHIPS )
     @ManyToOne

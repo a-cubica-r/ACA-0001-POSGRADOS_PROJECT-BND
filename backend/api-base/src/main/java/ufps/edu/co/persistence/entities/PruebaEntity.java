@@ -55,19 +55,19 @@ public class PruebaEntity implements Serializable {
     private String     motivocambio ;
 
     @Column(name="id_aspirante", nullable=false)
-    private int        idAspirante ;
+    private Integer        idAspirante ;
 
     @Column(name="id_cohorte", nullable=false)
-    private int        idCohorte ;
+    private Integer        idCohorte ;
 
     @Column(name="id_estado", nullable=false)
-    private int        idEstado ;
+    private Integer        idEstado ;
 
     @Column(name="id_ubicacion", nullable=false)
-    private int        idUbicacion ;
+    private Integer        idUbicacion ;
 
     @Column(name="id_tipoprueba", nullable=false)
-    private int        idTipoprueba ;
+    private Integer        idTipoprueba ;
 
     //--- LINKS ( RELATIONSHIPS )
     @ManyToOne

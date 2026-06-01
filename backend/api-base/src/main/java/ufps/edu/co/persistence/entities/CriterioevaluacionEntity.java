@@ -52,7 +52,7 @@ public class CriterioevaluacionEntity implements Serializable {
     private Boolean    activo ;
 
     @Column(name="id_programa", nullable=false)
-    private int        idPrograma ;
+    private Integer        idPrograma ;
 
     //--- LINKS ( RELATIONSHIPS )
     @OneToMany(mappedBy="criterioevaluacion")

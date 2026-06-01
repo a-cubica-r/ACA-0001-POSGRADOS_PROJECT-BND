@@ -175,7 +175,7 @@ public abstract class UniversalMapper<O extends OutputResponse, DTO> {
         }
     }
 
-    private boolean isCompatible(Class<?> parameterType, Class<?> valueType) {
+    private Boolean isCompatible(Class<?> parameterType, Class<?> valueType) {
         if (parameterType.isPrimitive()) {
             parameterType = primitiveToWrapper(parameterType);
         }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "wompi")
 public class WompiProperties {
 
-    private boolean simulated = true;
+    private Boolean simulated = true;
     private String apiBaseUrl = "https://sandbox.wompi.co/v1";
     private String checkoutBaseUrl = "https://checkout.wompi.co/p";
     private String widgetScriptUrl = "https://checkout.wompi.co/widget.js";

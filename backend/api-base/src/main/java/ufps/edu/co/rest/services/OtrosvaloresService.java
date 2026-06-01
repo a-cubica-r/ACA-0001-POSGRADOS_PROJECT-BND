@@ -33,9 +33,9 @@ public class OtrosvaloresService extends GenericService<OtrosvaloresEntity, Otro
     protected OtrosvaloresDTO entityToDto(OtrosvaloresEntity e) {
         return OtrosvaloresDTO.builder()
                 .id(e.getId())
-                .carnet(e.isCarnet())
-                .estampilla(e.isEstampilla())
-                .seguro(e.isSeguro())
+                .carnet(e.getCarnet())
+                .estampilla(e.getEstampilla())
+                .seguro(e.getSeguro())
                 .build();
     }
 
@@ -50,7 +50,7 @@ public class OtrosvaloresService extends GenericService<OtrosvaloresEntity, Otro
     }
 
     @Transactional(readOnly = true)
-    public OtrosvaloresDTO findByValores(boolean carnet, boolean estampilla, boolean seguro) {
+    public OtrosvaloresDTO findByValores(Boolean carnet, Boolean estampilla, Boolean seguro) {
         return repository.findFirstByCarnetAndEstampillaAndSeguro(carnet, estampilla, seguro)
                 .map(this::entityToDto)
                 .orElse(null);

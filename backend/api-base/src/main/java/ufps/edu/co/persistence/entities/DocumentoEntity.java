@@ -55,10 +55,10 @@ public class DocumentoEntity implements Serializable {
     private Integer    idAdministrativo ;
 
     @Column(name="id_aspirante", nullable=false)
-    private int        idAspirante ;
+    private Integer        idAspirante ;
 
     @Column(name="id_estadodocumento", nullable=false)
-    private int        idEstadodocumento ;
+    private Integer        idEstadodocumento ;
 
     @Column(name="id_plazo", nullable=true)
     private Integer    idPlazo ;

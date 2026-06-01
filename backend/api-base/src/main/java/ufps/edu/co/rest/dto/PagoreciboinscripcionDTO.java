@@ -36,8 +36,8 @@ public class PagoreciboinscripcionDTO implements Serializable {
     private String urlfactura ;
     private String referenciapago ;
     private BigDecimal valorpago ;
-    private int idEstado ;
-    private int idPago ;
+    private Integer idEstado ;
+    private Integer idPago ;
     //--- LINKS ( RELATIONSHIPS )
     private PagoDTO pago ; 
     private EstadoDTO estado ; 

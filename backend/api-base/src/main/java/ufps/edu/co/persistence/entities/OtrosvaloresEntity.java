@@ -39,13 +39,13 @@ public class OtrosvaloresEntity implements Serializable {
 
     //--- OTHER DATA FIELDS 
     @Column(name="carnet", nullable=false)
-    private boolean    carnet ;
+    private Boolean    carnet ;
 
     @Column(name="estampilla", nullable=false)
-    private boolean    estampilla ;
+    private Boolean    estampilla ;
 
     @Column(name="seguro", nullable=false)
-    private boolean    seguro ;
+    private Boolean    seguro ;
 
     //--- LINKS ( RELATIONSHIPS )
     @OneToMany(mappedBy="otrosvalores")

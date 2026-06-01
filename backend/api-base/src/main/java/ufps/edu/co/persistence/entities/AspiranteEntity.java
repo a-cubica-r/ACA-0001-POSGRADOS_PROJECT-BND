@@ -43,16 +43,16 @@ public class AspiranteEntity implements Serializable {
     private BigDecimal puntuacion ;
 
     @Column(name="id_cohorte", nullable=false)
-    private int        idCohorte ;
+    private Integer        idCohorte ;
 
     @Column(name="id_estado", nullable=false)
-    private int        idEstado ;
+    private Integer        idEstado ;
 
     @Column(name="id_persona", nullable=false)
-    private int        idPersona ;
+    private Integer        idPersona ;
 
     @Column(name="id_tipovinculacion", nullable=false)
-    private int        idTipovinculacion ;
+    private Integer        idTipovinculacion ;
 
     //--- LINKS ( RELATIONSHIPS )
     @OneToMany(mappedBy="aspirante")

@@ -346,13 +346,13 @@ public class PagoProcessor {
     }
 
     private PagoOutput procesarWebhook(WompiWebhookRequest request, boolean actualizarEstado) {
-        if (request == null || request.paymentId() == null) {
+        if (request == null) {
             throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, null);
         }
 
-        PagoDTO pago = pagoService.findById(request.paymentId());
+        PagoDTO pago = resolvePagoDesdeWebhook(request);
         if (pago == null) {
-            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, request.paymentId());
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, request.reference());
         }
 
         if (request.reference() != null && request.reference().startsWith("PAGO-")) {
@@ -360,7 +360,8 @@ public class PagoProcessor {
             if (parts.length >= 4) {
                 Integer idPagoReferencia = tryParseInt(parts[1]);
                 if (idPagoReferencia != null && !Objects.equals(idPagoReferencia, pago.getId())) {
-                    throw new DomainException(PagoErrorCode.PAGO_CONCEPTO_INVALIDO, request.reference());
+                    log.warn("Referencia Wompi {} apunta a pago {} pero el recibo resuelto usa pago {}",
+                            request.reference(), idPagoReferencia, pago.getId());
                 }
             }
         }
@@ -391,6 +392,63 @@ public class PagoProcessor {
         // TODO: disparar notificación por correo al aspirante cuando el pago de
         // inscripción quede realizado.
         return pagoMap.toOutput(updated);
+    }
+
+    private PagoDTO resolvePagoDesdeWebhook(WompiWebhookRequest request) {
+        PagoDTO pagoDesdeRecibo = resolvePagoDesdeReciboPorReferencia(request.reference());
+        if (pagoDesdeRecibo != null) {
+            return pagoDesdeRecibo;
+        }
+
+        Integer paymentId = request.paymentId();
+        if (paymentId == null) {
+            paymentId = tryParsePaymentIdFromReference(request.reference());
+        }
+        if (paymentId == null) {
+            return null;
+        }
+
+        return pagoService.findById(paymentId);
+    }
+
+    private PagoDTO resolvePagoDesdeReciboPorReferencia(String reference) {
+        if (reference == null || reference.isBlank()) {
+            return null;
+        }
+
+        PagoreciboinscripcionDTO reciboInscripcion = pagoreciboinscripcionService.findAll().stream()
+                .filter(item -> reference.equalsIgnoreCase(item.getReferenciapago()))
+                .findFirst()
+                .orElse(null);
+        if (reciboInscripcion != null && reciboInscripcion.getIdPago() != null) {
+            PagoDTO pago = pagoService.findById(reciboInscripcion.getIdPago());
+            if (pago != null) {
+                return pago;
+            }
+        }
+
+        PagorecibomatriculaDTO reciboMatricula = pagorecibomatriculaService.findAll().stream()
+                .filter(item -> reference.equalsIgnoreCase(item.getReferenciapago()))
+                .findFirst()
+                .orElse(null);
+        if (reciboMatricula != null && reciboMatricula.getIdPago() != null) {
+            return pagoService.findById(reciboMatricula.getIdPago());
+        }
+
+        return null;
+    }
+
+    private Integer tryParsePaymentIdFromReference(String reference) {
+        if (reference == null || !reference.startsWith("PAGO-")) {
+            return null;
+        }
+
+        String[] parts = reference.split("-");
+        if (parts.length < 2) {
+            return null;
+        }
+
+        return tryParseInt(parts[1]);
     }
 
     private void actualizarEstadosPagoYRecibo(PagoDTO pago, EstadoDTO estadoRealizado) {
@@ -809,7 +867,7 @@ public class PagoProcessor {
         return String.format(Locale.ROOT, "%d", numerodocumento);
     }
 
-    private boolean esEstadoAprobado(String status) {
+    private Boolean esEstadoAprobado(String status) {
         String normalized = status.trim().toUpperCase(Locale.ROOT);
         return normalized.equals("APPROVED") || normalized.equals("APPROVAL") || normalized.equals("APPROVAL_SUCCESS")
                 || normalized.equals("SUCCESS") || normalized.equals("PAID") || normalized.equals("PAYED");

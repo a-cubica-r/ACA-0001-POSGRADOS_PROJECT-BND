@@ -1190,7 +1190,7 @@ public class AspiranteProcessor implements
         return findCriteriosCalificacion(new ASPIRANTE_FIND(idAspirante));
     }
 
-    private boolean sameConsejoDocuments(List<DOCUMENTO_ASIGNADO_CREATE> incoming,
+    private Boolean sameConsejoDocuments(List<DOCUMENTO_ASIGNADO_CREATE> incoming,
             List<DocumentosrequisitoconsejocohorteDTO> existing) {
         Set<Integer> incomingIds = incoming.stream()
             .map(documento -> documento != null ? documento.idDocrequisito() : null)
@@ -1205,7 +1205,7 @@ public class AspiranteProcessor implements
         return incomingIds.equals(existingIds);
     }
 
-    private boolean sameProgramaDocuments(List<DOCUMENTO_ASIGNADO_CREATE> incoming,
+    private Boolean sameProgramaDocuments(List<DOCUMENTO_ASIGNADO_CREATE> incoming,
             List<DocumentosrequisitoprogramacohorteDTO> existing) {
         Set<Integer> incomingIds = incoming.stream()
             .map(documento -> documento != null ? documento.idDocrequisito() : null)
@@ -1220,7 +1220,7 @@ public class AspiranteProcessor implements
         return incomingIds.equals(existingIds);
     }
 
-    private boolean sameCriterios(List<CRITERIOCOHORTE_DIRECTOR_UPDATE> incoming,
+    private Boolean sameCriterios(List<CRITERIOCOHORTE_DIRECTOR_UPDATE> incoming,
             List<CriteriocohorteDTO> existing) {
         Set<String> incomingSignatures = incoming.stream()
             .map(criterio -> criterio != null ? criterioSignature(criterio.idCriterio(), criterio.pesoSnapshot()) : null)

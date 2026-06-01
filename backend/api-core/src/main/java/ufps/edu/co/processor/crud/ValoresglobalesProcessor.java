@@ -84,7 +84,7 @@ public class ValoresglobalesProcessor {
         return valoresglobalesService.findAll();
     }
 
-    private int extractVersion(String clave, String prefix, int year) {
+    private Integer extractVersion(String clave, String prefix, int year) {
         Matcher matcher = GLOBAL_KEY_PATTERN.matcher(clave);
         if (!matcher.matches()) {
             return 0;
@@ -98,7 +98,7 @@ public class ValoresglobalesProcessor {
         return Integer.parseInt(matcher.group("version"));
     }
 
-    private boolean matchesCurrentFamily(String clave, String prefix, int year) {
+    private Boolean matchesCurrentFamily(String clave, String prefix, int year) {
         for (String candidatePrefix : resolvePrefixAliases(prefix)) {
             if (clave.startsWith(candidatePrefix + "_" + year + "_")) {
                 return true;
@@ -107,7 +107,7 @@ public class ValoresglobalesProcessor {
         return false;
     }
 
-    private boolean matchesFamily(String clave, String prefix) {
+    private Boolean matchesFamily(String clave, String prefix) {
         for (String candidatePrefix : resolvePrefixAliases(prefix)) {
             if (clave.startsWith(candidatePrefix + "_")) {
                 return true;
@@ -211,7 +211,7 @@ public class ValoresglobalesProcessor {
         return trimmedValue;
     }
 
-    private int extractVersionForAliases(String clave, String requestedPrefix, int year) {
+    private Integer extractVersionForAliases(String clave, String requestedPrefix, int year) {
         for (String candidatePrefix : resolvePrefixAliases(requestedPrefix)) {
             int version = extractVersion(clave, candidatePrefix, year);
             if (version > 0) {

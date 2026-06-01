@@ -39,7 +39,7 @@ public class SedeEntity implements Serializable {
 
     //--- OTHER DATA FIELDS 
     @Column(name="id_ubicacion", nullable=false)
-    private int        idUbicacion ;
+    private Integer        idUbicacion ;
 
     @Column(name="nombre", nullable=false, length=100)
     private String     nombre ;

@@ -46,16 +46,16 @@ public class EntrevistaEntity implements Serializable {
     private String     motivocambio ;
 
     @Column(name="id_aspirante", nullable=false)
-    private int        idAspirante ;
+    private Integer        idAspirante ;
 
     @Column(name="id_estado", nullable=false)
-    private int        idEstado ;
+    private Integer        idEstado ;
 
     @Column(name="id_tipoentrevista", nullable=false)
-    private int        idTipoentrevista ;
+    private Integer        idTipoentrevista ;
 
     @Column(name="id_ubicacion", nullable=false)
-    private int        idUbicacion ;
+    private Integer        idUbicacion ;
 
     @Column(name="tiempo", nullable=false)
     private LocalTime  tiempo ;

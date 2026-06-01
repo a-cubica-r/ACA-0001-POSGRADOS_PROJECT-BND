@@ -46,7 +46,7 @@ public class SemestreEntity implements Serializable {
     private LocalDate  fechaInicio ;
 
     @Column(name="id_estado", nullable=false)
-    private int        idEstado ;
+    private Integer        idEstado ;
 
     @Column(name="nombre", nullable=false, length=100)
     private String     nombre ;

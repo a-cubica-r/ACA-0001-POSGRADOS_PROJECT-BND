@@ -55,10 +55,10 @@ public class PagoreciboinscripcionEntity implements Serializable {
     private BigDecimal valorpago ;
 
     @Column(name="id_estado", nullable=false)
-    private int        idEstado ;
+    private Integer        idEstado ;
 
     @Column(name="id_pago", nullable=false)
-    private int        idPago ;
+    private Integer        idPago ;
 
     //--- LINKS ( RELATIONSHIPS )
     @ManyToOne

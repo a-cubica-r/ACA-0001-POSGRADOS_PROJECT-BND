@@ -38,13 +38,13 @@ public class UsuarioEntity implements Serializable {
 
     //--- OTHER DATA FIELDS 
     @Column(name="id_clave", nullable=false)
-    private int        idClave ;
+    private Integer        idClave ;
 
     @Column(name="id_persona", nullable=false)
-    private int        idPersona ;
+    private Integer        idPersona ;
 
     @Column(name="id_rol", nullable=false)
-    private int        idRol ;
+    private Integer        idRol ;
 
     @Column(name="nombreusuario", nullable=false, length=50)
     private String     nombreusuario ;
