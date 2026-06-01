@@ -160,9 +160,14 @@ public class CalificacioncriterioProcessor implements
         AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
         String nombreCriterio = criteriocohorte.getCriterioevaluacion() != null
                 ? criteriocohorte.getCriterioevaluacion().getNombre() : "Criterio";
-        sesService.enviarCorreo(aspirante.getPersona().getCorreo(), EmailTemplates.ASUNTO_CALIFICACION_CRITERIO,
-                EmailTemplates.cuerpoCalificacionCriterio(aspirante.getPersona().getNombres(), nombreCriterio,
-                        result.puntuacion(), aspirante.getPuntuacion()));
+        try {
+            sesService.enviarCorreo(aspirante.getPersona().getCorreo(), EmailTemplates.ASUNTO_CALIFICACION_CRITERIO,
+                    EmailTemplates.cuerpoCalificacionCriterio(aspirante.getPersona().getNombres(), nombreCriterio,
+                            result.puntuacion(), aspirante.getPuntuacion()));
+        } catch (Exception ex) {
+            logger.error("[CALIFICACION_EMAIL] Fallo al enviar correo de calificación a '{}': {}",
+                    aspirante.getPersona().getCorreo(), ex.getMessage(), ex);
+        }
         return CalificacionCriterioSimpleOutput.builder()
                 .idAspirante(result.idAspirante())
                 .idCriterio(result.idCriteriocohorte())

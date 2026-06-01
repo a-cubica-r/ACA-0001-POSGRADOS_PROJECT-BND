@@ -30,6 +30,7 @@ import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.rest.services.ListaadmitidosService;
 import ufps.edu.co.records.output.entity.*;
 import ufps.edu.co.services.*;
+import ufps.edu.co.utils.EmailTemplates;
 
 @Service
 public class ListaadmitidosProcessor {
@@ -56,8 +57,6 @@ public class ListaadmitidosProcessor {
 
     @Autowired
     private PdfGeneratorService pdfGeneratorService;
-
-    private String correo = "jljb1704@gmail.com";
 
     public ListaAdmitidosResumenOutput generateAdmittedList(Integer idCohorte) {
         CohorteDTO cohorte = cohorteService.findById(idCohorte);
@@ -120,7 +119,13 @@ public class ListaadmitidosProcessor {
                     if (listaadmitidosService.existsByIdCohorteAndIdAspirante(input.idCohorte(), a.getId())) {
                         throw new DuplicateAdmisionException(a.getId(), input.idCohorte());
                     }
-                    this.notifyAspirant(this.correo, a.getPersona().getNombres(), "¡Felicidades! Has sido admitido en el proceso de admisión de posgrados de la UFPS. Por favor, revisa tu correo para más detalles sobre los siguientes pasos.");
+                    this.notifyAspirant(
+                            a.getPersona().getCorreo(),
+                            EmailTemplates.ASUNTO_ADMITIDO,
+                            EmailTemplates.cuerpoAdmitido(
+                                    a.getPersona().getNombres(),
+                                    a.getPersona().getApellidos(),
+                                    cohorte.getNombre()));
                     AdmitidoDTO saved = listaadmitidosService.create(dto);
                     saved.setAspirante(a);
                     return map.toOutput(saved);
@@ -149,11 +154,12 @@ public class ListaadmitidosProcessor {
         return outputs;
     }
 
-    private void notifyAspirant(String email, String name, String message) {
-        sesService.enviarCorreo(
-                email,
-                "Notificación sobre tu Proceso de Admisión - Posgrados UFPS",
-                "<p>Hola <strong>" + name + "</strong>,</p><p>" + message + "</p>");
+    private void notifyAspirant(String email, String asunto, String cuerpoHtml) {
+        try {
+            sesService.enviarCorreo(email, asunto, cuerpoHtml);
+        } catch (Exception ex) {
+            logger.error("[ADMISION_EMAIL] Fallo al enviar correo de admisión a '{}': {}", email, ex.getMessage(), ex);
+        }
     }
 
     public List<ListaadmitidosOutput> rechazarAspirante(RECHAZAR_ASPIRANTE input) {
@@ -167,7 +173,13 @@ public class ListaadmitidosProcessor {
                 dto.setIdCohorte(input.idCohorte());
                 dto.setIdAspirante(a.getId());
                 dto.setFechageneracion(today);
-                this.notifyAspirant(this.correo, a.getPersona().getNombres(), "¡Lo sentimos! Has sido rechazado en el proceso de admisión de posgrados de la UFPS. Te animamos a revisar los requisitos y volver a aplicar en el futuro. ¡Gracias por tu interés!");
+                this.notifyAspirant(
+                        a.getPersona().getCorreo(),
+                        EmailTemplates.ASUNTO_RECHAZADO,
+                        EmailTemplates.cuerpoRechazado(
+                                a.getPersona().getNombres(),
+                                a.getPersona().getApellidos(),
+                                cohorte.getNombre()));
                 listaadmitidosService.create(dto);
             }
         }

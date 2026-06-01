@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,8 @@ import ufps.edu.co.utils.EmailTemplates;
 @RestController
 @RequestMapping(value = "/inscripciones", produces = MediaType.APPLICATION_JSON_VALUE)
 public class InscripcionCase {
+
+        private static final Logger log = LoggerFactory.getLogger(InscripcionCase.class);
 
         @Autowired
         private CohorteService cohorteService;
@@ -287,10 +291,8 @@ public class InscripcionCase {
                                         EmailTemplates.cuerpoInscripcion(persona.getNombres(), persona.getApellidos(),
                                                         cohorte.getNombre(), programa.nombre()));
                 } catch (SesEmailException ex) {
-                        // TODO [INSCRIPCION_EMAIL_VALIDACION]: Reactivar bloqueo cuando SES tenga
-                        // remitente/destinatarios verificados en producción.
-                        // throw new DomainException(AspiranteErrorCode.INSCRIPCION_CORREO_NO_ENVIADO_CONFLICT,
-                        //                 persona.getCorreo());
+                        log.error("[INSCRIPCION_EMAIL] Fallo al enviar correo de confirmación a '{}': {}",
+                                persona.getCorreo(), ex.getMessage(), ex);
                 }
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(new FormularioInscripcionOutput(persona.getId(), aspirante.getId()));

@@ -29,6 +29,10 @@ public class EmailTemplates {
 
   public static final String ASUNTO_CALIFICACION_CRITERIO = "Calificación de criterio registrada - Posgrados UFPS";
 
+  public static final String ASUNTO_ADMITIDO = "¡Felicitaciones! Has sido admitido - Posgrados UFPS";
+
+  public static final String ASUNTO_RECHAZADO = "Resultado del proceso de admisión - Posgrados UFPS";
+
   // ─── Cuerpos HTML ────────────────────────────────────────────────────────────
 
   /**
@@ -376,5 +380,52 @@ public class EmailTemplates {
         </body>
         </html>
         """.formatted(nombreAspirante, nombreCriterio, puntajeObtenido, puntajeTotal);
+  }
+
+  public static String cuerpoAdmitido(
+      String nombres,
+      String apellidos,
+      String nombreCohorte) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1a7a4a;">¡Felicitaciones, has sido admitido!</h2>
+          <p>Estimado/a <strong>%s %s</strong>,</p>
+          <p>Nos complace informarle que ha sido <strong style="color: #1a7a4a;">admitido/a</strong>
+             en el proceso de admisión de posgrados de la UFPS para la cohorte
+             <strong>%s</strong>.</p>
+          <p>En los próximos días recibirá las instrucciones sobre los pasos a seguir para
+             formalizar su matrícula.</p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(nombres, apellidos, nombreCohorte);
+  }
+
+  public static String cuerpoRechazado(
+      String nombres,
+      String apellidos,
+      String nombreCohorte) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #a93226;">Resultado del proceso de admisión</h2>
+          <p>Estimado/a <strong>%s %s</strong>,</p>
+          <p>Lamentamos informarle que no ha sido seleccionado/a en el proceso de admisión
+             de posgrados de la UFPS para la cohorte <strong>%s</strong>.</p>
+          <p>Le animamos a revisar los requisitos y a considerar aplicar en futuras convocatorias.
+             Agradecemos su interés en nuestra institución.</p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(nombres, apellidos, nombreCohorte);
   }
 }

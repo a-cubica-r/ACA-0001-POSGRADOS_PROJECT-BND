@@ -3,6 +3,8 @@ package ufps.edu.co.controllers.cases.login;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,8 @@ import ufps.edu.co.services.SESService;
 @CrossOrigin(origins = "*")
 @RequestMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RecoveryPasswordRestCase {
+
+	private static final Logger log = LoggerFactory.getLogger(RecoveryPasswordRestCase.class);
 
 	@Autowired
 	private PersonaService personaService;
@@ -69,7 +73,12 @@ public class RecoveryPasswordRestCase {
 				+ "<p><strong>" + clave.getValor() + "</strong></p>"
 				+ "<p>Si no hiciste esta solicitud, ignora este correo.</p>";
 
-		sesService.enviarCorreo(email, "Pediste recuperar tu contrasena", htmlBody);
+		try {
+			sesService.enviarCorreo(email, "Pediste recuperar tu contrasena", htmlBody);
+		} catch (Exception ex) {
+			log.error("[RECOVERY_EMAIL] Fallo al enviar correo de recuperación a '{}': {}", email, ex.getMessage(), ex);
+			return ResponseEntity.internalServerError().body("No se pudo enviar el correo de recuperación");
+		}
 		return ResponseEntity.ok("Correo enviado");
 	}
 
