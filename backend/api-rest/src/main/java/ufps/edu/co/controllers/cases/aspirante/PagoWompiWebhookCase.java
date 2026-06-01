@@ -32,7 +32,7 @@ public class PagoWompiWebhookCase {
     public ResponseEntity<PagoOutput> recibirWebhook(@RequestBody String request) {
         try {
             WompiWebhookRequest wompi = WompiWebhookRequest.from(objectMapper.readTree(request));
-            PagoOutput output = pagoProcessor.confirmarWebhook(wompi);
+            PagoOutput output = pagoProcessor.confirmarWebhookAutomatico(wompi);
             return ResponseEntity.ok(output);
         } catch (Exception e) {
             log.error("Error procesando webhook Wompi: {}", e.getMessage(), e);
