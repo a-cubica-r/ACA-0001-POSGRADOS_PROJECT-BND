@@ -4,7 +4,10 @@
  */
 package ufps.edu.co.rest.services;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +31,9 @@ public class AdministrativoService extends GenericService<AdministrativoEntity, 
 
     @Autowired
     private AdministrativoRepository repository;
+
+    @Autowired
+    private EstadoService estadoService;
 
     public AdministrativoService() {
         super(AdministrativoEntity.class, AdministrativoDTO.class);
@@ -152,6 +158,46 @@ public class AdministrativoService extends GenericService<AdministrativoEntity, 
         repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Administrativo no encontrado con id: " + id));
         repository.deleteById(id);
+    }
+
+    public AdministrativoDTO createDirectorPrograma(Integer idPersona, Integer idCargo) {
+        EstadoDTO estadoActivo = requireEstado("ACTIVO", "administrativo");
+        EstadoDTO estadoInactivo = requireEstado("INACTIVO", "administrativo");
+        LocalDate fechaActual = LocalDate.now();
+
+        deactivateExistingAdministrativos(idPersona, idCargo, estadoInactivo.getId(), fechaActual);
+
+        AdministrativoDTO nuevo = AdministrativoDTO.builder()
+                .fechainicio(fechaActual)
+                .fechasalida(null)
+                .idCargo(idCargo)
+                .idEstado(estadoActivo.getId())
+                .idPersona(idPersona)
+                .build();
+
+        return create(nuevo);
+    }
+
+    private void deactivateExistingAdministrativos(Integer idPersona, Integer idCargo, Integer idEstadoInactivo,
+            LocalDate fechaActual) {
+        List<AdministrativoEntity> administratives = repository.findAllByIdCargo(idCargo);
+        administratives.addAll(repository.findAllByIdPersona(idPersona));
+
+        administratives.stream()
+                .filter(administrativo -> administrativo != null && administrativo.getId() != null)
+                .map(AdministrativoEntity::getId)
+                .distinct()
+                .forEach(id -> repository.findById(id).ifPresent(administrativo -> {
+                    administrativo.setIdEstado(idEstadoInactivo);
+                    administrativo.setFechasalida(fechaActual);
+                    repository.save(administrativo);
+                }));
+    }
+
+    private EstadoDTO requireEstado(String tipo, String entidad) {
+        EstadoDTO estado = estadoService.findByTipoAndEntidad(tipo, entidad);
+        return Optional.ofNullable(estado)
+                .orElseThrow(() -> new RuntimeException("Estado no encontrado: " + tipo + " / " + entidad));
     }
 
     public List<AdministrativoDTO> findPosiblesDirectores() {

@@ -2,7 +2,9 @@ package ufps.edu.co.controllers.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +33,15 @@ public class SuperAdminAdministrativoAsignarProgramaRestController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping(value = "/crear-director", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AdministrativoDTO> crearDirector(@RequestBody CrearDirectorRequest request) {
+        AdministrativoDTO created = administrativoService.createDirectorPrograma(request.id_persona(), request.id_cargo());
+        return ResponseEntity.status(HttpStatus.OK).body(created);
+    }
+
     public static record AsignarProgramaRequest(Integer id, Integer id_cargo) {
+    }
+
+    public static record CrearDirectorRequest(Integer id_persona, Integer id_cargo) {
     }
 }

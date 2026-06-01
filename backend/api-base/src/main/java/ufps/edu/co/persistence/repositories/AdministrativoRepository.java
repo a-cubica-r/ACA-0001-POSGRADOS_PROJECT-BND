@@ -44,6 +44,10 @@ public interface AdministrativoRepository extends JpaRepository<AdministrativoEn
 
 	List<AdministrativoEntity> findByCargoNombreNotIn(List<String> nombres);
 
+	List<AdministrativoEntity> findAllByIdCargo(Integer idCargo);
+
+	List<AdministrativoEntity> findAllByIdPersona(Integer idPersona);
+
 	Optional<AdministrativoEntity> findByIdPersona(Integer idPersona);
 
 	@Query("SELECT a.id FROM AdministrativoEntity a WHERE a.idPersona = :idPersona")
