@@ -3,6 +3,7 @@ package ufps.edu.co.processor.crud;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.security.MessageDigest;
@@ -596,10 +597,12 @@ public class PagoProcessor {
             return new PagoreciboinscripcionResultado(existente, false);
         }
 
+        String referenciaNueva = construirReferenciaUnica(referencia);
+
         EstadoDTO estadoEnCurso = resolveEstadoPagoInscripcionEnCurso();
         PagoreciboinscripcionDTO nuevo = PagoreciboinscripcionDTO.builder()
                 .fechavencimiento(LocalDate.now().plusDays(5))
-                .referenciapago(referencia)
+            .referenciapago(referenciaNueva)
                 .valorpago(valorPago)
                 .idEstado(estadoEnCurso.getId())
                 .idPago(pago.id())
@@ -761,6 +764,13 @@ public class PagoProcessor {
                 ? aspirante.correo().replaceAll("[^a-zA-Z0-9]", "")
                 : "aspirante";
         return "PAGO-" + pago.id() + "-" + nombre.toUpperCase(Locale.ROOT) + "-" + LocalDate.now().getYear();
+    }
+
+    private String construirReferenciaUnica(String referenciaBase) {
+        if (referenciaBase == null || referenciaBase.isBlank()) {
+            return referenciaBase;
+        }
+        return referenciaBase + "-" + Instant.now().toEpochMilli();
     }
 
     private String construirNombreAspirante(AspiranteCheckoutDTO aspirante) {
