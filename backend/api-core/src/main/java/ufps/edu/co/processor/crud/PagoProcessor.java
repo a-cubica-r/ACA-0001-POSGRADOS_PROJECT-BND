@@ -85,7 +85,7 @@ public class PagoProcessor {
     @Autowired
     private PagoreciboinscripcionService pagoreciboinscripcionService;
 
-    @Autowired(required = false)
+    @Autowired
     private ReciboInscripcionBuilderPort reciboInscripcionBuilderPort;
 
     @Transactional(readOnly = true)
@@ -449,8 +449,11 @@ public class PagoProcessor {
 
             private String construirYSubirReciboInscripcion(WompiCheckoutResponse checkoutResponse,
                 PagoreciboinscripcionDTO pagoreciboinscripcion, Integer idAspirante, AspiranteCheckoutDTO aspirante) {
-            if (reciboInscripcionBuilderPort == null || checkoutResponse == null || pagoreciboinscripcion == null) {
-                return null;
+                if (reciboInscripcionBuilderPort == null) {
+                    throw new IllegalStateException("No existe un bean ReciboInscripcionBuilderPort disponible en el contexto");
+                }
+                if (checkoutResponse == null || pagoreciboinscripcion == null) {
+                    return null;
             }
 
             PagoCheckoutPreviewDataDTO resumenData = aspiranteService.findCheckoutPreviewById(idAspirante);
