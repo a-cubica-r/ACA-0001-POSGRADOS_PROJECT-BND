@@ -229,6 +229,8 @@ public class PagoProcessor {
                     idAspirante, pago.id());
         }
 
+        String checkoutUrl = resolveCheckoutUrl(checkoutResponse, pagoreciboShallow);
+
         return WompiCheckoutResponse.builder()
             .paymentId(checkoutResponse.paymentId())
             .aspiranteId(checkoutResponse.aspiranteId())
@@ -242,7 +244,7 @@ public class PagoProcessor {
             .signatureIntegrity(checkoutResponse.signatureIntegrity())
             .redirectUrl(checkoutResponse.redirectUrl())
             .widgetScriptUrl(checkoutResponse.widgetScriptUrl())
-            .checkoutUrl(checkoutResponse.checkoutUrl())
+            .checkoutUrl(checkoutUrl)
             .simulated(checkoutResponse.simulated())
             .message(checkoutResponse.message())
             .transactionId(checkoutResponse.transactionId())
@@ -706,6 +708,26 @@ public class PagoProcessor {
         String normalized = status.trim().toUpperCase(Locale.ROOT);
         return normalized.equals("APPROVED") || normalized.equals("APPROVAL") || normalized.equals("APPROVAL_SUCCESS")
                 || normalized.equals("SUCCESS") || normalized.equals("PAID") || normalized.equals("PAYED");
+    }
+
+    private String resolveCheckoutUrl(WompiCheckoutResponse checkoutResponse,
+            PagoreciboinscripcionDTO pagoreciboinscripcion) {
+        if (pagoreciboinscripcion != null && pagoreciboinscripcion.getUrlrecibo() != null
+                && !pagoreciboinscripcion.getUrlrecibo().isBlank()) {
+            return forceDownloadUrl(pagoreciboinscripcion.getUrlrecibo());
+        }
+        if (checkoutResponse == null) {
+            return null;
+        }
+        return checkoutResponse.checkoutUrl();
+    }
+
+    private String forceDownloadUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return url;
+        }
+        String separator = url.contains("?") ? "&" : "?";
+        return url + separator + "response-content-disposition=attachment";
     }
 
     private Integer tryParseInt(String value) {
