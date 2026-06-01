@@ -1,4 +1,4 @@
-package ufps.edu.co.build;
+package ufps.edu.co.config;
 
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -7,17 +7,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SpringSecurityModuleStartupCheck {
+public class ApiTestModuleStartupCheck {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpringSecurityModuleStartupCheck.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApiTestModuleStartupCheck.class);
 
-    @Value("${app.module.name.security}")
+    @Value("${app.module.name.api-test}")
     private String moduleName;
 
     @PostConstruct
     void validateAndLogModuleLoad() {
         if (moduleName == null || moduleName.isBlank()) {
-            throw new IllegalStateException("app.module.name.security is required for security module");
+            throw new IllegalStateException("app.module.name.api-test is required for api-test module");
         }
 
         String banner = """
