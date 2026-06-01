@@ -37,6 +37,12 @@ import ufps.edu.co.persistence.entities.PagorecibomatriculaEntity;
 @Repository
 public interface PagorecibomatriculaRepository extends JpaRepository<PagorecibomatriculaEntity, Integer> {
 
+	PagorecibomatriculaEntity findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
+			Integer idAspirante, String tipoEstado, String entidadEstado);
+
+	boolean existsByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCase(Integer idAspirante,
+			String tipoEstado, String entidadEstado);
+
 	// Insert specific finders here 
 
 	//List<PagorecibomatriculaEntity> findByXxx(String xxx);

@@ -7,6 +7,7 @@ import java.util.Map;
 import lombok.Builder;
 
 import ufps.edu.co.rest.dto.PagoreciboinscripcionDTO;
+import ufps.edu.co.rest.dto.PagorecibomatriculaDTO;
 
 @Builder
 public record WompiCheckoutRequest(
@@ -27,6 +28,7 @@ public record WompiCheckoutRequest(
         WompiCustomerData customerData,
         WompiReceiptData receiptData,
         PagoreciboinscripcionDTO pagoreciboinscripcion,
+        PagorecibomatriculaDTO pagorecibomatricula,
         LocalDateTime creationDate,
         String returnUrl,
         String webhookUrl,

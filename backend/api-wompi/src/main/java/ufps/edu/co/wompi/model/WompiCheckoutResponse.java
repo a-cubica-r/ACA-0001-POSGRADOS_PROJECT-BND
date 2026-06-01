@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 
 import ufps.edu.co.rest.dto.PagoreciboinscripcionDTO;
+import ufps.edu.co.rest.dto.PagorecibomatriculaDTO;
 
 @Builder
 public record WompiCheckoutResponse(
@@ -30,6 +31,7 @@ public record WompiCheckoutResponse(
                 WompiCustomerData customerData,
                 WompiReceiptData receiptData,
                 PagoreciboinscripcionDTO pagoreciboinscripcion,
+                PagorecibomatriculaDTO pagorecibomatricula,
                 LocalDateTime creationDate,
                 String status) {
 }
