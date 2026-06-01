@@ -2,6 +2,8 @@ package ufps.edu.co.controllers.cases.aspirante;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +23,7 @@ public class PagoWompiWebhookCase {
 
     private final PagoProcessor pagoProcessor;
     private final ObjectMapper objectMapper;
+    private static final Logger log = LoggerFactory.getLogger(PagoWompiWebhookCase.class);
 
     public PagoWompiWebhookCase(PagoProcessor pagoProcessor, ObjectMapper objectMapper) {
         this.pagoProcessor = pagoProcessor;
@@ -28,17 +31,38 @@ public class PagoWompiWebhookCase {
     }
 
     @PostMapping(value = "/webhook", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PagoOutput> recibirWebhook(@RequestBody String request) throws IOException {
-        return ResponseEntity.ok(pagoProcessor.confirmarWebhook(WompiWebhookRequest.from(objectMapper.readTree(request))));
+    public ResponseEntity<PagoOutput> recibirWebhook(@RequestBody String request) {
+        try {
+            WompiWebhookRequest wompi = WompiWebhookRequest.from(objectMapper.readTree(request));
+            PagoOutput output = pagoProcessor.confirmarWebhook(wompi);
+            return ResponseEntity.ok(output);
+        } catch (Exception e) {
+            log.error("Error procesando webhook Wompi: {}", e.getMessage(), e);
+            return ResponseEntity.ok().build();
+        }
     }
 
     @PostMapping(value = "/webhook/event", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PagoOutput> recibirWebhookEvento(@RequestBody String request) throws IOException {
-        return ResponseEntity.ok(pagoProcessor.confirmarWebhookAutomatico(WompiWebhookRequest.from(objectMapper.readTree(request))));
+    public ResponseEntity<PagoOutput> recibirWebhookEvento(@RequestBody String request) {
+        try {
+            WompiWebhookRequest wompi = WompiWebhookRequest.from(objectMapper.readTree(request));
+            PagoOutput output = pagoProcessor.confirmarWebhookAutomatico(wompi);
+            return ResponseEntity.ok(output);
+        } catch (Exception e) {
+            log.error("Error procesando webhook Wompi (event): {}", e.getMessage(), e);
+            return ResponseEntity.ok().build();
+        }
     }
 
     @PostMapping(value = "/webhook/automatico", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PagoOutput> recibirWebhookAutomatico(@RequestBody String request) throws IOException {
-        return ResponseEntity.ok(pagoProcessor.confirmarWebhookAutomatico(WompiWebhookRequest.from(objectMapper.readTree(request))));
+    public ResponseEntity<PagoOutput> recibirWebhookAutomatico(@RequestBody String request) {
+        try {
+            WompiWebhookRequest wompi = WompiWebhookRequest.from(objectMapper.readTree(request));
+            PagoOutput output = pagoProcessor.confirmarWebhookAutomatico(wompi);
+            return ResponseEntity.ok(output);
+        } catch (Exception e) {
+            log.error("Error procesando webhook Wompi (automatico): {}", e.getMessage(), e);
+            return ResponseEntity.ok().build();
+        }
     }
 }
