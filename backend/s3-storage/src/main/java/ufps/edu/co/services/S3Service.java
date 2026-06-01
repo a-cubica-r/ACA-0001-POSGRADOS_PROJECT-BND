@@ -54,6 +54,7 @@ public class S3Service {
                             .bucket(bucketName)
                             .key(key)
                             .contentType(file.getContentType())
+                            .contentDisposition(buildAttachmentContentDisposition(originalName))
                             .contentLength(file.getSize())
                             .build(),
                     RequestBody.fromBytes(file.getBytes()));
@@ -74,12 +75,13 @@ public class S3Service {
 
         try {
             log.info("Subiendo archivo a S3 originalName={} key={} size={} contentType={}", safeOriginalName, key,
-                content != null ? content.length : 0, contentType);
+                    content != null ? content.length : 0, contentType);
             s3Client.putObject(
                     PutObjectRequest.builder()
                             .bucket(bucketName)
                             .key(key)
                             .contentType(contentType != null ? contentType : "application/octet-stream")
+                            .contentDisposition(buildAttachmentContentDisposition(safeOriginalName))
                             .contentLength(content != null ? Long.valueOf(content.length) : 0L)
                             .build(),
                     RequestBody.fromBytes(content != null ? content : new byte[0]));
@@ -109,24 +111,10 @@ public class S3Service {
         } catch (Exception e) {
             throw new RuntimeException("Error fetching documents: " + e.getMessage(), e);
         }
-    }}
+    }
 
-    
-
-    
-    
-        
-                
-                        
-                        
-                        
-                        
-                        
-                
-    
-    
-    
-        
-    
-
-    
+    private String buildAttachmentContentDisposition(String originalName) {
+        String safeName = originalName != null && !originalName.isBlank() ? originalName : "file";
+        return "attachment; filename=\"" + safeName.replace('"', '_') + "\"";
+    }
+}

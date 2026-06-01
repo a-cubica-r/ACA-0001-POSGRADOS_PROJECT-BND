@@ -89,27 +89,27 @@ public class PagoProcessor {
     private ReciboInscripcionBuilderPort reciboInscripcionBuilderPort;
 
     @Transactional(readOnly = true)
-        public List<PagoListadoOutput> findByAspirante(Integer idAspirante) {
+    public List<PagoListadoOutput> findByAspirante(Integer idAspirante) {
         List<PagoResumenDTO> pagos = pagoService.findResumenByIdAspirante(idAspirante);
         BigDecimal valorInscripcion = calcularMontoInscripcionEnPesos();
         BigDecimal valorMatricula = calcularMontoMatriculaEnPesos(idAspirante);
 
         return pagos.stream()
-            .map(dto -> PagoListadoOutput.builder()
-                .id(dto.id())
-                .idAspirante(dto.idAspirante())
-                .idEstado(dto.idEstado())
-                .idPagoconcepto(dto.idPagoconcepto())
-                .aspirante(dto.aspirante())
-                .estado(dto.estado())
-                .pagoconcepto(PagoconceptoResumenOutput.builder()
-                    .id(dto.pagoconceptoId())
-                    .tipo(dto.pagoconceptoTipo())
-                    .build())
-                .valorPagoPesos(resolveValorPagoPorTipoConcepto(dto.pagoconceptoTipo(), valorInscripcion,
-                    valorMatricula))
-                .build())
-            .toList();
+                .map(dto -> PagoListadoOutput.builder()
+                        .id(dto.id())
+                        .idAspirante(dto.idAspirante())
+                        .idEstado(dto.idEstado())
+                        .idPagoconcepto(dto.idPagoconcepto())
+                        .aspirante(dto.aspirante())
+                        .estado(dto.estado())
+                        .pagoconcepto(PagoconceptoResumenOutput.builder()
+                                .id(dto.pagoconceptoId())
+                                .tipo(dto.pagoconceptoTipo())
+                                .build())
+                        .valorPagoPesos(resolveValorPagoPorTipoConcepto(dto.pagoconceptoTipo(), valorInscripcion,
+                                valorMatricula))
+                        .build())
+                .toList();
     }
 
     public void ensureInitialPaymentsForAspirante(Integer idAspirante) {
@@ -125,7 +125,7 @@ public class PagoProcessor {
                         (primero, segundo) -> primero));
 
         Set<Integer> conceptosExistentes = pagoService.findResumenByIdAspirante(idAspirante).stream()
-            .map(PagoResumenDTO::idPagoconcepto)
+                .map(PagoResumenDTO::idPagoconcepto)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
@@ -133,6 +133,7 @@ public class PagoProcessor {
         crearPagoPendienteSiFalta(idAspirante, estadoPendiente, conceptosExistentes, conceptos.get("MATRICULA"));
     }
 
+    @SuppressWarnings("null")
     public WompiCheckoutResponse iniciarCheckoutInscripcion(Integer idAspirante, Integer authenticatedUserId,
             boolean validarTitular) {
         PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, "INSCRIPCION");
@@ -152,15 +153,17 @@ public class PagoProcessor {
         String publicKey = resolverPublicKey();
         WompiCustomerData customerData = construirCustomerData(aspirante);
         PagoreciboinscripcionResultado pagoreciboResultado = obtenerOCrearPagoreciboInscripcion(idAspirante, pago,
-            referencia, monto);
+                referencia, monto);
         PagoreciboinscripcionDTO pagoreciboinscripcion = pagoreciboResultado.pagoreciboinscripcion();
 
-        // If there is already an EN CURSO receipt, preserve its stored amount/reference for checkout.
+        // If there is already an EN CURSO receipt, preserve its stored amount/reference
+        // for checkout.
         if (pagoreciboinscripcion != null) {
             if (pagoreciboinscripcion.getValorpago() != null) {
                 monto = pagoreciboinscripcion.getValorpago();
             }
-            if (pagoreciboinscripcion.getReferenciapago() != null && !pagoreciboinscripcion.getReferenciapago().isBlank()) {
+            if (pagoreciboinscripcion.getReferenciapago() != null
+                    && !pagoreciboinscripcion.getReferenciapago().isBlank()) {
                 referencia = pagoreciboinscripcion.getReferenciapago();
             }
         }
@@ -179,20 +182,21 @@ public class PagoProcessor {
                 .reference(referencia)
                 .amount(monto)
                 .amountInCents(montoEnCents)
-            .currency(currency)
-            .publicKey(publicKey)
-            .signatureIntegrity(signatureIntegrity)
-            .redirectUrl(resolveReturnUrl())
-            .widgetScriptUrl(resolveWidgetScriptUrl())
-                //.customerEmail(aspirante != null && aspirante.getPersona() != null ? aspirante.getPersona().getCorreo() : null)
+                .currency(currency)
+                .publicKey(publicKey)
+                .signatureIntegrity(signatureIntegrity)
+                .redirectUrl(resolveReturnUrl())
+                .widgetScriptUrl(resolveWidgetScriptUrl())
+                // .customerEmail(aspirante != null && aspirante.getPersona() != null ?
+                // aspirante.getPersona().getCorreo() : null)
                 .customerEmail(null)
                 .customerName(construirNombreAspirante(aspirante))
                 .customerData(customerData)
                 .receiptData(receiptData)
                 .pagoreciboinscripcion(pagoreciboShallow)
                 .creationDate(LocalDateTime.now())
-            .returnUrl(resolveReturnUrl())
-            .webhookUrl(resolveWebhookUrl())
+                .returnUrl(resolveReturnUrl())
+                .webhookUrl(resolveWebhookUrl())
                 .metadata(Map.of(
                         "paymentId", String.valueOf(pago.id()),
                         "aspiranteId", String.valueOf(idAspirante),
@@ -206,56 +210,60 @@ public class PagoProcessor {
 
         if (pagoreciboResultado.creadoNuevo()) {
             String urlRecibo = construirYSubirReciboInscripcion(checkoutResponse, pagoreciboinscripcion, idAspirante,
-                aspirante);
-            log.info("Resultado construcción recibo aspirante={} pago={} urlRecibo={}", idAspirante, pago.id(), urlRecibo);
+                    aspirante);
+            log.info("Resultado construcción recibo aspirante={} pago={} urlRecibo={}", idAspirante, pago.id(),
+                    urlRecibo);
             if (urlRecibo != null && !urlRecibo.isBlank() && pagoreciboinscripcion != null
-                && pagoreciboinscripcion.getId() != null) {
-            PagoreciboinscripcionDTO pagoreciboPersistido = pagoreciboinscripcionService
-                .findById(pagoreciboinscripcion.getId());
-            if (pagoreciboPersistido != null) {
-                pagoreciboPersistido.setUrlrecibo(urlRecibo);
-                pagoreciboinscripcion = pagoreciboinscripcionService.update(pagoreciboPersistido.getId(),
-                    pagoreciboPersistido);
-                log.info("Pagoreciboinscripcion actualizado con urlrecibo id={} urlRecibo={}",
-                        pagoreciboinscripcion.getId(), urlRecibo);
-                pagoreciboShallow = construirPagoreciboShallow(pagoreciboinscripcion, pago.id());
-            } else {
-                log.warn("No se encontró pagoreciboinscripcion persistido para actualizar urlrecibo. id={}",
-                        pagoreciboinscripcion.getId());
-            }
+                    && pagoreciboinscripcion.getId() != null) {
+                PagoreciboinscripcionDTO pagoreciboPersistido = pagoreciboinscripcionService
+                        .findById(pagoreciboinscripcion.getId());
+                if (pagoreciboPersistido != null) {
+                    pagoreciboPersistido.setUrlrecibo(urlRecibo);
+                    pagoreciboinscripcion = pagoreciboinscripcionService.update(pagoreciboPersistido.getId(),
+                            pagoreciboPersistido);
+                    log.info("Pagoreciboinscripcion actualizado con urlrecibo id={} urlRecibo={}",
+                            pagoreciboinscripcion.getId(), urlRecibo);
+                    pagoreciboShallow = construirPagoreciboShallow(pagoreciboinscripcion, pago.id());
+                } else {
+                    log.warn("No se encontró pagoreciboinscripcion persistido para actualizar urlrecibo. id={}",
+                            pagoreciboinscripcion.getId());
+                }
             }
         } else {
             log.info("No se construyó recibo porque ya existía un pagoreciboinscripcion EN CURSO. aspirante={} pago={}",
                     idAspirante, pago.id());
         }
 
-        String checkoutUrl = resolveCheckoutUrl(checkoutResponse, pagoreciboShallow);
+        String checkoutUrl = pagoreciboShallow != null && pagoreciboShallow.getUrlrecibo() != null
+            && !pagoreciboShallow.getUrlrecibo().isBlank()
+                ? pagoreciboShallow.getUrlrecibo()
+                : checkoutResponse.checkoutUrl();
 
         return WompiCheckoutResponse.builder()
-            .paymentId(checkoutResponse.paymentId())
-            .aspiranteId(checkoutResponse.aspiranteId())
-            .pagoconceptoId(checkoutResponse.pagoconceptoId())
-            .concepto(checkoutResponse.concepto())
-            .reference(checkoutResponse.reference())
-            .amount(checkoutResponse.amount())
-            .amountInCents(checkoutResponse.amountInCents())
-            .currency(checkoutResponse.currency())
-            .publicKey(checkoutResponse.publicKey())
-            .signatureIntegrity(checkoutResponse.signatureIntegrity())
-            .redirectUrl(checkoutResponse.redirectUrl())
-            .widgetScriptUrl(checkoutResponse.widgetScriptUrl())
-            .checkoutUrl(checkoutUrl)
-            .simulated(checkoutResponse.simulated())
-            .message(checkoutResponse.message())
-            .transactionId(checkoutResponse.transactionId())
-            .customerEmail(checkoutResponse.customerEmail())
-            .customerName(checkoutResponse.customerName())
-            .customerData(checkoutResponse.customerData())
-            .receiptData(checkoutResponse.receiptData())
-            .pagoreciboinscripcion(pagoreciboShallow)
-            .creationDate(checkoutResponse.creationDate())
-            .status(checkoutResponse.status())
-            .build();
+                .paymentId(checkoutResponse.paymentId())
+                .aspiranteId(checkoutResponse.aspiranteId())
+                .pagoconceptoId(checkoutResponse.pagoconceptoId())
+                .concepto(checkoutResponse.concepto())
+                .reference(checkoutResponse.reference())
+                .amount(checkoutResponse.amount())
+                .amountInCents(checkoutResponse.amountInCents())
+                .currency(checkoutResponse.currency())
+                .publicKey(checkoutResponse.publicKey())
+                .signatureIntegrity(checkoutResponse.signatureIntegrity())
+                .redirectUrl(checkoutResponse.redirectUrl())
+                .widgetScriptUrl(checkoutResponse.widgetScriptUrl())
+                .checkoutUrl(checkoutUrl)
+                .simulated(checkoutResponse.simulated())
+                .message(checkoutResponse.message())
+                .transactionId(checkoutResponse.transactionId())
+                .customerEmail(checkoutResponse.customerEmail())
+                .customerName(checkoutResponse.customerName())
+                .customerData(checkoutResponse.customerData())
+                .receiptData(checkoutResponse.receiptData())
+                .pagoreciboinscripcion(pagoreciboShallow)
+                .creationDate(checkoutResponse.creationDate())
+                .status(checkoutResponse.status())
+                .build();
     }
 
     public WompiReceiptData prepararReciboInscripcion(Integer idAspirante, Integer authenticatedUserId,
@@ -269,12 +277,14 @@ public class PagoProcessor {
         BigDecimal monto = calcularMontoInscripcionEnPesos();
         String referencia = construirReferencia(pago, aspirante);
 
-        PagoreciboinscripcionDTO pagoreciboinscripcion = pagoreciboinscripcionService.findCurrentByIdAspirante(idAspirante);
+        PagoreciboinscripcionDTO pagoreciboinscripcion = pagoreciboinscripcionService
+                .findCurrentByIdAspirante(idAspirante);
         if (pagoreciboinscripcion != null) {
             if (pagoreciboinscripcion.getValorpago() != null) {
                 monto = pagoreciboinscripcion.getValorpago();
             }
-            if (pagoreciboinscripcion.getReferenciapago() != null && !pagoreciboinscripcion.getReferenciapago().isBlank()) {
+            if (pagoreciboinscripcion.getReferenciapago() != null
+                    && !pagoreciboinscripcion.getReferenciapago().isBlank()) {
                 referencia = pagoreciboinscripcion.getReferenciapago();
             }
         }
@@ -296,27 +306,30 @@ public class PagoProcessor {
         PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, "INSCRIPCION");
         validarPagoPerteneceAspirante(pago, idAspirante);
 
-        PagoreciboinscripcionDTO pagoreciboinscripcion = pagoreciboinscripcionService.findCurrentByIdAspirante(idAspirante);
+        PagoreciboinscripcionDTO pagoreciboinscripcion = pagoreciboinscripcionService
+                .findCurrentByIdAspirante(idAspirante);
         BigDecimal monto = calcularMontoInscripcionEnPesos();
-        @SuppressWarnings("unused") String referencia = construirReferencia(pago, null);
+        @SuppressWarnings("unused")
+        String referencia = construirReferencia(pago, null);
 
         if (pagoreciboinscripcion != null) {
             if (pagoreciboinscripcion.getValorpago() != null) {
                 monto = pagoreciboinscripcion.getValorpago();
             }
-            if (pagoreciboinscripcion.getReferenciapago() != null && !pagoreciboinscripcion.getReferenciapago().isBlank()) {
+            if (pagoreciboinscripcion.getReferenciapago() != null
+                    && !pagoreciboinscripcion.getReferenciapago().isBlank()) {
                 referencia = pagoreciboinscripcion.getReferenciapago();
             }
         }
 
         return new PagoCheckoutPreviewDTO(
-            data.programa(),
-            data.periodo(),
-            construirNombreCompleto(data.nombres(), data.apellidos()),
-            formatearDocumento(data.numerodocumento()),
-            data.facultad(),
-            data.tipo(),
-            monto);
+                data.programa(),
+                data.periodo(),
+                construirNombreCompleto(data.nombres(), data.apellidos()),
+                formatearDocumento(data.numerodocumento()),
+                data.facultad(),
+                data.tipo(),
+                monto);
     }
 
     public PagoOutput confirmarWebhook(WompiWebhookRequest request) {
@@ -363,11 +376,12 @@ public class PagoProcessor {
         pago.setIdEstado(estadoRealizado.getId());
         PagoDTO updated = pagoService.update(pago.getId(), pago);
 
-        // TODO: disparar notificación por correo al aspirante cuando el pago de inscripción quede realizado.
+        // TODO: disparar notificación por correo al aspirante cuando el pago de
+        // inscripción quede realizado.
         return pagoMap.toOutput(updated);
     }
 
-        private void crearPagoPendienteSiFalta(Integer idAspirante, EstadoDTO estadoPendiente,
+    private void crearPagoPendienteSiFalta(Integer idAspirante, EstadoDTO estadoPendiente,
             Set<Integer> conceptosExistentes, PagoconceptoDTO concepto) {
         if (concepto == null || conceptosExistentes.contains(concepto.getId())) {
             return;
@@ -446,29 +460,29 @@ public class PagoProcessor {
                 .idPago(pago.id())
                 .build();
 
-            return new PagoreciboinscripcionResultado(pagoreciboinscripcionService.create(nuevo), true);
+        return new PagoreciboinscripcionResultado(pagoreciboinscripcionService.create(nuevo), true);
     }
 
-            private String construirYSubirReciboInscripcion(WompiCheckoutResponse checkoutResponse,
-                PagoreciboinscripcionDTO pagoreciboinscripcion, Integer idAspirante, AspiranteCheckoutDTO aspirante) {
-                if (reciboInscripcionBuilderPort == null) {
-                    throw new IllegalStateException("No existe un bean ReciboInscripcionBuilderPort disponible en el contexto");
-                }
-                if (checkoutResponse == null || pagoreciboinscripcion == null) {
-                    return null;
-            }
+    private String construirYSubirReciboInscripcion(WompiCheckoutResponse checkoutResponse,
+            PagoreciboinscripcionDTO pagoreciboinscripcion, Integer idAspirante, AspiranteCheckoutDTO aspirante) {
+        if (reciboInscripcionBuilderPort == null) {
+            throw new IllegalStateException("No existe un bean ReciboInscripcionBuilderPort disponible en el contexto");
+        }
+        if (checkoutResponse == null || pagoreciboinscripcion == null) {
+            return null;
+        }
 
-            PagoCheckoutPreviewDataDTO resumenData = aspiranteService.findCheckoutPreviewById(idAspirante);
-            String programa = resumenData != null ? resumenData.programa() : null;
-            String periodo = resumenData != null ? resumenData.periodo() : null;
+        PagoCheckoutPreviewDataDTO resumenData = aspiranteService.findCheckoutPreviewById(idAspirante);
+        String programa = resumenData != null ? resumenData.programa() : null;
+        String periodo = resumenData != null ? resumenData.periodo() : null;
 
-            String nombreCompleto = construirNombreAspirante(aspirante);
-            String documento = aspirante != null && aspirante.numerodocumento() != null
+        String nombreCompleto = construirNombreAspirante(aspirante);
+        String documento = aspirante != null && aspirante.numerodocumento() != null
                 ? String.valueOf(aspirante.numerodocumento())
                 : null;
-            String correo = aspirante != null ? aspirante.correo() : null;
+        String correo = aspirante != null ? aspirante.correo() : null;
 
-            ReciboInscripcionBuildInput input = new ReciboInscripcionBuildInput(
+        ReciboInscripcionBuildInput input = new ReciboInscripcionBuildInput(
                 checkoutResponse.reference(),
                 periodo,
                 programa,
@@ -483,17 +497,17 @@ public class PagoProcessor {
                 checkoutResponse.creationDate(),
                 checkoutResponse.reference());
 
-            return reciboInscripcionBuilderPort.construirYSubirRecibo(input);
-            }
+        return reciboInscripcionBuilderPort.construirYSubirRecibo(input);
+    }
 
-            private PagoreciboinscripcionDTO construirPagoreciboShallow(PagoreciboinscripcionDTO pagoreciboinscripcion,
-                Integer pagoId) {
-            if (pagoreciboinscripcion == null) {
-                return null;
-            }
+    private PagoreciboinscripcionDTO construirPagoreciboShallow(PagoreciboinscripcionDTO pagoreciboinscripcion,
+            Integer pagoId) {
+        if (pagoreciboinscripcion == null) {
+            return null;
+        }
 
-            PagoDTO pagoShallow = PagoDTO.builder().id(pagoId).build();
-            return PagoreciboinscripcionDTO.builder()
+        PagoDTO pagoShallow = PagoDTO.builder().id(pagoId).build();
+        return PagoreciboinscripcionDTO.builder()
                 .id(pagoreciboinscripcion.getId())
                 .fechavencimiento(pagoreciboinscripcion.getFechavencimiento())
                 .urlrecibo(pagoreciboinscripcion.getUrlrecibo())
@@ -505,11 +519,11 @@ public class PagoProcessor {
                 .pago(pagoShallow)
                 .estado(null)
                 .build();
-            }
+    }
 
-            private record PagoreciboinscripcionResultado(PagoreciboinscripcionDTO pagoreciboinscripcion,
-                boolean creadoNuevo) {
-            }
+    private record PagoreciboinscripcionResultado(PagoreciboinscripcionDTO pagoreciboinscripcion,
+            boolean creadoNuevo) {
+    }
 
     private EstadoDTO resolveEstadoPagoInscripcionEnCurso() {
         EstadoDTO estado = estadoService.findByTipoAndEntidad("EN CURSO", "pagoinscripcion");
@@ -561,7 +575,8 @@ public class PagoProcessor {
 
     private String resolveWidgetScriptUrl() {
         String widgetScriptUrl = wompiProperties.getWidgetScriptUrl();
-        return widgetScriptUrl == null || widgetScriptUrl.isBlank() ? "https://checkout.wompi.co/widget.js" : widgetScriptUrl;
+        return widgetScriptUrl == null || widgetScriptUrl.isBlank() ? "https://checkout.wompi.co/widget.js"
+                : widgetScriptUrl;
     }
 
     private String resolverPublicKey() {
@@ -633,7 +648,8 @@ public class PagoProcessor {
                 .build();
     }
 
-    private WompiReceiptData construirReceiptData(PagoResumenDTO pago, AspiranteCheckoutDTO aspirante, String referencia,
+    private WompiReceiptData construirReceiptData(PagoResumenDTO pago, AspiranteCheckoutDTO aspirante,
+            String referencia,
             BigDecimal monto, long montoEnCents, String currency) {
         Integer personaId = aspirante != null ? aspirante.idPersona() : null;
         Integer cohorteId = aspirante != null ? aspirante.idCohorte() : null;
@@ -658,7 +674,8 @@ public class PagoProcessor {
                 .build();
     }
 
-    private void validarAspiranteAutenticado(AspiranteCheckoutDTO aspirante, Integer authenticatedUserId, boolean validarTitular) {
+    private void validarAspiranteAutenticado(AspiranteCheckoutDTO aspirante, Integer authenticatedUserId,
+            boolean validarTitular) {
         if (!validarTitular) {
             return;
         }
@@ -675,7 +692,8 @@ public class PagoProcessor {
         throw new DomainException(PagoErrorCode.ASPIRANTE_AUTENTICADO_NO_COINCIDE_FORBIDDEN, authenticatedUserId);
     }
 
-    private void validarAspiranteAutenticado(Integer idPersonaAspirante, Integer authenticatedUserId, boolean validarTitular) {
+    private void validarAspiranteAutenticado(Integer idPersonaAspirante, Integer authenticatedUserId,
+            boolean validarTitular) {
         if (!validarTitular) {
             return;
         }
@@ -708,26 +726,6 @@ public class PagoProcessor {
         String normalized = status.trim().toUpperCase(Locale.ROOT);
         return normalized.equals("APPROVED") || normalized.equals("APPROVAL") || normalized.equals("APPROVAL_SUCCESS")
                 || normalized.equals("SUCCESS") || normalized.equals("PAID") || normalized.equals("PAYED");
-    }
-
-    private String resolveCheckoutUrl(WompiCheckoutResponse checkoutResponse,
-            PagoreciboinscripcionDTO pagoreciboinscripcion) {
-        if (pagoreciboinscripcion != null && pagoreciboinscripcion.getUrlrecibo() != null
-                && !pagoreciboinscripcion.getUrlrecibo().isBlank()) {
-            return forceDownloadUrl(pagoreciboinscripcion.getUrlrecibo());
-        }
-        if (checkoutResponse == null) {
-            return null;
-        }
-        return checkoutResponse.checkoutUrl();
-    }
-
-    private String forceDownloadUrl(String url) {
-        if (url == null || url.isBlank()) {
-            return url;
-        }
-        String separator = url.contains("?") ? "&" : "?";
-        return url + separator + "response-content-disposition=attachment";
     }
 
     private Integer tryParseInt(String value) {
