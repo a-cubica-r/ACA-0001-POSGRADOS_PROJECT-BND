@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ufps.edu.co.domain.exceptions.errorcodes.AspiranteErrorCode;
 import ufps.edu.co.domain.exceptions.DomainException;
 import ufps.edu.co.domain.exceptions.errorcodes.PagoErrorCode;
 import ufps.edu.co.maps.specific.PagoMap;
@@ -492,6 +493,8 @@ public class PagoProcessor {
 
         pago.setIdEstado(estadoRealizado.getId());
         pagoService.update(pago.getId(), pago);
+
+        actualizarEstadoAspirantePazYSalvo(pago.getIdAspirante());
     }
 
     private void actualizarReciboMatriculaYPago(PagoDTO pago, EstadoDTO estadoRealizado) {
@@ -508,21 +511,46 @@ public class PagoProcessor {
 
         pago.setIdEstado(estadoRealizado.getId());
         pagoService.update(pago.getId(), pago);
+
+        actualizarEstadoAspirantePazYSalvo(pago.getIdAspirante());
+    }
+
+    private void actualizarEstadoAspirantePazYSalvo(Integer idAspirante) {
+        EstadoDTO estadoPazYSalvo = resolveEstadoAspirantePazYSalvo();
+        AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        if (aspirante == null) {
+            throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
+        }
+
+        aspirante.setIdEstado(estadoPazYSalvo.getId());
+        aspirante.setEstado(estadoPazYSalvo);
+        aspiranteService.update(aspirante.getId(), aspirante);
     }
 
     private EstadoDTO resolveEstadoReciboCompletado() {
-        EstadoDTO estado = estadoService.findByTipoAndEntidad("COMPLETADO", "pagoreciboinscripcion");
+        EstadoDTO estado = estadoService.findByTipoAndEntidad("COMPLETADO", "pagoinscripcion");
         if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "PAGORECIBOINSCRIPCION");
+            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "PAGOINSCRIPCION");
         }
         if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "pagorecibomatricula");
+            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "pagomatricula");
         }
         if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "PAGORECIBOMATRICULA");
+            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "PAGOMATRICULA");
         }
         if (estado == null) {
             throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, "COMPLETADO");
+        }
+        return estado;
+    }
+
+    private EstadoDTO resolveEstadoAspirantePazYSalvo() {
+        EstadoDTO estado = estadoService.findByTipoAndEntidad("PAZ Y SALVO", "aspirante");
+        if (estado == null) {
+            estado = estadoService.findByTipoAndEntidad("PAZ Y SALVO", "ASPIRANTE");
+        }
+        if (estado == null) {
+            throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, "PAZ Y SALVO");
         }
         return estado;
     }
