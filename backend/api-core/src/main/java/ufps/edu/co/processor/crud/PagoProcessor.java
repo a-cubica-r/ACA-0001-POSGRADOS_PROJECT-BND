@@ -25,6 +25,7 @@ import ufps.edu.co.rest.dto.AspiranteCheckoutDTO;
 import ufps.edu.co.rest.dto.PagoCheckoutPreviewDTO;
 import ufps.edu.co.rest.dto.PagoCheckoutPreviewDataDTO;
 import ufps.edu.co.rest.dto.PagoreciboinscripcionDTO;
+import ufps.edu.co.rest.dto.PagorecibomatriculaDTO;
 import ufps.edu.co.records.output.entity.PagoListadoOutput;
 import ufps.edu.co.records.output.entity.PagoconceptoResumenOutput;
 import ufps.edu.co.records.output.entity.PagoOutput;
@@ -39,6 +40,7 @@ import ufps.edu.co.rest.services.AspiranteService;
 import ufps.edu.co.rest.services.EstadoService;
 import ufps.edu.co.rest.services.PagoService;
 import ufps.edu.co.rest.services.PagoconceptoService;
+import ufps.edu.co.rest.services.PagorecibomatriculaService;
 import ufps.edu.co.rest.services.PagoreciboinscripcionService;
 import ufps.edu.co.rest.services.UsuarioService;
 import ufps.edu.co.wompi.WompiGateway;
@@ -84,6 +86,9 @@ public class PagoProcessor {
 
     @Autowired
     private PagoreciboinscripcionService pagoreciboinscripcionService;
+
+    @Autowired
+    private PagorecibomatriculaService pagorecibomatriculaService;
 
     @Autowired
     private ReciboInscripcionBuilderPort reciboInscripcionBuilderPort;
@@ -360,12 +365,19 @@ public class PagoProcessor {
             }
         }
 
-        WompiCheckoutResponse wompiConfirmation = wompiGateway.confirmPayment(request);
-        String status = wompiConfirmation != null && wompiConfirmation.status() != null ? wompiConfirmation.status()
-                : request.status();
-
+        String status = request.status();
         if (status == null || !esEstadoAprobado(status)) {
-            throw new DomainException(PagoErrorCode.WOMPI_PAGO_NO_APROBADO_CONFLICT, request.status());
+            log.info("Webhook Wompi ignorado por estado no aprobado paymentId={} reference={} status={}",
+                    request.paymentId(), request.reference(), status);
+            return pagoMap.toOutput(pago);
+        }
+
+        WompiCheckoutResponse wompiConfirmation = wompiGateway.confirmPayment(request);
+        if (wompiConfirmation != null && wompiConfirmation.status() != null
+                && !esEstadoAprobado(wompiConfirmation.status())) {
+            log.info("Confirmación Wompi ignorada por estado no aprobado paymentId={} reference={} status={}",
+                    request.paymentId(), request.reference(), wompiConfirmation.status());
+            return pagoMap.toOutput(pago);
         }
 
         if (!actualizarEstado) {
@@ -373,12 +385,87 @@ public class PagoProcessor {
         }
 
         EstadoDTO estadoRealizado = resolveEstadoPago("REALIZADO");
-        pago.setIdEstado(estadoRealizado.getId());
-        PagoDTO updated = pagoService.update(pago.getId(), pago);
+        actualizarEstadosPagoYRecibo(pago, estadoRealizado);
+        PagoDTO updated = pagoService.findById(pago.getId());
 
         // TODO: disparar notificación por correo al aspirante cuando el pago de
         // inscripción quede realizado.
         return pagoMap.toOutput(updated);
+    }
+
+    private void actualizarEstadosPagoYRecibo(PagoDTO pago, EstadoDTO estadoRealizado) {
+        if (pago == null || estadoRealizado == null) {
+            throw new IllegalArgumentException("pago y estadoRealizado son requeridos");
+        }
+
+        String tipoConcepto = pagoconceptoService.findAll().stream()
+                .filter(concepto -> concepto.getId() != null && Objects.equals(concepto.getId(), pago.getIdPagoconcepto()))
+                .map(PagoconceptoDTO::getTipo)
+                .filter(tipo -> tipo != null && !tipo.isBlank())
+                .findFirst()
+                .orElse(null);
+
+        if (tipoConcepto == null) {
+            throw new DomainException(PagoErrorCode.PAGO_CONCEPTO_NOT_FOUND, pago.getIdPagoconcepto());
+        }
+
+        if ("INSCRIPCION".equalsIgnoreCase(tipoConcepto)) {
+            actualizarReciboInscripcionYPago(pago, estadoRealizado);
+            return;
+        }
+
+        if ("MATRICULA".equalsIgnoreCase(tipoConcepto)) {
+            actualizarReciboMatriculaYPago(pago, estadoRealizado);
+            return;
+        }
+
+        throw new DomainException(PagoErrorCode.PAGO_CONCEPTO_INVALIDO, tipoConcepto);
+    }
+
+    private void actualizarReciboInscripcionYPago(PagoDTO pago, EstadoDTO estadoRealizado) {
+        PagoreciboinscripcionDTO recibo = pagoreciboinscripcionService.findCurrentByIdAspirante(pago.getIdAspirante());
+        if (recibo == null) {
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, pago.getIdAspirante());
+        }
+
+        recibo.setIdEstado(resolveEstadoReciboCompletado().getId());
+        pagoreciboinscripcionService.update(recibo.getId(), recibo);
+
+        pago.setIdEstado(estadoRealizado.getId());
+        pagoService.update(pago.getId(), pago);
+    }
+
+    private void actualizarReciboMatriculaYPago(PagoDTO pago, EstadoDTO estadoRealizado) {
+        PagorecibomatriculaDTO recibo = pagorecibomatriculaService.findAll().stream()
+                .filter(item -> item.getIdPago() != null && Objects.equals(item.getIdPago(), pago.getId()))
+                .findFirst()
+                .orElse(null);
+        if (recibo == null) {
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, pago.getIdAspirante());
+        }
+
+        recibo.setIdEstado(resolveEstadoReciboCompletado().getId());
+        pagorecibomatriculaService.update(recibo.getId(), recibo);
+
+        pago.setIdEstado(estadoRealizado.getId());
+        pagoService.update(pago.getId(), pago);
+    }
+
+    private EstadoDTO resolveEstadoReciboCompletado() {
+        EstadoDTO estado = estadoService.findByTipoAndEntidad("COMPLETADO", "pagoreciboinscripcion");
+        if (estado == null) {
+            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "PAGORECIBOINSCRIPCION");
+        }
+        if (estado == null) {
+            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "pagorecibomatricula");
+        }
+        if (estado == null) {
+            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "PAGORECIBOMATRICULA");
+        }
+        if (estado == null) {
+            throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, "COMPLETADO");
+        }
+        return estado;
     }
 
     private void crearPagoPendienteSiFalta(Integer idAspirante, EstadoDTO estadoPendiente,

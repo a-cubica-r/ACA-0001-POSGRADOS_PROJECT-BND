@@ -28,6 +28,11 @@ public class PagoWompiWebhookCase {
         return ResponseEntity.ok(pagoProcessor.confirmarWebhook(WompiWebhookRequest.from(request)));
     }
 
+    @PostMapping(value = "/webhook/event", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagoOutput> recibirWebhookEvento(@RequestBody JsonNode request) {
+        return ResponseEntity.ok(pagoProcessor.confirmarWebhookAutomatico(WompiWebhookRequest.from(request)));
+    }
+
     @PostMapping(value = "/webhook/automatico", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagoOutput> recibirWebhookAutomatico(@RequestBody JsonNode request) {
         return ResponseEntity.ok(pagoProcessor.confirmarWebhookAutomatico(WompiWebhookRequest.from(request)));

@@ -35,9 +35,12 @@ public record WompiWebhookRequest(
         Map<String, String> metadata) {
 
         public static WompiWebhookRequest from(JsonNode payload) {
-                JsonNode transaction = payload.path("data");
+                JsonNode transaction = payload.path("data").path("transaction");
                 if (transaction.isMissingNode() || transaction.isNull()) {
                         transaction = payload.path("transaction");
+                }
+                if (transaction.isMissingNode() || transaction.isNull()) {
+                        transaction = payload.path("data");
                 }
                 if (transaction.isMissingNode() || transaction.isNull()) {
                         transaction = payload;
@@ -45,12 +48,15 @@ public record WompiWebhookRequest(
 
                 JsonNode metadataNode = transaction.path("metadata");
                 if (metadataNode.isMissingNode() || metadataNode.isNull()) {
+                        metadataNode = payload.path("data").path("metadata");
+                }
+                if (metadataNode.isMissingNode() || metadataNode.isNull()) {
                         metadataNode = payload.path("metadata");
                 }
 
                 return WompiWebhookRequest.builder()
                                 .event(textValue(payload, "event"))
-                                .paymentId(intValue(metadataNode, "paymentId"))
+                                .paymentId(resolvePaymentId(metadataNode, payload, transaction))
                                 .aspiranteId(intValue(metadataNode, "aspiranteId"))
                                 .pagoconceptoId(intValue(metadataNode, "pagoconceptoId"))
                                 .concepto(textValue(metadataNode, "concepto"))
@@ -96,6 +102,29 @@ public record WompiWebhookRequest(
 
         private static Integer intValue(JsonNode node, String fieldName) {
                 return node != null && node.hasNonNull(fieldName) ? node.get(fieldName).asInt() : null;
+        }
+
+        private static Integer resolvePaymentId(JsonNode metadataNode, JsonNode payload, JsonNode transaction) {
+                Integer paymentId = intValue(metadataNode, "paymentId");
+                if (paymentId != null) {
+                        return paymentId;
+                }
+
+                String reference = firstText(transaction, "reference", payload, "reference");
+                if (reference == null || !reference.startsWith("PAGO-")) {
+                        return null;
+                }
+
+                String[] parts = reference.split("-");
+                if (parts.length < 2) {
+                        return null;
+                }
+
+                try {
+                        return Integer.valueOf(parts[1]);
+                } catch (NumberFormatException ex) {
+                        return null;
+                }
         }
 
         private static Long firstLong(JsonNode firstNode, String firstField, JsonNode secondNode, String secondField) {
