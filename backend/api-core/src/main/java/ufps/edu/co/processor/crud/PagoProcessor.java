@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +52,8 @@ import ufps.edu.co.wompi.model.WompiWebhookRequest;
 @Service
 @Transactional
 public class PagoProcessor {
+
+    private static final Logger log = LoggerFactory.getLogger(PagoProcessor.class);
 
     @Autowired
     private PagoService pagoService;
@@ -196,10 +200,14 @@ public class PagoProcessor {
                 .build();
 
         WompiCheckoutResponse checkoutResponse = wompiGateway.createCheckout(request);
+        log.info("Checkout generado para aspirante={} pago={} referencia={} monto={} reciboNuevo={}", idAspirante,
+                pago.id(), checkoutResponse != null ? checkoutResponse.reference() : null, monto,
+                pagoreciboResultado.creadoNuevo());
 
         if (pagoreciboResultado.creadoNuevo()) {
             String urlRecibo = construirYSubirReciboInscripcion(checkoutResponse, pagoreciboinscripcion, idAspirante,
                 aspirante);
+            log.info("Resultado construcción recibo aspirante={} pago={} urlRecibo={}", idAspirante, pago.id(), urlRecibo);
             if (urlRecibo != null && !urlRecibo.isBlank() && pagoreciboinscripcion != null
                 && pagoreciboinscripcion.getId() != null) {
             PagoreciboinscripcionDTO pagoreciboPersistido = pagoreciboinscripcionService
@@ -208,9 +216,17 @@ public class PagoProcessor {
                 pagoreciboPersistido.setUrlrecibo(urlRecibo);
                 pagoreciboinscripcion = pagoreciboinscripcionService.update(pagoreciboPersistido.getId(),
                     pagoreciboPersistido);
+                log.info("Pagoreciboinscripcion actualizado con urlrecibo id={} urlRecibo={}",
+                        pagoreciboinscripcion.getId(), urlRecibo);
                 pagoreciboShallow = construirPagoreciboShallow(pagoreciboinscripcion, pago.id());
+            } else {
+                log.warn("No se encontró pagoreciboinscripcion persistido para actualizar urlrecibo. id={}",
+                        pagoreciboinscripcion.getId());
             }
             }
+        } else {
+            log.info("No se construyó recibo porque ya existía un pagoreciboinscripcion EN CURSO. aspirante={} pago={}",
+                    idAspirante, pago.id());
         }
 
         return WompiCheckoutResponse.builder()

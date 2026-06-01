@@ -3,6 +3,8 @@ package ufps.edu.co.services;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ import ufps.edu.co.records.output.entity.DocumentoOutput;
 
 @Service
 public class S3Service {
+
+    private static final Logger log = LoggerFactory.getLogger(S3Service.class);
 
     @Autowired
     private S3Client s3Client;
@@ -69,6 +73,8 @@ public class S3Service {
         String key = UUID.randomUUID().toString() + "-" + sanitizedName + extension;
 
         try {
+            log.info("Subiendo archivo a S3 originalName={} key={} size={} contentType={}", safeOriginalName, key,
+                content != null ? content.length : 0, contentType);
             s3Client.putObject(
                     PutObjectRequest.builder()
                             .bucket(bucketName)
@@ -82,6 +88,7 @@ public class S3Service {
         }
 
         String url = "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + key;
+        log.info("Archivo subido a S3 key={} url={}", key, url);
         return new UploadResult(key, url);
     }
 

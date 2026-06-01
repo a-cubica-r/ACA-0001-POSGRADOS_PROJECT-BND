@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import ufps.edu.co.DTO.ReciboInscripcionInputDTO;
@@ -16,6 +18,8 @@ import ufps.edu.co.services.S3Service;
 
 @Service
 public class ReciboInscripcionBuilderAdapter implements ReciboInscripcionBuilderPort {
+
+    private static final Logger log = LoggerFactory.getLogger(ReciboInscripcionBuilderAdapter.class);
 
     private static final Locale LOCALE_ES_CO = Locale.forLanguageTag("es-CO");
     private static final String VERSION = "V. 1.0";
@@ -32,6 +36,8 @@ public class ReciboInscripcionBuilderAdapter implements ReciboInscripcionBuilder
     @Override
     public String construirYSubirRecibo(ReciboInscripcionBuildInput input) {
         try {
+            log.info("Construyendo recibo en memoria codigoRecibo={} referencia={} monto={} centavos={}",
+                    input.codigoRecibo(), input.referenciaPago(), input.valor(), input.valorCentavos());
             ReciboInscripcionInputDTO payload = ReciboInscripcionInputDTO.builder()
                     .fechaGeneracion(formatearFechaLarga(input.fechaGeneracion()))
                     .codigoRecibo(input.codigoRecibo())
@@ -54,8 +60,12 @@ public class ReciboInscripcionBuilderAdapter implements ReciboInscripcionBuilder
                     .build();
 
             S3Service.UploadResult result = reciboService.construirYSubirRecibo(payload);
+            log.info("Recibo construido y subido codigoRecibo={} key={} url={}", input.codigoRecibo(),
+                    result != null ? result.keyfile() : null, result != null ? result.enlaceurl() : null);
             return result != null ? result.enlaceurl() : null;
         } catch (Exception e) {
+            log.error("Error construyendo/subiendo recibo codigoRecibo={} referencia={}", input.codigoRecibo(),
+                    input.referenciaPago(), e);
             throw new RuntimeException("No se pudo construir/subir el recibo de inscripción", e);
         }
     }

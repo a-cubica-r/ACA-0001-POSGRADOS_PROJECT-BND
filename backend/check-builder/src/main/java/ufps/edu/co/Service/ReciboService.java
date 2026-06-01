@@ -21,8 +21,13 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class ReciboService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReciboService.class);
 
     private final TemplateEngine templateEngine;
     private final S3Service s3Service;
@@ -34,9 +39,14 @@ public class ReciboService {
 
     public S3Service.UploadResult construirYSubirRecibo(ReciboInscripcionInputDTO input) throws Exception {
         ReciboDTO dto = input.toReciboDTO();
+        log.info("Generando PDF de recibo codigoRecibo={} referencia={}", dto.getCodigoRecibo(), input.getBarcodeDato());
         byte[] pdf = generarPdf(dto);
+        log.info("PDF generado en memoria codigoRecibo={} bytes={}", dto.getCodigoRecibo(), pdf != null ? pdf.length : 0);
         String nombreArchivo = "recibo_inscripcion_" + sanitizeFileName(dto.getCodigoRecibo()) + ".pdf";
-        return s3Service.uploadBytes(pdf, "application/pdf", nombreArchivo);
+        S3Service.UploadResult result = s3Service.uploadBytes(pdf, "application/pdf", nombreArchivo);
+        log.info("PDF subido a S3 codigoRecibo={} key={} url={}", dto.getCodigoRecibo(),
+                result != null ? result.keyfile() : null, result != null ? result.enlaceurl() : null);
+        return result;
     }
 
     private byte[] generarPdf(ReciboDTO dto) throws Exception {
