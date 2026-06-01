@@ -42,6 +42,8 @@ import ufps.edu.co.rest.services.AspiranteService;
 import ufps.edu.co.rest.services.EstadoService;
 import ufps.edu.co.rest.services.PagoService;
 import ufps.edu.co.rest.services.PagoconceptoService;
+import ufps.edu.co.rest.services.CohorteService;
+import ufps.edu.co.rest.services.ProgramaService;
 import ufps.edu.co.rest.services.PagorecibomatriculaService;
 import ufps.edu.co.rest.services.PagoreciboinscripcionService;
 import ufps.edu.co.rest.services.UsuarioService;
@@ -93,6 +95,12 @@ public class PagoProcessor {
     private PagorecibomatriculaService pagorecibomatriculaService;
 
     @Autowired
+    private CohorteService cohorteService;
+
+    @Autowired
+    private ProgramaService programaService;
+
+    @Autowired
     private ReciboInscripcionBuilderPort reciboInscripcionBuilderPort;
 
     @Transactional(readOnly = true)
@@ -100,23 +108,61 @@ public class PagoProcessor {
         List<PagoResumenDTO> pagos = pagoService.findResumenByIdAspirante(idAspirante);
         BigDecimal valorInscripcion = calcularMontoInscripcionEnPesos();
         BigDecimal valorMatricula = calcularMontoMatriculaEnPesos(idAspirante);
+        // Pre-fetch receipts related to these pagos to prefer stored amounts when available
+        var pagoIds = pagos.stream().map(PagoResumenDTO::id).filter(Objects::nonNull).collect(Collectors.toSet());
+        List<PagoreciboinscripcionDTO> recibosInscripcion = pagoreciboinscripcionService.findAll().stream()
+            .filter(item -> item.getIdPago() != null && pagoIds.contains(item.getIdPago()))
+            .collect(Collectors.toList());
+        List<PagorecibomatriculaDTO> recibosMatricula = pagorecibomatriculaService.findAll().stream()
+            .filter(item -> item.getIdPago() != null && pagoIds.contains(item.getIdPago()))
+            .collect(Collectors.toList());
 
         return pagos.stream()
-                .map(dto -> PagoListadoOutput.builder()
-                        .id(dto.id())
-                        .idAspirante(dto.idAspirante())
-                        .idEstado(dto.idEstado())
-                        .idPagoconcepto(dto.idPagoconcepto())
-                        .aspirante(dto.aspirante())
-                        .estado(dto.estado())
-                        .pagoconcepto(PagoconceptoResumenOutput.builder()
-                                .id(dto.pagoconceptoId())
-                                .tipo(dto.pagoconceptoTipo())
-                                .build())
-                        .valorPagoPesos(resolveValorPagoPorTipoConcepto(dto.pagoconceptoTipo(), valorInscripcion,
-                                valorMatricula))
+            .map(dto -> {
+                BigDecimal valor = null;
+                String tipo = dto.pagoconceptoTipo();
+                String tipoNorm = tipo != null ? tipo.trim().toUpperCase(Locale.ROOT) : null;
+                if ("INSCRIPCION".equals(tipoNorm)) {
+                PagoreciboinscripcionDTO recibo = recibosInscripcion.stream()
+                    .filter(r -> Objects.equals(r.getIdPago(), dto.id()))
+                    .filter(r -> !isReciboInscripcionVencido(r))
+                    .findFirst()
+                    .orElse(null);
+                if (recibo != null && recibo.getValorpago() != null) {
+                    valor = recibo.getValorpago();
+                } else {
+                    valor = valorInscripcion;
+                }
+                } else if ("MATRICULA".equals(tipoNorm)) {
+                PagorecibomatriculaDTO recibo = recibosMatricula.stream()
+                    .filter(r -> Objects.equals(r.getIdPago(), dto.id()))
+                    .filter(r -> !isReciboMatriculaVencido(r))
+                    .findFirst()
+                    .orElse(null);
+                if (recibo != null && recibo.getValorpago() != null) {
+                    valor = recibo.getValorpago();
+                } else {
+                    valor = valorMatricula;
+                }
+                } else {
+                valor = resolveValorPagoPorTipoConcepto(tipo, valorInscripcion, valorMatricula);
+                }
+
+                return PagoListadoOutput.builder()
+                    .id(dto.id())
+                    .idAspirante(dto.idAspirante())
+                    .idEstado(dto.idEstado())
+                    .idPagoconcepto(dto.idPagoconcepto())
+                    .aspirante(dto.aspirante())
+                    .estado(dto.estado())
+                    .pagoconcepto(PagoconceptoResumenOutput.builder()
+                        .id(dto.pagoconceptoId())
+                        .tipo(dto.pagoconceptoTipo())
                         .build())
-                .toList();
+                    .valorPagoPesos(valor)
+                    .build();
+            })
+            .toList();
     }
 
     public void ensureInitialPaymentsForAspirante(Integer idAspirante) {
@@ -444,11 +490,15 @@ public class PagoProcessor {
                 .findFirst()
                 .orElse(null);
         }
-        BigDecimal monto = recibo != null && recibo.getValorpago() != null ? recibo.getValorpago()
-                : validarMontoElegidoMatricula(montoElegido, montoTotal);
+        BigDecimal monto;
+        if (recibo != null && recibo.getValorpago() != null) {
+            monto = recibo.getValorpago();
+        } else {
+            monto = montoTotal;
+        }
         String referencia = recibo != null && recibo.getReferenciapago() != null
-                && !recibo.getReferenciapago().isBlank() ? recibo.getReferenciapago()
-                        : construirReferenciaMatricula(pago, aspirante);
+            && !recibo.getReferenciapago().isBlank() ? recibo.getReferenciapago()
+                : construirReferenciaMatricula(pago, aspirante);
 
         long montoEnCents = calcularCentavosDesdePesos(monto);
         return construirReceiptData(pago, aspirante, referencia, monto, montoEnCents, resolverCurrency(),
@@ -507,16 +557,18 @@ public class PagoProcessor {
         }
 
         return new PagoCheckoutPreviewDTO(
-                data.programa(),
-                data.periodo(),
-                construirNombreCompleto(data.nombres(), data.apellidos()),
-                formatearDocumento(data.numerodocumento()),
-                data.facultad(),
-                data.tipo(),
-                monto,
-                urlrecibo,
-                urlfactura,
-                estadoName);
+            data.programa(),
+            data.periodo(),
+            construirNombreCompleto(data.nombres(), data.apellidos()),
+            formatearDocumento(data.numerodocumento()),
+            data.facultad(),
+            data.tipo(),
+            monto,
+            null,
+            null,
+            urlrecibo,
+            urlfactura,
+            estadoName);
     }
 
     @Transactional(readOnly = true)
@@ -533,9 +585,19 @@ public class PagoProcessor {
         validarPagoPerteneceAspirante(pago, idAspirante);
 
         PagorecibomatriculaDTO recibo = pagorecibomatriculaService.findCurrentByIdAspirante(idAspirante);
+        if (recibo == null) {
+            recibo = pagorecibomatriculaService.findAll().stream()
+                    .filter(item -> item.getIdPago() != null && Objects.equals(item.getIdPago(), pago.id()))
+                    .findFirst()
+                    .orElse(null);
+        }
         BigDecimal montoTotal = calcularMontoMatriculaEnPesos(idAspirante);
-        BigDecimal monto = recibo != null && recibo.getValorpago() != null ? recibo.getValorpago()
-                : validarMontoElegidoMatricula(montoElegido, montoTotal);
+        BigDecimal valorMatricula = montoTotal;
+        BigDecimal valorMinimo = null;
+        if (valorMatricula != null) {
+            valorMinimo = valorMatricula.multiply(BigDecimal.valueOf(0.20d)).setScale(2, RoundingMode.HALF_UP);
+        }
+        BigDecimal monto = recibo != null && recibo.getValorpago() != null ? recibo.getValorpago() : montoTotal;
 
         String urlrecibo = null;
         String urlfactura = null;
@@ -554,16 +616,18 @@ public class PagoProcessor {
         }
 
         return new PagoCheckoutPreviewDTO(
-                data.programa(),
-                data.periodo(),
-                construirNombreCompleto(data.nombres(), data.apellidos()),
-                formatearDocumento(data.numerodocumento()),
-                data.facultad(),
-                data.tipo(),
-                monto,
-                urlrecibo,
-                urlfactura,
-                estadoName);
+            data.programa(),
+            data.periodo(),
+            construirNombreCompleto(data.nombres(), data.apellidos()),
+            formatearDocumento(data.numerodocumento()),
+            data.facultad(),
+            data.tipo(),
+            monto,
+            valorMatricula,
+            valorMinimo,
+            urlrecibo,
+            urlfactura,
+            estadoName);
     }
 
     public PagoOutput confirmarWebhook(WompiWebhookRequest request) {
@@ -1038,16 +1102,53 @@ public class PagoProcessor {
     }
 
     private BigDecimal calcularMontoMatriculaEnPesos(Integer idAspirante) {
-        AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
-        if (aspirante == null || aspirante.getCohorte() == null || aspirante.getCohorte().getPrograma() == null) {
+        Integer idCohorte = aspiranteService.findIdCohorteById(idAspirante);
+        if (idCohorte == null) {
             return null;
         }
-        BigDecimal salariosMinimos = aspirante.getCohorte().getPrograma().getValormatricula();
-        if (salariosMinimos == null) {
+        var cohorte = cohorteService.findById(idCohorte);
+        if (cohorte == null || cohorte.getIdPrograma() == null) {
             return null;
         }
+        var programa = programaService.findById(cohorte.getIdPrograma());
+        if (programa == null || programa.getValormatricula() == null) {
+            return null;
+        }
+        BigDecimal salariosMinimos = programa.getValormatricula();
         BigDecimal salarioMinimoPesos = BigDecimal.valueOf(valoresglobalesProcessor.getCurrentSalaryMinimumPesos());
         return salariosMinimos.multiply(salarioMinimoPesos);
+    }
+
+    private boolean isReciboInscripcionVencido(PagoreciboinscripcionDTO recibo) {
+        if (recibo == null) {
+            return true;
+        }
+        if (recibo.getEstado() != null && recibo.getEstado().getTipo() != null) {
+            return "VENCIDO".equalsIgnoreCase(recibo.getEstado().getTipo());
+        }
+        if (recibo.getIdEstado() != null) {
+            EstadoDTO est = estadoService.findById(recibo.getIdEstado());
+            if (est != null && est.getTipo() != null) {
+                return "VENCIDO".equalsIgnoreCase(est.getTipo());
+            }
+        }
+        return false;
+    }
+
+    private boolean isReciboMatriculaVencido(PagorecibomatriculaDTO recibo) {
+        if (recibo == null) {
+            return true;
+        }
+        if (recibo.getEstado() != null && recibo.getEstado().getTipo() != null) {
+            return "VENCIDO".equalsIgnoreCase(recibo.getEstado().getTipo());
+        }
+        if (recibo.getIdEstado() != null) {
+            EstadoDTO est = estadoService.findById(recibo.getIdEstado());
+            if (est != null && est.getTipo() != null) {
+                return "VENCIDO".equalsIgnoreCase(est.getTipo());
+            }
+        }
+        return false;
     }
 
     private BigDecimal resolveValorPagoPorTipoConcepto(String tipoConcepto, BigDecimal valorInscripcion,

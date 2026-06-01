@@ -41,9 +41,13 @@ public class PagorecibomatriculaService extends GenericService<Pagorecibomatricu
 
     @Transactional(readOnly = true)
     public PagorecibomatriculaDTO findCurrentByIdAspirante(Integer idAspirante) {
-        return entityToDto(repository
-                .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
-                        idAspirante, "EN CURSO", "pagomatricula"));
+        var entity = repository
+            .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
+                idAspirante, "EN CURSO", "pagomatricula");
+        if (entity == null) {
+            return null;
+        }
+        return entityToDto(entity);
     }
 
     @Transactional(readOnly = true)

@@ -45,6 +45,9 @@ public abstract class GenericService<ENTITY, DTO> {
      */
     @Transactional(readOnly = true)
     protected DTO entityToDto(ENTITY entity) {
+        if (entity == null) {
+            return null;
+        }
         return mapper.map(entity, dtoClass);
     }
 
