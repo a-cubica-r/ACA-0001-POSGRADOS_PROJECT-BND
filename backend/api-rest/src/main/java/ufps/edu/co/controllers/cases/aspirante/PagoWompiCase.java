@@ -3,6 +3,7 @@ package ufps.edu.co.controllers.cases.aspirante;
 import java.util.List;
 import java.math.BigDecimal;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,8 +27,75 @@ public class PagoWompiCase {
 
     private final PagoProcessor pagoProcessor;
 
+    @Autowired
+    private ufps.edu.co.services.S3Service s3Service;
+
+    @Autowired
+    private ufps.edu.co.rest.services.PagoreciboinscripcionService pagoreciboinscripcionService;
+
+    @Autowired
+    private ufps.edu.co.rest.services.PagorecibomatriculaService pagorecibomatriculaService;
+
     public PagoWompiCase(PagoProcessor pagoProcessor) {
         this.pagoProcessor = pagoProcessor;
+    }
+
+    @PostMapping(value = "/inscripcion/factura", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> subirFacturaInscripcion(@PathVariable Integer idAspirante,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        try {
+            if (file == null || file.isEmpty()) {
+                throw new IllegalArgumentException("Archivo inválido");
+            }
+            var recibo = pagoreciboinscripcionService.findCurrentByIdAspirante(idAspirante);
+            if (recibo == null) {
+                throw new ufps.edu.co.domain.exceptions.DomainException(
+                        ufps.edu.co.domain.exceptions.errorcodes.PagoErrorCode.PAGO_NOT_FOUND, idAspirante);
+            }
+            if (recibo.getUrlfactura() != null && !recibo.getUrlfactura().isBlank()) {
+                throw new ufps.edu.co.domain.exceptions.DomainException(
+                        ufps.edu.co.domain.exceptions.errorcodes.PagoErrorCode.FACTURA_YA_EXISTE_CONFLICT,
+                        recibo.getId());
+            }
+
+            var upload = s3Service.uploadFile(file);
+            recibo.setUrlfactura(upload.enlaceurl());
+            pagoreciboinscripcionService.update(recibo.getId(), recibo);
+            return ResponseEntity.ok().build();
+        } catch (ufps.edu.co.domain.exceptions.DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error subiendo factura de inscripción: " + e.getMessage(), e);
+        }
+    }
+
+    @PostMapping(value = "/matricula/factura", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> subirFacturaMatricula(@PathVariable Integer idAspirante,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        try {
+            if (file == null || file.isEmpty()) {
+                throw new IllegalArgumentException("Archivo inválido");
+            }
+            var recibo = pagorecibomatriculaService.findCurrentByIdAspirante(idAspirante);
+            if (recibo == null) {
+                throw new ufps.edu.co.domain.exceptions.DomainException(
+                        ufps.edu.co.domain.exceptions.errorcodes.PagoErrorCode.PAGO_NOT_FOUND, idAspirante);
+            }
+            if (recibo.getUrlfactura() != null && !recibo.getUrlfactura().isBlank()) {
+                throw new ufps.edu.co.domain.exceptions.DomainException(
+                        ufps.edu.co.domain.exceptions.errorcodes.PagoErrorCode.FACTURA_YA_EXISTE_CONFLICT,
+                        recibo.getId());
+            }
+
+            var upload = s3Service.uploadFile(file);
+            recibo.setUrlfactura(upload.enlaceurl());
+            pagorecibomatriculaService.update(recibo.getId(), recibo);
+            return ResponseEntity.ok().build();
+        } catch (ufps.edu.co.domain.exceptions.DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error subiendo factura de matrícula: " + e.getMessage(), e);
+        }
     }
 
     @GetMapping

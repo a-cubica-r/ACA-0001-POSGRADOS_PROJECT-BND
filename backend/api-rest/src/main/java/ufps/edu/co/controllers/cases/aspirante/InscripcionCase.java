@@ -249,10 +249,10 @@ public class InscripcionCase {
                                                 .build());
 
                 // 10. Estado inicial del aspirante
-                EstadoDTO estado = estadoService.findByTipoAndEntidad("INSCRITO", "ASPIRANTE");
+                EstadoDTO estado = estadoService.findByTipoAndEntidad("NO CONFIRMADO", "ASPIRANTE");
                 if (estado == null) {
                         throw new RuntimeException(
-                                        "Estado inicial 'INSCRITO' para ASPIRANTE no encontrado en la base de datos");
+                                        "Estado inicial 'NO CONFIRMADO' para ASPIRANTE no encontrado en la base de datos");
                 }
 
                 // Validar cohorte enviada por el front

@@ -52,14 +52,13 @@ public class S3Service {
         String sanitizedName = baseName.replaceAll("[^a-zA-Z0-9._-]", "-").toLowerCase();
         String key = UUID.randomUUID().toString() + "-" + sanitizedName + extension;
         try {
-            s3Client.putObject(
+                s3Client.putObject(
                     PutObjectRequest.builder()
-                            .bucket(bucketName)
-                            .key(key)
-                            .contentType(file.getContentType())
-                            .contentDisposition(buildAttachmentContentDisposition(originalName))
-                            .contentLength(file.getSize())
-                            .build(),
+                        .bucket(bucketName)
+                        .key(key)
+                        .contentType(file.getContentType())
+                        .contentLength(file.getSize())
+                        .build(),
                     RequestBody.fromBytes(file.getBytes()));
         } catch (Exception e) {
             throw new RuntimeException("Error al subir archivo a S3: " + e.getMessage(), e);
@@ -79,14 +78,13 @@ public class S3Service {
         try {
             log.info("Subiendo archivo a S3 originalName={} key={} size={} contentType={}", safeOriginalName, key,
                     content != null ? content.length : 0, contentType);
-            s3Client.putObject(
+                s3Client.putObject(
                     PutObjectRequest.builder()
-                            .bucket(bucketName)
-                            .key(key)
-                            .contentType(contentType != null ? contentType : "application/octet-stream")
-                            .contentDisposition(buildAttachmentContentDisposition(safeOriginalName))
-                            .contentLength(content != null ? Long.valueOf(content.length) : 0L)
-                            .build(),
+                        .bucket(bucketName)
+                        .key(key)
+                        .contentType(contentType != null ? contentType : "application/octet-stream")
+                        .contentLength(content != null ? Long.valueOf(content.length) : 0L)
+                        .build(),
                     RequestBody.fromBytes(content != null ? content : new byte[0]));
         } catch (Exception e) {
             throw new RuntimeException("Error al subir archivo a S3: " + e.getMessage(), e);
@@ -131,8 +129,7 @@ public class S3Service {
         }
     }
 
-    private String buildAttachmentContentDisposition(String originalName) {
-        String safeName = originalName != null && !originalName.isBlank() ? originalName : "file";
-        return "attachment; filename=\"" + safeName.replace('"', '_') + "\"";
-    }
+    // No Content-Disposition is set on upload to avoid forcing downloads.
+    // When serving files for inline viewing, the application may set
+    // an explicit Content-Disposition header at response time.
 }

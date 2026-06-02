@@ -378,7 +378,7 @@ public class PruebaProcessor implements
             AspiranteDTO aspirante = aspiranteService.findById(prueba.getIdAspirante());
             if (aspirante == null || aspirante.getPersona() == null) return;
             String nombrePrueba = prueba.getNombre() != null ? prueba.getNombre() : "No definido";
-            String lugar = prueba.getUbicacion() != null ? prueba.getUbicacion().getDireccion() : "No definido";
+            // String lugar = prueba.getUbicacion() != null ? prueba.getUbicacion().getDireccion() : "No definido";
             String motivoTexto = motivo != null ? motivo : "Sin motivo especificado";
 
             if ("ASPIRANTE".equalsIgnoreCase(canceladoPor)) {

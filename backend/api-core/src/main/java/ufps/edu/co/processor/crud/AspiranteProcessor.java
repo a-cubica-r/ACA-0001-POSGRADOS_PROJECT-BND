@@ -547,14 +547,32 @@ public class AspiranteProcessor implements
         String estadoTipo = service.findEstadoTipoById(idAspirante);
         String estado = estadoTipo != null ? estadoTipo.toUpperCase() : "";
 
-        String s1, s2, s3, s4, s5;
+        /**
+         * Lógica de asignación de estados a cada paso del proceso según el estado del aspirante.
+         * s1 = estado del paso 1 (Inscripción)
+         * s2 = estado del paso 2 (Pago)
+         * s3 = estado del paso 3 (Documentos)
+         * s4 = estado del paso 4 (Calificación)
+         * s5 = estado del paso 5 (Resultado)
+         * s6 = estado del paso 6 (Legalización)
+         */
+        String s1, s2, s3, s4, s5, s6;
         switch (estado) {
+            case "NO CONFIRMADO" -> {
+                s1 = "en progreso";
+                s2 = "pendiente";
+                s3 = "pendiente";
+                s4 = "pendiente";
+                s5 = "pendiente";
+                s6 = "pendiente";
+            }
             case "INSCRITO" -> {
                 s1 = "completado";
                 s2 = "en progreso";
                 s3 = "pendiente";
                 s4 = "pendiente";
                 s5 = "pendiente";
+                s6 = "pendiente";
             }
             case "PAZ Y SALVO" -> {
                 s1 = "completado";
@@ -562,6 +580,7 @@ public class AspiranteProcessor implements
                 s3 = "en progreso";
                 s4 = "pendiente";
                 s5 = "pendiente";
+                s6 = "pendiente";
             }
             case "VALIDADO_POR_CALIFICAR" -> {
                 s1 = "completado";
@@ -569,6 +588,7 @@ public class AspiranteProcessor implements
                 s3 = "completado";
                 s4 = "pendiente";
                 s5 = "pendiente";
+                s6 = "pendiente";
             }
             case "VALIDADO_EN_PROGRESO" -> {
                 s1 = "completado";
@@ -576,6 +596,7 @@ public class AspiranteProcessor implements
                 s3 = "completado";
                 s4 = "en progreso";
                 s5 = "pendiente";
+                s6 = "pendiente";
             }
             case "VALIDADO_CALIFICADO" -> {
                 s1 = "completado";
@@ -583,6 +604,7 @@ public class AspiranteProcessor implements
                 s3 = "completado";
                 s4 = "completado";
                 s5 = "en progreso";
+                s6 = "pendiente";
             }
             case "ADMITIDO" -> {
                 s1 = "completado";
@@ -590,6 +612,15 @@ public class AspiranteProcessor implements
                 s3 = "completado";
                 s4 = "completado";
                 s5 = "completado";
+                s6 = "en progreso";
+            }
+            case "LEGALIZADO" -> {
+                s1 = "completado";
+                s2 = "completado";
+                s3 = "completado";
+                s4 = "completado";
+                s5 = "completado";
+                s6 = "completado";
             }
             default -> {
                 s1 = "completado";
@@ -597,6 +628,7 @@ public class AspiranteProcessor implements
                 s3 = "pendiente";
                 s4 = "pendiente";
                 s5 = "pendiente";
+                s6 = "pendiente";
             }
         }
 
@@ -605,7 +637,8 @@ public class AspiranteProcessor implements
                 PasoProcesoOutput.builder().id(2).name("Pago").status(s2).build(),
                 PasoProcesoOutput.builder().id(3).name("Documentos").status(s3).build(),
                 PasoProcesoOutput.builder().id(4).name("Calificación").status(s4).build(),
-                PasoProcesoOutput.builder().id(5).name("Resultado").status(s5).build());
+                PasoProcesoOutput.builder().id(5).name("Resultado").status(s5).build(),
+                PasoProcesoOutput.builder().id(6).name("Legalización").status(s6).build());
     }
 
     public List<AspiranteCalificacionOutput> findAllValidadosCalificacion(Integer cohorteId) {

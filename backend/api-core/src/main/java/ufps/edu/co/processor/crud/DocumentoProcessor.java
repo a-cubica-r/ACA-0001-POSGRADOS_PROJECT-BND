@@ -399,7 +399,7 @@ public class DocumentoProcessor implements
                 .estado(doc.getEstadodocumento() != null ? doc.getEstadodocumento().getEstado()
                     : "PENDIENTE")
                 .motivoRechazo(doc.getObservaciones())
-                .linkArchivo("/director-programa/documentos/" + doc.getId() + "/archivo")
+                .linkArchivo(doc.getEnlaceurl())
                 .build())
             .toList();
 
