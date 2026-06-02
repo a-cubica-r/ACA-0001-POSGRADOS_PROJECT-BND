@@ -441,8 +441,8 @@ public class AspiranteCase {
         if (aspirante == null) {
             throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
         }
-        PersonaDTO persona = personaService.findById(aspirante.getIdPersona());
-        return ResponseEntity.ok(java.util.Map.of("correo", persona.getCorreo()));
+        String correo = personaService.findCorreoById(aspirante.getIdPersona());
+        return ResponseEntity.ok(java.util.Map.of("correo", correo));
     }
 
     @PatchMapping(value = "/{idAspirante}/correo")
