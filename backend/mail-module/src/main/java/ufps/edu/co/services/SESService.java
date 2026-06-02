@@ -1,11 +1,11 @@
 package ufps.edu.co.services;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
+import java.nio.charset.*;
+import java.util.*;
+import org.slf4j.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.scheduling.annotation.*;
+import org.springframework.stereotype.*;
 import software.amazon.awssdk.auth.credentials.*;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
@@ -15,6 +15,8 @@ import ufps.edu.co.exception.SesEmailException;
 
 @Service
 public class SESService {
+
+        private static final Logger logger = LoggerFactory.getLogger(SESService.class);
 
         private final SesClient sesClient;
         private final String fromEmail;
@@ -60,6 +62,15 @@ public class SESService {
                 } catch (Exception e) {
                         throw new SesEmailException(
                                         "Error inesperado al enviar el correo a " + destinatario + ": " + e.getMessage(), e);
+                }
+        }
+
+        @Async
+        public void enviarCorreoAsync(String destinatario, String asunto, String cuerpoHtml) {
+                try {
+                        enviarCorreo(destinatario, asunto, cuerpoHtml);
+                } catch (Exception e) {
+                        logger.error("[EMAIL_ASYNC] Fallo al enviar correo a '{}': {}", destinatario, e.getMessage(), e);
                 }
         }
 

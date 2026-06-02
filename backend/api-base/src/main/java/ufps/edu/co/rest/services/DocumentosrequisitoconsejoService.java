@@ -54,6 +54,12 @@ public class DocumentosrequisitoconsejoService extends GenericService<Documentos
         return entityListToDtoList(repository.findByIdPrograma(idPrograma));
     }
 
+    @Transactional(readOnly = true)
+    public List<DocumentosrequisitoconsejoDTO> findAllByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return entityListToDtoList(repository.findAllById(ids));
+    }
+
     public DocumentosrequisitoconsejoDTO create(DocumentosrequisitoconsejoDTO dto) {
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
