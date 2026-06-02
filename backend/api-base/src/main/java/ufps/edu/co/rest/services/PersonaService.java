@@ -70,6 +70,15 @@ public class PersonaService extends GenericService<PersonaEntity, PersonaDTO> {
         return repository.findById(id).map(PersonaEntity::getCorreo).orElse(null);
     }
 
+    /**
+     * Returns only the nombres (full name) of a Persona by id without mapping the full
+     * entity to DTO to avoid ModelMapper cycles on deep object graphs.
+     */
+    @Transactional(readOnly = true)
+    public String findNombreById(Integer id) {
+        return repository.findById(id).map(PersonaEntity::getNombres).orElse(null);
+    }
+
     public void deleteById(Integer id) {
         repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Persona no encontrado con id: " + id));

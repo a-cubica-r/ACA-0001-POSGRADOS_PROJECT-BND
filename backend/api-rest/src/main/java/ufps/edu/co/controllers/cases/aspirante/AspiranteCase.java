@@ -173,13 +173,15 @@ public class AspiranteCase {
                 idDocumentosrequisitoprogramacohorte,
                 upload);
         String nombreDocumento = documentoProcessor.resolverNombreTitulo(doc);
-        PersonaDTO persona = personaService.findById(aspiranteService.findById(idAspirante).getIdPersona());
+        Integer idPersona = aspiranteService.findById(idAspirante).getIdPersona();
+        String nombrePersona = personaService.findNombreById(idPersona);
+        String correo = personaService.findCorreoById(idPersona);
         try {
-            sesService.enviarCorreo(persona.getCorreo(), EmailTemplates.ASUNTO_SUBIDA_DOCUMENTO,
-                    EmailTemplates.cuerpoSubidaDocumento(persona.getNombres(), nombreDocumento, LocalDate.now()));
+            sesService.enviarCorreo(correo, EmailTemplates.ASUNTO_SUBIDA_DOCUMENTO,
+                EmailTemplates.cuerpoSubidaDocumento(nombrePersona, nombreDocumento, LocalDate.now()));
         } catch (Exception ex) {
             log.error("[DOCUMENTO_EMAIL] Fallo al enviar correo de subida de documento a '{}': {}",
-                    persona.getCorreo(), ex.getMessage(), ex);
+                correo, ex.getMessage(), ex);
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(toDocumentoOutput(documentoService.create(doc)));
     }
@@ -421,15 +423,16 @@ public class AspiranteCase {
         }
         String token = confirmationTokenService.generateToken(idAspirante);
         String enlace = baseUrl + "/api/application/case/aspirantes/confirmar-correo?token=" + token;
-        PersonaDTO persona = personaService.findById(aspirante.getIdPersona());
+        String nombrePersona = personaService.findNombreById(aspirante.getIdPersona());
+        String correo = personaService.findCorreoById(aspirante.getIdPersona());
         try {
             sesService.enviarCorreo(
-                    persona.getCorreo(),
-                    EmailTemplates.ASUNTO_CONFIRMACION_CORREO,
-                    EmailTemplates.cuerpoConfirmacionCorreo(persona.getNombres(), enlace));
+                correo,
+                EmailTemplates.ASUNTO_CONFIRMACION_CORREO,
+                EmailTemplates.cuerpoConfirmacionCorreo(nombrePersona, enlace));
         } catch (Exception ex) {
             log.error("[CONFIRMACION_EMAIL] Fallo al enviar correo de confirmación a '{}': {}",
-                    persona.getCorreo(), ex.getMessage(), ex);
+                correo, ex.getMessage(), ex);
             throw new RuntimeException("No se pudo enviar el correo de confirmación", ex);
         }
         return ResponseEntity.ok().build();
