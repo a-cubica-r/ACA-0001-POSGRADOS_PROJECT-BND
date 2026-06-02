@@ -98,16 +98,16 @@ import ufps.edu.co.records.output.entity.PruebaSimpleOutput;
 import ufps.edu.co.services.S3Service;
 import ufps.edu.co.records.output.entity.PagoreciboDirectorOutput;
 import ufps.edu.co.records.input.entity.PagoEstadoInput;
-import ufps.edu.co.rest.dto.PagoreciboinscripcionDTO;
-import ufps.edu.co.rest.dto.PagorecibomatriculaDTO;
+// import ufps.edu.co.rest.dto.PagoreciboinscripcionDTO;
+// import ufps.edu.co.rest.dto.PagorecibomatriculaDTO;
 import ufps.edu.co.rest.dto.PagoDTO;
 import ufps.edu.co.rest.dto.AspiranteDTO;
-import ufps.edu.co.rest.dto.CohorteDTO;
+// import ufps.edu.co.rest.dto.CohorteDTO;
 import ufps.edu.co.rest.dto.PersonaDTO;
 import ufps.edu.co.rest.services.PagoreciboinscripcionService;
 import ufps.edu.co.rest.services.PagorecibomatriculaService;
 import ufps.edu.co.rest.services.PagoService;
-import ufps.edu.co.rest.services.CohorteService;
+// import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.processor.crud.PagoProcessor;
 import ufps.edu.co.records.output.entity.PagoOutput;
 
@@ -171,8 +171,8 @@ public class DirectorProgramaCase {
     @Autowired
     private PagoService pagoService;
 
-    @Autowired
-    private CohorteService cohorteService;
+    // @Autowired
+    // private CohorteService cohorteService;
 
     @Autowired
     private PagoProcessor pagoProcessor;

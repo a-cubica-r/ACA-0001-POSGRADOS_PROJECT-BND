@@ -58,6 +58,12 @@ public class AspiranteCase {
     private S3Service s3Service;
 
     @Autowired
+    private ufps.edu.co.rest.services.PagoreciboinscripcionService pagoreciboinscripcionService;
+
+    @Autowired
+    private ufps.edu.co.rest.services.PagorecibomatriculaService pagorecibomatriculaService;
+
+    @Autowired
     private EntrevistaProcessor entrevistaProcessor;
 
     @Autowired
@@ -217,6 +223,58 @@ public class AspiranteCase {
                 .orElseGet(() -> documentoService.create(doc));
 
         return ResponseEntity.ok(toDocumentoOutput(saved));
+    }
+
+    @PatchMapping(value = "/{idAspirante}/pagos/inscripcion/factura", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> corregirFacturaInscripcion(@PathVariable Integer idAspirante,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            if (file == null || file.isEmpty()) {
+                throw new IllegalArgumentException("Archivo inválido");
+            }
+            var recibo = pagoreciboinscripcionService.findLastRejectedByIdAspirante(idAspirante);
+            if (recibo == null) {
+                throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idAspirante);
+            }
+            String tipoEstado = recibo.getEstado() != null ? recibo.getEstado().getTipo() : null;
+            if (!"RECHAZADO".equalsIgnoreCase(tipoEstado)) {
+                throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, recibo.getId());
+            }
+            var upload = s3Service.uploadFile(file);
+            recibo.setUrlfactura(upload.enlaceurl());
+            pagoreciboinscripcionService.update(recibo.getId(), recibo);
+            return ResponseEntity.ok().build();
+        } catch (DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error corrigiendo factura de inscripción: " + e.getMessage(), e);
+        }
+    }
+
+    @PatchMapping(value = "/{idAspirante}/pagos/matricula/factura", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> corregirFacturaMatricula(@PathVariable Integer idAspirante,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            if (file == null || file.isEmpty()) {
+                throw new IllegalArgumentException("Archivo inválido");
+            }
+            var recibo = pagorecibomatriculaService.findLastRejectedByIdAspirante(idAspirante);
+            if (recibo == null) {
+                throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idAspirante);
+            }
+            String tipoEstado = recibo.getEstado() != null ? recibo.getEstado().getTipo() : null;
+            if (!"RECHAZADO".equalsIgnoreCase(tipoEstado)) {
+                throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, recibo.getId());
+            }
+            var upload = s3Service.uploadFile(file);
+            recibo.setUrlfactura(upload.enlaceurl());
+            pagorecibomatriculaService.update(recibo.getId(), recibo);
+            return ResponseEntity.ok().build();
+        } catch (DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error corrigiendo factura de matrícula: " + e.getMessage(), e);
+        }
     }
 
     private java.util.Map<String, Object> buildDocumentoRequeridoDetails(

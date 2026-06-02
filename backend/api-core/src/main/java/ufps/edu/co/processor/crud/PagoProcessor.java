@@ -1427,6 +1427,7 @@ public class PagoProcessor {
     }
 
     // --- Director actions: approve/reject/update recibo states ---
+    @SuppressWarnings("null")
     public PagoreciboinscripcionDTO updateEstadoReciboInscripcion(Integer idRecibo, Integer idEstado) {
         PagoreciboinscripcionDTO recibo = pagoreciboinscripcionService.findById(idRecibo);
         if (recibo == null) {
@@ -1468,6 +1469,7 @@ public class PagoProcessor {
         return updated;
     }
 
+    @SuppressWarnings("null")
     public PagorecibomatriculaDTO updateEstadoReciboMatricula(Integer idRecibo, Integer idEstado) {
         PagorecibomatriculaDTO recibo = pagorecibomatriculaService.findById(idRecibo);
         if (recibo == null) {

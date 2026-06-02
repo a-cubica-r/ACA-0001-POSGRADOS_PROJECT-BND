@@ -87,4 +87,12 @@ public class PagorecibomatriculaService extends GenericService<Pagorecibomatricu
                 .orElseThrow(() -> new RuntimeException("Pagorecibomatricula no encontrado con id: " + id));
         repository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    public PagorecibomatriculaDTO findLastRejectedByIdAspirante(Integer idAspirante) {
+        var entity = repository
+            .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
+                idAspirante, "RECHAZADO", "pagomatricula");
+        return entityToDto(entity);
+    }
 }

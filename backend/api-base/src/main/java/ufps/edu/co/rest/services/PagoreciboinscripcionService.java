@@ -51,6 +51,14 @@ public class PagoreciboinscripcionService extends GenericService<Pagoreciboinscr
     }
 
     @Transactional(readOnly = true)
+    public PagoreciboinscripcionDTO findLastRejectedByIdAspirante(Integer idAspirante) {
+        var entity = repository
+            .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
+                idAspirante, "RECHAZADO", "pagoinscripcion");
+        return entityToDto(entity);
+    }
+
+    @Transactional(readOnly = true)
     public boolean existsCurrentByIdAspirante(Integer idAspirante) {
         return repository.existsByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCase(idAspirante,
                 "EN CURSO", "pagoinscripcion");
