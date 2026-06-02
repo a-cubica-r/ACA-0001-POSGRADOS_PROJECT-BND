@@ -78,6 +78,12 @@ public class AspiranteCase {
     @Value("${app.base-url}")
     private String baseUrl;
 
+    @Value("${app.frontend-login-url}")
+    private String frontendLoginUrl;
+
+    @Value("${app.frontend-login-url}")
+    private String frontendLoginUrl;
+
     @Autowired
     private PersonaService personaService;
 
@@ -426,6 +432,8 @@ public class AspiranteCase {
                     .body(java.util.Map.of("error", "Estado 'INSCRITO' no configurado en la base de datos"));
         }
         aspiranteService.updateEstado(idAspirante, estadoNuevo.getId());
-        return ResponseEntity.ok(java.util.Map.of("message", "Correo confirmado exitosamente"));
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(java.net.URI.create(frontendLoginUrl))
+                .build();
     }
 }
