@@ -209,40 +209,27 @@ public class DirectorProgramaCase {
     }
 
     @GetMapping(value = "/pagos/inscripcion")
-    public ResponseEntity<List<PagoreciboDirectorOutput>> listPagosInscripcion() {
+    public ResponseEntity<?> listPagosInscripcion(@org.springframework.web.bind.annotation.RequestParam(value = "page", required = false) Integer page,
+            @org.springframework.web.bind.annotation.RequestParam(value = "size", required = false) Integer size) {
         try {
             Integer programaId = resolvePrograma();
-            List<PagoreciboinscripcionDTO> recibos = pagoreciboinscripcionService.findByProgramaId(programaId);
-            var outputs = recibos.stream().map(r -> {
+            if (page == null) {
+                List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> recibos = pagoreciboinscripcionService.findDirectorByProgramaId(programaId);
+                var outputs = recibos.stream().map(r -> {
                 try {
                     if (r == null) return null;
-                    PagoDTO pago = r.getPago() != null ? r.getPago() : (r.getIdPago() != null ? pagoService.findById(r.getIdPago()) : null);
-                    if (pago == null) return null;
-                    AspiranteDTO aspirante = pago.getAspirante() != null ? pago.getAspirante() : (pago.getIdAspirante() != null ? aspiranteService.findById(pago.getIdAspirante()) : null);
-                    if (aspirante == null) return null;
-
-                    PersonaDTO persona = aspirante.getPersona();
-                    String nombre = persona != null ? (persona.getNombres() + " " + persona.getApellidos()).trim() : null;
-                    String estadoName = null;
-                    if (r.getEstado() != null && r.getEstado().getTipo() != null) {
-                        estadoName = r.getEstado().getTipo();
-                    } else if (r.getIdEstado() != null) {
-                        var est = estadoService.findById(r.getIdEstado());
-                        if (est != null) estadoName = est.getTipo();
-                    }
-
                     return PagoreciboDirectorOutput.builder()
                             .id(r.getId())
                             .idPago(r.getIdPago())
-                            .idAspirante(pago.getIdAspirante())
-                            .aspirante(nombre)
+                            .idAspirante(r.getIdAspirante())
+                            .aspirante(r.getAspirante())
                             .fechavencimiento(r.getFechavencimiento())
                             .urlrecibo(r.getUrlrecibo())
                             .urlfactura(r.getUrlfactura())
                             .referenciapago(r.getReferenciapago())
                             .valorpago(r.getValorpago())
                             .idEstado(r.getIdEstado())
-                            .estado(estadoName)
+                            .estado(r.getEstado())
                             .build();
                 } catch (Exception ex) {
                     logger.error("Error mapeando recibo inscripcion {}", r != null ? r.getId() : null, ex);
@@ -251,6 +238,26 @@ public class DirectorProgramaCase {
             }).filter(Objects::nonNull).toList();
 
             return ResponseEntity.ok(outputs);
+            } else {
+                int p = Math.max(0, page);
+                int s = (size != null && size > 0) ? size : 50;
+                org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(p, s);
+                org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagoreciboinscripcionService.findDirectorByProgramaId(programaId, pageable);
+                org.springframework.data.domain.Page<PagoreciboDirectorOutput> mapped = pageResult.map(r -> PagoreciboDirectorOutput.builder()
+                        .id(r.getId())
+                        .idPago(r.getIdPago())
+                        .idAspirante(r.getIdAspirante())
+                        .aspirante(r.getAspirante())
+                        .fechavencimiento(r.getFechavencimiento())
+                        .urlrecibo(r.getUrlrecibo())
+                        .urlfactura(r.getUrlfactura())
+                        .referenciapago(r.getReferenciapago())
+                        .valorpago(r.getValorpago())
+                        .idEstado(r.getIdEstado())
+                        .estado(r.getEstado())
+                        .build());
+                return ResponseEntity.ok(mapped);
+            }
         } catch (Exception e) {
             logger.error("Error listando pagos de inscripción", e);
             return ResponseEntity.internalServerError().build();
@@ -258,48 +265,55 @@ public class DirectorProgramaCase {
     }
 
     @GetMapping(value = "/pagos/matricula")
-    public ResponseEntity<List<PagoreciboDirectorOutput>> listPagosMatricula() {
+    public ResponseEntity<?> listPagosMatricula(@org.springframework.web.bind.annotation.RequestParam(value = "page", required = false) Integer page,
+            @org.springframework.web.bind.annotation.RequestParam(value = "size", required = false) Integer size) {
         try {
             Integer programaId = resolvePrograma();
-            List<PagorecibomatriculaDTO> recibos = pagorecibomatriculaService.findByProgramaId(programaId);
-            var outputs = recibos.stream().map(r -> {
-                try {
-                    if (r == null) return null;
-                    PagoDTO pago = r.getPago() != null ? r.getPago() : (r.getIdPago() != null ? pagoService.findById(r.getIdPago()) : null);
-                    if (pago == null) return null;
-                    AspiranteDTO aspirante = pago.getAspirante() != null ? pago.getAspirante() : (pago.getIdAspirante() != null ? aspiranteService.findById(pago.getIdAspirante()) : null);
-                    if (aspirante == null) return null;
-
-                    PersonaDTO persona = aspirante.getPersona();
-                    String nombre = persona != null ? (persona.getNombres() + " " + persona.getApellidos()).trim() : null;
-                    String estadoName = null;
-                    if (r.getEstado() != null && r.getEstado().getTipo() != null) {
-                        estadoName = r.getEstado().getTipo();
-                    } else if (r.getIdEstado() != null) {
-                        var est = estadoService.findById(r.getIdEstado());
-                        if (est != null) estadoName = est.getTipo();
+            if (page == null) {
+                List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> recibos = pagorecibomatriculaService.findDirectorByProgramaId(programaId);
+                var outputs = recibos.stream().map(r -> {
+                    try {
+                        if (r == null) return null;
+                        return PagoreciboDirectorOutput.builder()
+                                .id(r.getId())
+                                .idPago(r.getIdPago())
+                                .idAspirante(r.getIdAspirante())
+                                .aspirante(r.getAspirante())
+                                .fechavencimiento(r.getFechavencimiento())
+                                .urlrecibo(r.getUrlrecibo())
+                                .urlfactura(r.getUrlfactura())
+                                .referenciapago(r.getReferenciapago())
+                                .valorpago(r.getValorpago())
+                                .idEstado(r.getIdEstado())
+                                .estado(r.getEstado())
+                                .build();
+                    } catch (Exception ex) {
+                        logger.error("Error mapeando recibo matricula {}", r != null ? r.getId() : null, ex);
+                        return null;
                     }
+                }).filter(Objects::nonNull).toList();
 
-                    return PagoreciboDirectorOutput.builder()
-                            .id(r.getId())
-                            .idPago(r.getIdPago())
-                            .idAspirante(pago.getIdAspirante())
-                            .aspirante(nombre)
-                            .fechavencimiento(r.getFechavencimiento())
-                            .urlrecibo(r.getUrlrecibo())
-                            .urlfactura(r.getUrlfactura())
-                            .referenciapago(r.getReferenciapago())
-                            .valorpago(r.getValorpago())
-                            .idEstado(r.getIdEstado())
-                            .estado(estadoName)
-                            .build();
-                } catch (Exception ex) {
-                    logger.error("Error mapeando recibo matricula {}", r != null ? r.getId() : null, ex);
-                    return null;
-                }
-            }).filter(Objects::nonNull).toList();
-
-            return ResponseEntity.ok(outputs);
+                return ResponseEntity.ok(outputs);
+            } else {
+                int p = Math.max(0, page);
+                int s = (size != null && size > 0) ? size : 50;
+                org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(p, s);
+                org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagorecibomatriculaService.findDirectorByProgramaId(programaId, pageable);
+                org.springframework.data.domain.Page<PagoreciboDirectorOutput> mapped = pageResult.map(r -> PagoreciboDirectorOutput.builder()
+                        .id(r.getId())
+                        .idPago(r.getIdPago())
+                        .idAspirante(r.getIdAspirante())
+                        .aspirante(r.getAspirante())
+                        .fechavencimiento(r.getFechavencimiento())
+                        .urlrecibo(r.getUrlrecibo())
+                        .urlfactura(r.getUrlfactura())
+                        .referenciapago(r.getReferenciapago())
+                        .valorpago(r.getValorpago())
+                        .idEstado(r.getIdEstado())
+                        .estado(r.getEstado())
+                        .build());
+                return ResponseEntity.ok(mapped);
+            }
         } catch (Exception e) {
             logger.error("Error listando pagos de matrícula", e);
             return ResponseEntity.internalServerError().build();

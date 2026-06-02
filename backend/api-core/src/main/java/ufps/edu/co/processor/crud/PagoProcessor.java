@@ -1437,6 +1437,34 @@ public class PagoProcessor {
         if (updated != null && updated.getPago() == null && updated.getIdPago() != null) {
             updated.setPago(PagoDTO.builder().id(updated.getIdPago()).build());
         }
+
+        // If the new estado is RECHAZADO, cascade changes to pago and aspirante
+        EstadoDTO estadoDto = estadoService.findById(idEstado);
+        if (estadoDto != null && "RECHAZADO".equalsIgnoreCase(estadoDto.getTipo())) {
+            try {
+                // Set pago to PENDIENTE
+                EstadoDTO estadoPendiente = resolveEstadoPago("PENDIENTE");
+                if (updated.getIdPago() != null) {
+                    PagoDTO pago = pagoService.findById(updated.getIdPago());
+                    if (pago != null) {
+                        pago.setIdEstado(estadoPendiente.getId());
+                        pagoService.update(pago.getId(), pago);
+
+                        // Set aspirante to INSCRITO
+                        EstadoDTO estadoInscrito = estadoService.findByTipoAndEntidad("INSCRITO", "aspirante");
+                        if (estadoInscrito == null) {
+                            estadoInscrito = estadoService.findByTipoAndEntidad("INSCRITO", "ASPIRANTE");
+                        }
+                        if (estadoInscrito != null && pago.getIdAspirante() != null) {
+                            aspiranteService.updateEstado(pago.getIdAspirante(), estadoInscrito.getId());
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                log.error("Error propagando estado RECHAZADO para recibo inscripcion id={}", idRecibo, ex);
+            }
+        }
+
         return updated;
     }
 
@@ -1450,6 +1478,34 @@ public class PagoProcessor {
         if (updated != null && updated.getPago() == null && updated.getIdPago() != null) {
             updated.setPago(PagoDTO.builder().id(updated.getIdPago()).build());
         }
+
+        // If the new estado is RECHAZADO, cascade changes to pago and aspirante
+        EstadoDTO estadoDto = estadoService.findById(idEstado);
+        if (estadoDto != null && "RECHAZADO".equalsIgnoreCase(estadoDto.getTipo())) {
+            try {
+                // Set pago to PENDIENTE
+                EstadoDTO estadoPendiente = resolveEstadoPago("PENDIENTE");
+                if (updated.getIdPago() != null) {
+                    PagoDTO pago = pagoService.findById(updated.getIdPago());
+                    if (pago != null) {
+                        pago.setIdEstado(estadoPendiente.getId());
+                        pagoService.update(pago.getId(), pago);
+
+                        // Set aspirante to POR LEGALIZAR
+                        EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "aspirante");
+                        if (estadoPorLegalizar == null) {
+                            estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "ASPIRANTE");
+                        }
+                        if (estadoPorLegalizar != null && pago.getIdAspirante() != null) {
+                            aspiranteService.updateEstado(pago.getIdAspirante(), estadoPorLegalizar.getId());
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                log.error("Error propagando estado RECHAZADO para recibo matricula id={}", idRecibo, ex);
+            }
+        }
+
         return updated;
     }
 

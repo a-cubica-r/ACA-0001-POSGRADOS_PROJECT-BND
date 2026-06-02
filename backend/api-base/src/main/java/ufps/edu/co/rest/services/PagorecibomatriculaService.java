@@ -72,6 +72,16 @@ public class PagorecibomatriculaService extends GenericService<Pagorecibomatricu
         return entityListToDtoList(repository.findByProgramaIdWithJoins(programaId));
     }
 
+    @Transactional(readOnly = true)
+    public List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByProgramaId(Integer programaId) {
+        return repository.findDirectorByProgramaId(programaId);
+    }
+
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByProgramaId(Integer programaId, org.springframework.data.domain.Pageable pageable) {
+        return repository.findDirectorByProgramaId(programaId, pageable);
+    }
+
     public void deleteById(Integer id) {
         repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pagorecibomatricula no encontrado con id: " + id));
