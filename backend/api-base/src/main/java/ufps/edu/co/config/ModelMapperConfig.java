@@ -1,6 +1,8 @@
 package ufps.edu.co.config;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.spi.MappingContext;
+import org.modelmapper.Condition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,6 +16,42 @@ public class ModelMapperConfig {
     public ModelMapper modelMapper() {
         ModelMapper mapper = new ModelMapper();
             mapper.getConfiguration().setAmbiguityIgnored(true);
+
+        // Global condition: when mapping originates from a JPA entity (persistence.entities package),
+        // avoid mapping collection properties (OneToMany) to prevent infinite recursion cycles
+        // caused by bidirectional relationships (entity -> dto -> collection -> entity ...).
+        Condition<Object, Object> skipCollectionsFromEntities = new Condition<Object, Object>() {
+            @Override
+            public boolean applies(MappingContext<Object, Object> context) {
+                // If there's no source, nothing to map
+                if (context.getSource() == null) {
+                    return false;
+                }
+                // Find root source type
+                MappingContext<?, ?> root = context;
+                while (root.getParent() != null) {
+                    root = root.getParent();
+                }
+                Class<?> rootSourceType = root.getSourceType();
+                if (rootSourceType != null) {
+                    Package pkg = rootSourceType.getPackage();
+                    if (pkg != null && pkg.getName().contains("persistence.entities")) {
+                        // If destination is a collection, skip mapping
+                        Class<?> destType = context.getDestinationType();
+                        if (destType != null && java.util.Collection.class.isAssignableFrom(destType)) {
+                            return false;
+                        }
+                        // If source itself is a collection, skip mapping
+                        if (context.getSource() instanceof java.util.Collection) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+        };
+
+        mapper.getConfiguration().setPropertyCondition(skipCollectionsFromEntities);
 
         // Persona ↔ Aspirante / Administrativo / Usuario
         mapper.createTypeMap(PersonaEntity.class, PersonaDTO.class)
