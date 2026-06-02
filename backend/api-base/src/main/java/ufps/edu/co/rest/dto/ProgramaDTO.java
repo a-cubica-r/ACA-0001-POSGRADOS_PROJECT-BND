@@ -47,6 +47,7 @@ public class ProgramaDTO implements Serializable {
     private String registrosnies ;
     private String titulo ;
     private BigDecimal valormatricula ;
+    private Boolean esPosgrado ;
     //--- LINKS ( RELATIONSHIPS )
     private List<CargoDTO> cargoList ; 
     private List<CohorteDTO> cohorteList ; 

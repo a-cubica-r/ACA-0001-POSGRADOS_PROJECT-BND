@@ -30,8 +30,10 @@ public class PdfGeneratorService {
 
     private static final Logger logger = LoggerFactory.getLogger(PdfGeneratorService.class);
 
-    private static final Color HEADER_BG  = new Color(185, 28, 28);
-    private static final Color ROW_ALT_BG = new Color(252, 220, 220);
+    // Pantone 18-1664TCX  R:210 G:17 B:22
+    private static final Color COLOR_ROJO  = new Color(210, 17, 22);
+    // Pantone 6 C          R:0   G:0  B:0
+    private static final Color COLOR_NEGRO = new Color(0, 0, 0);
 
     public byte[] generarListaAdmitidos(
             String cohorteNombre,
@@ -52,28 +54,35 @@ public class PdfGeneratorService {
                     Image headerImg = Image.getInstance(is.readAllBytes());
                     headerImg.setAlignment(Element.ALIGN_CENTER);
                     headerImg.scaleToFit(PageSize.A4.getWidth() - 100f, 120f);
-                    headerImg.setSpacingAfter(12f);
+                    headerImg.setSpacingAfter(16f);
                     document.add(headerImg);
                 } else {
                     logger.warn("EncabezadoPDF.png no encontrado en el classpath");
                 }
             }
 
-            Font titleFont    = new Font(Font.HELVETICA, 16, Font.BOLD,   Color.BLACK);
-            Font subtitleFont = new Font(Font.HELVETICA, 11, Font.NORMAL, Color.DARK_GRAY);
-            Font colHeaderFont = new Font(Font.HELVETICA, 10, Font.BOLD,  Color.WHITE);
-            Font boldFont     = new Font(Font.HELVETICA, 10, Font.BOLD,   Color.BLACK);
-            Font normalFont   = new Font(Font.HELVETICA, 10, Font.NORMAL, Color.BLACK);
-            Font footerFont   = new Font(Font.HELVETICA, 10, Font.NORMAL, Color.BLACK);
-            Font footerBold   = new Font(Font.HELVETICA, 11, Font.BOLD,   Color.BLACK);
+            // Helvetica es la fuente base PDF más cercana a Helvetica Neue.
+            // Para Open Sans se necesitaría embeber el TTF en el classpath.
+            Font titleFont     = new Font(Font.HELVETICA, 16, Font.BOLD,   COLOR_ROJO);
+            Font subtitleFont  = new Font(Font.HELVETICA, 10, Font.NORMAL, COLOR_NEGRO);
+            Font colHeaderFont = new Font(Font.HELVETICA, 10, Font.BOLD,   Color.WHITE);
+            Font boldFont      = new Font(Font.HELVETICA, 10, Font.BOLD,   COLOR_NEGRO);
+            Font normalFont    = new Font(Font.HELVETICA, 10, Font.NORMAL, COLOR_NEGRO);
+            Font footerFont    = new Font(Font.HELVETICA,  9, Font.NORMAL, COLOR_NEGRO);
+            Font footerBold    = new Font(Font.HELVETICA, 11, Font.BOLD,   COLOR_NEGRO);
 
-            // --- Título y fecha ---
-            Paragraph title = new Paragraph("Lista de Aspirantes Admitidos en " + cohorteNombre, titleFont);
+            // --- Título ---
+            Paragraph title = new Paragraph("Lista de Aspirantes Admitidos", titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
 
+            Paragraph cohorte = new Paragraph(cohorteNombre, new Font(Font.HELVETICA, 12, Font.BOLD, COLOR_NEGRO));
+            cohorte.setAlignment(Element.ALIGN_CENTER);
+            cohorte.setSpacingAfter(4f);
+            document.add(cohorte);
+
             Paragraph fechaPar = new Paragraph(
-                    "Fecha: " + fechaGeneracion.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    "Fecha de generación: " + fechaGeneracion.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                     subtitleFont);
             fechaPar.setAlignment(Element.ALIGN_CENTER);
             fechaPar.setSpacingAfter(20f);
@@ -88,15 +97,15 @@ public class PdfGeneratorService {
 
             for (String col : new String[]{"#", "Nombre Completo", "Correo / Celular", "Puntaje"}) {
                 PdfPCell hCell = new PdfPCell(new Phrase(col, colHeaderFont));
-                hCell.setBackgroundColor(HEADER_BG);
-                hCell.setPadding(6f);
+                hCell.setBackgroundColor(COLOR_ROJO);
+                hCell.setBorderColor(COLOR_NEGRO);
+                hCell.setPadding(7f);
                 hCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(hCell);
             }
 
             for (int i = 0; i < aspirantesAdmitidos.size(); i++) {
                 AspiranteOutput a = aspirantesAdmitidos.get(i);
-                Color rowBg = (i % 2 == 0) ? Color.WHITE : ROW_ALT_BG;
 
                 String nombre   = "N/A";
                 String contacto = "N/A";
@@ -113,23 +122,27 @@ public class PdfGeneratorService {
                 }
 
                 PdfPCell numCell = new PdfPCell(new Phrase(String.valueOf(i + 1), normalFont));
-                numCell.setBackgroundColor(rowBg);
+                numCell.setBackgroundColor(Color.WHITE);
+                numCell.setBorderColor(COLOR_NEGRO);
                 numCell.setPadding(5f);
                 numCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(numCell);
 
                 PdfPCell nameCell = new PdfPCell(new Phrase(nombre, boldFont));
-                nameCell.setBackgroundColor(rowBg);
+                nameCell.setBackgroundColor(Color.WHITE);
+                nameCell.setBorderColor(COLOR_NEGRO);
                 nameCell.setPadding(5f);
                 table.addCell(nameCell);
 
                 PdfPCell contactCell = new PdfPCell(new Phrase(contacto, normalFont));
-                contactCell.setBackgroundColor(rowBg);
+                contactCell.setBackgroundColor(Color.WHITE);
+                contactCell.setBorderColor(COLOR_NEGRO);
                 contactCell.setPadding(5f);
                 table.addCell(contactCell);
 
                 PdfPCell scoreCell = new PdfPCell(new Phrase(puntaje, normalFont));
-                scoreCell.setBackgroundColor(rowBg);
+                scoreCell.setBackgroundColor(Color.WHITE);
+                scoreCell.setBorderColor(COLOR_NEGRO);
                 scoreCell.setPadding(5f);
                 scoreCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(scoreCell);
@@ -137,8 +150,21 @@ public class PdfGeneratorService {
 
             document.add(table);
 
+            // --- Línea separadora ---
+            PdfPTable linea = new PdfPTable(1);
+            linea.setWidthPercentage(100);
+            linea.setSpacingAfter(8f);
+            PdfPCell lineaCell = new PdfPCell(new Phrase(" "));
+            lineaCell.setBorderColorBottom(COLOR_ROJO);
+            lineaCell.setBorderWidthBottom(1.5f);
+            lineaCell.setBorderWidthTop(0);
+            lineaCell.setBorderWidthLeft(0);
+            lineaCell.setBorderWidthRight(0);
+            linea.addCell(lineaCell);
+            document.add(linea);
+
             // --- Pie de página ---
-            Paragraph footerLabel = new Paragraph("Generado y firmado", footerFont);
+            Paragraph footerLabel = new Paragraph("Generado y firmado por", footerFont);
             footerLabel.setAlignment(Element.ALIGN_CENTER);
             document.add(footerLabel);
 

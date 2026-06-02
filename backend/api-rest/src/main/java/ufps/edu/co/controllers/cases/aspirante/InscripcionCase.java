@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import ufps.edu.co.processor.crud.*;
@@ -21,6 +22,7 @@ import ufps.edu.co.records.output.entity.*;
 import ufps.edu.co.rest.dto.*;
 import ufps.edu.co.rest.services.*;
 import ufps.edu.co.exception.SesEmailException;
+import ufps.edu.co.services.EmailConfirmationTokenService;
 import ufps.edu.co.services.SESService;
 import ufps.edu.co.utils.EmailTemplates;
 
@@ -95,6 +97,12 @@ public class InscripcionCase {
 
         @Autowired
         private SESService sesService;
+
+        @Autowired
+        private EmailConfirmationTokenService confirmationTokenService;
+
+        @Value("${app.base-url}")
+        private String baseUrl;
 
         // @Autowired
         // private EmailTemplates emailTemplates;
@@ -294,6 +302,17 @@ public class InscripcionCase {
                 } catch (SesEmailException ex) {
                         log.error("[INSCRIPCION_EMAIL] Fallo al enviar correo de confirmación a '{}': {}",
                                 persona.getCorreo(), ex.getMessage(), ex);
+                }
+                try {
+                        String token = confirmationTokenService.generateToken(aspirante.getId());
+                        String enlace = baseUrl + "/api/application/case/aspirantes/confirmar-correo?token=" + token;
+                        sesService.enviarCorreo(
+                                        persona.getCorreo(),
+                                        EmailTemplates.ASUNTO_CONFIRMACION_CORREO,
+                                        EmailTemplates.cuerpoConfirmacionCorreo(persona.getNombres(), enlace));
+                } catch (Exception ex) {
+                        log.error("[VERIFICACION_EMAIL] Fallo al enviar correo de verificación a '{}': {}",
+                                        persona.getCorreo(), ex.getMessage(), ex);
                 }
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(new FormularioInscripcionOutput(persona.getId(), aspirante.getId()));

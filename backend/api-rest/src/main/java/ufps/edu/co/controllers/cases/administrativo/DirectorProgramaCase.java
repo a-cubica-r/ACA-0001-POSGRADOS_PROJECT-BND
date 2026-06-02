@@ -77,7 +77,6 @@ import ufps.edu.co.records.output.entity.AprobarDocumentoOutput;
 import ufps.edu.co.records.output.entity.CohorteDetalleOutput;
 import ufps.edu.co.records.output.entity.CohorteListadoOutput;
 import ufps.edu.co.records.output.entity.CohorteResumenOutput;
-import ufps.edu.co.records.output.entity.ListaAdmitidosResumenOutput;
 import ufps.edu.co.records.output.entity.CriteriosCohorteOutput;
 import ufps.edu.co.records.output.entity.ProgramaInicioOutput;
 import ufps.edu.co.records.output.entity.RankingAdmitidosOutput;
@@ -529,10 +528,32 @@ public class DirectorProgramaCase {
         }
     }
 
-    @GetMapping("{idCohorte}/generateAdmittedList")
-    public ResponseEntity<ListaAdmitidosResumenOutput> generateAdmittedList(@PathVariable Integer idCohorte) {
+    @GetMapping("/cohorte/{idCohorte}/admitidos/lista")
+    public ResponseEntity<List<ListaadmitidosOutput>> getAdmitidosByCohorte(@PathVariable Integer idCohorte) {
         try {
-            return ResponseEntity.ok(listaadmitidosProcessor.generateAdmittedList(idCohorte));
+            return ResponseEntity.ok(listaadmitidosProcessor.findByIdCohorte(idCohorte));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("{idCohorte}/generateAdmittedList")
+    public ResponseEntity<byte[]> generateAdmittedList(@PathVariable Integer idCohorte) {
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            Integer idPersona = usuarioService.findIdPersonaByNombreusuario(username);
+            var admin = administrativoService.findByIdPersona(idPersona);
+            String directorNombre = (admin != null && admin.getPersona() != null)
+                    ? admin.getPersona().getNombres() + " " + admin.getPersona().getApellidos()
+                    : "Director de Programa";
+
+            byte[] pdf = listaadmitidosProcessor.generarPdfAdmitidos(idCohorte, directorNombre);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"admitidos_cohorte_" + idCohorte + ".pdf\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdf);
         } catch (DomainException e) {
             throw e;
         } catch (Exception e) {

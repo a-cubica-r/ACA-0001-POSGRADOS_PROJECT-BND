@@ -9,6 +9,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmailTemplates {
 
+  private static final String ENCABEZADO_URL =
+      "https://bucket-posgrados.s3.us-east-2.amazonaws.com/EncabezadoPDF.png";
+
+  private static String encabezado() {
+    return "<div style=\"text-align:center;margin-bottom:16px;\">"
+        + "<img src=\"" + ENCABEZADO_URL + "\""
+        + " alt=\"UFPS Posgrados\" style=\"max-width:100%;height:auto;\"/>"
+        + "</div>";
+  }
+
   // ─── Asuntos ─────────────────────────────────────────────────────────────────
 
   public static final String ASUNTO_INSCRIPCION = "Confirmación de inscripción - Posgrados UFPS";
@@ -47,12 +57,6 @@ public class EmailTemplates {
 
   // ─── Cuerpos HTML ────────────────────────────────────────────────────────────
 
-  /**
-   * Correo de confirmación de inscripción.
-   * Datos disponibles en InscripcionCase.registrarFormulario:
-   * body.nombres(), body.apellidos(), body.tituloPregrado(),
-   * cohorteService.findById(body.idCohorte()).getNombre()
-   */
   public static String cuerpoInscripcion(
       String nombres,
       String apellidos,
@@ -62,6 +66,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a5276;">Confirmación de inscripción</h2>
           <p>Estimado/a <strong>%s %s</strong>,</p>
           <p>Su inscripción al programa de posgrados ha sido registrada exitosamente
@@ -79,15 +84,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombres, apellidos, nombreCohorte, programaPosgrado);
+        """.formatted(encabezado(), nombres, apellidos, nombreCohorte, programaPosgrado);
   }
 
-  /**
-   * Correo de confirmación de carga de documento.
-   * Datos disponibles en AspiranteCase.subirDocumentoRequerido:
-   * idAspirante (se resuelve a nombre del aspirante en el servicio),
-   * file.getOriginalFilename() o nombre del requisito, LocalDate.now()
-   */
   public static String cuerpoSubidaDocumento(
       String nombreAspirante,
       String nombreDocumento,
@@ -96,6 +95,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a5276;">Documento cargado exitosamente</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>El documento <strong>%s</strong> fue cargado exitosamente el <strong>%s</strong>.</p>
@@ -107,16 +107,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, nombreDocumento, fechaCargue);
+        """.formatted(encabezado(), nombreAspirante, nombreDocumento, fechaCargue);
   }
 
-  /**
-   * Correo de aprobación de documento.
-   * Datos disponibles en DocumentoProcessor.approveDocument, retorna
-   * AprobarDocumentoOutput:
-   * output.nombre() es el nombre del documento, el aspirante se resuelve antes de
-   * enviar.
-   */
   public static String cuerpoAprobacionDocumento(
       String nombreAspirante,
       String nombreDocumento) {
@@ -124,6 +117,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a7a4a;">Documento aprobado</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>Nos complace informarle que el documento <strong>%s</strong> ha sido
@@ -134,16 +128,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, nombreDocumento);
+        """.formatted(encabezado(), nombreAspirante, nombreDocumento);
   }
 
-  /**
-   * Correo de rechazo de documento.
-   * Datos disponibles en DirectorProgramaCase.rechazarDocumento:
-   * motivoRechazo viene del body, DocumentoEstadoOutput.nombre() es el nombre del
-   * documento,
-   * el aspirante se resuelve antes de enviar.
-   */
   public static String cuerpoRechazoDocumento(
       String nombreAspirante,
       String nombreDocumento,
@@ -152,6 +139,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #a93226;">Documento rechazado</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>Lamentamos informarle que el documento <strong>%s</strong> ha sido
@@ -169,15 +157,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, nombreDocumento, motivoRechazo);
+        """.formatted(encabezado(), nombreAspirante, nombreDocumento, motivoRechazo);
   }
 
-  /**
-   * Correo de agendamiento de entrevista.
-   * Datos disponibles en DirectorProgramaCase.scheduleInterview:
-   * ENTREVISTA_SCHEDULE_REQUEST: fecha, tiempo, idTipoentrevista, ubicacion.
-   * EntrevistaResumenOutput: tipoentrevista, fecha, tiempo, ubicacion.
-   */
   public static String cuerpoAgendarEntrevista(
       String nombreAspirante,
       LocalDate fecha,
@@ -188,6 +170,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a5276;">Entrevista agendada</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>Se ha agendado una entrevista de tipo <strong>%s</strong> con los siguientes detalles:</p>
@@ -212,15 +195,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, tipoEntrevista, fecha, hora, ubicacion);
+        """.formatted(encabezado(), nombreAspirante, tipoEntrevista, fecha, hora, ubicacion);
   }
 
-  /**
-   * Correo de reagendamiento de entrevista.
-   * Datos disponibles en DirectorProgramaCase.rescheduleInterview:
-   * ENTREVISTA_REAGENDAR_REQUEST: fecha, tiempo, idTipoentrevista, ubicacion.
-   * EntrevistaResumenOutput: tipoentrevista, fecha, tiempo, ubicacion.
-   */
   public static String cuerpoReagendarEntrevista(
       String nombreAspirante,
       LocalDate fecha,
@@ -231,6 +208,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a5276;">Entrevista reagendada</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>Su entrevista de tipo <strong>%s</strong> ha sido reagendada con los siguientes nuevos detalles:</p>
@@ -255,16 +233,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, tipoEntrevista, fecha, hora, ubicacion);
+        """.formatted(encabezado(), nombreAspirante, tipoEntrevista, fecha, hora, ubicacion);
   }
 
-  /**
-   * Correo de agendamiento de prueba.
-   * Datos disponibles en DirectorProgramaCase.crearPrueba:
-   * PRUEBA_CREAR_REQUEST: nombre, descripcion, fecha, tiempo, idTipoprueba,
-   * ubicacion.
-   * PruebaResumenOutput: nombre, tipoprueba, fecha, tiempo, ubicacion.
-   */
   public static String cuerpoAgendarPrueba(
       String nombreAspirante,
       String nombrePrueba,
@@ -276,6 +247,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a5276;">Prueba agendada</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>Se ha agendado una prueba con los siguientes detalles:</p>
@@ -308,15 +280,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, nombrePrueba, tipoPrueba, fecha, hora, ubicacion);
+        """.formatted(encabezado(), nombreAspirante, nombrePrueba, tipoPrueba, fecha, hora, ubicacion);
   }
 
-  /**
-   * Correo de reagendamiento de prueba.
-   * Datos disponibles en DirectorProgramaCase.reagendarPrueba:
-   * PRUEBA_REAGENDAR_REQUEST: fecha, tiempo, idTipoprueba, ubicacion.
-   * PruebaResumenOutput: nombre, tipoprueba, fecha, tiempo, ubicacion.
-   */
   public static String cuerpoReagendarPrueba(
       String nombreAspirante,
       String nombrePrueba,
@@ -328,6 +294,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a5276;">Prueba reagendada</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>La prueba <strong>%s</strong> de tipo <strong>%s</strong> ha sido reagendada
@@ -353,15 +320,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, nombrePrueba, tipoPrueba, fecha, hora, ubicacion);
+        """.formatted(encabezado(), nombreAspirante, nombrePrueba, tipoPrueba, fecha, hora, ubicacion);
   }
 
-  /**
-   * Correo de notificación de calificación de criterio.
-   * Datos disponibles en DirectorProgramaCase.calificarCriterio, retorna
-   * CalificacionCriterioSimpleOutput:
-   * output.nombreCriterio(), output.puntajeObtenido(), output.puntajeTotal().
-   */
   public static String cuerpoCalificacionCriterio(
       String nombreAspirante,
       String nombreCriterio,
@@ -371,6 +332,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a5276;">Calificación de criterio registrada</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>Se ha registrado la calificación del criterio <strong>%s</strong>:</p>
@@ -391,13 +353,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, nombreCriterio, puntajeObtenido, puntajeTotal);
+        """.formatted(encabezado(), nombreAspirante, nombreCriterio, puntajeObtenido, puntajeTotal);
   }
 
-  /**
-   * Aspirante confirma entrevista/prueba → se envía al director.
-   * tipoActividad: "entrevista" o "prueba". nombreActividad: tipo de entrevista o nombre de prueba.
-   */
   public static String cuerpoConfirmacionAlDirector(
       String nombreAspirante,
       String tipoActividad,
@@ -409,6 +367,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a7a4a;">Confirmación de asistencia</h2>
           <p>El/La aspirante <strong>%s</strong> ha confirmado su asistencia a la %s
              <strong>%s</strong> con los siguientes detalles:</p>
@@ -432,12 +391,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, tipoActividad, nombreActividad, fecha, hora, lugar);
+        """.formatted(encabezado(), nombreAspirante, tipoActividad, nombreActividad, fecha, hora, lugar);
   }
 
-  /**
-   * Director marca entrevista/prueba como completada → se envía al aspirante.
-   */
   public static String cuerpoActividadCompletada(
       String nombreAspirante,
       String tipoActividad,
@@ -449,6 +405,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a7a4a;">Actividad completada</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>La %s <strong>%s</strong> realizada el <strong>%s</strong> a las <strong>%s</strong>
@@ -460,12 +417,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, tipoActividad, nombreActividad, fecha, hora, lugar);
+        """.formatted(encabezado(), nombreAspirante, tipoActividad, nombreActividad, fecha, hora, lugar);
   }
 
-  /**
-   * Aspirante solicita cambio de entrevista/prueba → se envía al director.
-   */
   public static String cuerpoCambioSolicitadoAlDirector(
       String nombreAspirante,
       String tipoActividad,
@@ -477,6 +431,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #b7770d;">Solicitud de cambio</h2>
           <p>El/La aspirante <strong>%s</strong> ha solicitado un cambio en la %s
              <strong>%s</strong> programada para el <strong>%s</strong> a las <strong>%s</strong>.</p>
@@ -493,12 +448,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, tipoActividad, nombreActividad, fecha, hora, motivo);
+        """.formatted(encabezado(), nombreAspirante, tipoActividad, nombreActividad, fecha, hora, motivo);
   }
 
-  /**
-   * Aspirante cancela entrevista/prueba → se envía al director.
-   */
   public static String cuerpoCancelacionPorAspirante(
       String nombreAspirante,
       String tipoActividad,
@@ -510,6 +462,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #a93226;">Cancelación por aspirante</h2>
           <p>El/La aspirante <strong>%s</strong> ha cancelado la %s <strong>%s</strong>
              programada para el <strong>%s</strong> a las <strong>%s</strong>.</p>
@@ -525,12 +478,9 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, tipoActividad, nombreActividad, fecha, hora, motivo);
+        """.formatted(encabezado(), nombreAspirante, tipoActividad, nombreActividad, fecha, hora, motivo);
   }
 
-  /**
-   * Director cancela entrevista/prueba → se envía al aspirante.
-   */
   public static String cuerpoCancelacionPorDirector(
       String nombreAspirante,
       String tipoActividad,
@@ -542,6 +492,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #a93226;">Actividad cancelada</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>Lamentamos informarle que la %s <strong>%s</strong> programada para el
@@ -560,7 +511,7 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombreAspirante, tipoActividad, nombreActividad, fecha, hora, motivo);
+        """.formatted(encabezado(), nombreAspirante, tipoActividad, nombreActividad, fecha, hora, motivo);
   }
 
   public static String cuerpoConfirmacionCorreo(String nombres, String enlaceConfirmacion) {
@@ -568,6 +519,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a5276;">Confirma tu correo electrónico</h2>
           <p>Estimado/a <strong>%s</strong>,</p>
           <p>Gracias por inscribirte en el proceso de admisión de posgrados de la UFPS.
@@ -588,7 +540,7 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombres, enlaceConfirmacion);
+        """.formatted(encabezado(), nombres, enlaceConfirmacion);
   }
 
   public static String cuerpoAdmitido(
@@ -599,6 +551,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #1a7a4a;">¡Felicitaciones, has sido admitido!</h2>
           <p>Estimado/a <strong>%s %s</strong>,</p>
           <p>Nos complace informarle que ha sido <strong style="color: #1a7a4a;">admitido/a</strong>
@@ -612,7 +565,7 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombres, apellidos, nombreCohorte);
+        """.formatted(encabezado(), nombres, apellidos, nombreCohorte);
   }
 
   public static String cuerpoRechazado(
@@ -623,6 +576,7 @@ public class EmailTemplates {
         <!DOCTYPE html>
         <html lang="es">
         <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
           <h2 style="color: #a93226;">Resultado del proceso de admisión</h2>
           <p>Estimado/a <strong>%s %s</strong>,</p>
           <p>Lamentamos informarle que no ha sido seleccionado/a en el proceso de admisión
@@ -635,6 +589,6 @@ public class EmailTemplates {
           </p>
         </body>
         </html>
-        """.formatted(nombres, apellidos, nombreCohorte);
+        """.formatted(encabezado(), nombres, apellidos, nombreCohorte);
   }
 }

@@ -47,13 +47,11 @@ import ufps.edu.co.rest.services.ProgramaService;
 import ufps.edu.co.rest.services.PagorecibomatriculaService;
 import ufps.edu.co.rest.services.PagoreciboinscripcionService;
 import ufps.edu.co.rest.services.UsuarioService;
+import org.springframework.context.ApplicationEventPublisher;
+import ufps.edu.co.processor.events.AspiranteLegalizadoEvent;
 import ufps.edu.co.wompi.WompiGateway;
 import ufps.edu.co.wompi.config.WompiProperties;
-import ufps.edu.co.wompi.model.WompiCheckoutRequest;
-import ufps.edu.co.wompi.model.WompiCheckoutResponse;
-import ufps.edu.co.wompi.model.WompiCustomerData;
-import ufps.edu.co.wompi.model.WompiReceiptData;
-import ufps.edu.co.wompi.model.WompiWebhookRequest;
+import ufps.edu.co.wompi.model.*;
 
 @Service
 @Transactional
@@ -102,6 +100,9 @@ public class PagoProcessor {
 
     @Autowired
     private ReciboInscripcionBuilderPort reciboInscripcionBuilderPort;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public List<PagoListadoOutput> findByAspirante(Integer idAspirante) {
@@ -852,6 +853,7 @@ public class PagoProcessor {
         aspirante.setIdEstado(estadoLegalizado.getId());
         aspirante.setEstado(estadoLegalizado);
         aspiranteService.update(aspirante.getId(), aspirante);
+        eventPublisher.publishEvent(new AspiranteLegalizadoEvent(idAspirante));
     }
 
     private EstadoDTO resolveEstadoReciboCompletado() {

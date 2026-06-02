@@ -12,7 +12,10 @@ public enum ListaadmitidosErrorCode implements BaseErrorCode {
             "Director no encontrado o sin cargo asignado"),
     COHORTE_NO_PERTENECE_AL_DIRECTOR(
             "COHORTE_NO_PERTENECE_AL_DIRECTOR",
-            "La cohorte no pertenece al programa del director de programa");
+            "La cohorte no pertenece al programa del director de programa"),
+    ESTADO_POR_LEGALIZAR_NOT_FOUND(
+            "ESTADO_POR_LEGALIZAR_NOT_FOUND",
+            "No se encontró el estado POR LEGALIZAR para aspirante en la tabla de estados");
 
     private final String code;
     private final String defaultMessage;

@@ -24,10 +24,8 @@ import ufps.edu.co.rest.dto.AdministrativoDTO;
 import ufps.edu.co.rest.dto.AspiranteDTO;
 import ufps.edu.co.rest.dto.CohorteDTO;
 import ufps.edu.co.rest.dto.AdmitidoDTO;
-import ufps.edu.co.rest.services.AdministrativoService;
-import ufps.edu.co.rest.services.AspiranteService;
-import ufps.edu.co.rest.services.CohorteService;
-import ufps.edu.co.rest.services.ListaadmitidosService;
+import ufps.edu.co.rest.services.*;
+import ufps.edu.co.rest.dto.EstadoDTO;
 import ufps.edu.co.records.output.entity.*;
 import ufps.edu.co.services.*;
 import ufps.edu.co.utils.EmailTemplates;
@@ -48,6 +46,9 @@ public class ListaadmitidosProcessor {
 
     @Autowired
     private ListaadmitidosService listaadmitidosService;
+
+    @Autowired
+    private EstadoService estadoService;
 
     @Autowired
     private ListaadmitidosMap map;
@@ -110,6 +111,16 @@ public class ListaadmitidosProcessor {
         CohorteDTO cohorte = validateAndGetCohorte(input.idCohorte(), input.idAdministrativo());
         List<AspiranteDTO> admitidos = getTopCandidates(input.idCohorte(), null, cohorte.getCupos());
         LocalDate today = LocalDate.now();
+
+        EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "aspirante");
+        if (estadoPorLegalizar == null) {
+            estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "ASPIRANTE");
+        }
+        if (estadoPorLegalizar == null) {
+            throw new DomainException(ListaadmitidosErrorCode.ESTADO_POR_LEGALIZAR_NOT_FOUND, null);
+        }
+        final Integer idEstadoPorLegalizar = estadoPorLegalizar.getId();
+
         List<ListaadmitidosOutput> outputs = admitidos.stream()
                 .map(a -> {
                     AdmitidoDTO dto = new AdmitidoDTO();
@@ -127,6 +138,7 @@ public class ListaadmitidosProcessor {
                                     a.getPersona().getApellidos(),
                                     cohorte.getNombre()));
                     AdmitidoDTO saved = listaadmitidosService.create(dto);
+                    aspiranteService.updateEstado(a.getId(), idEstadoPorLegalizar);
                     saved.setAspirante(a);
                     return map.toOutput(saved);
                 })
@@ -187,6 +199,36 @@ public class ListaadmitidosProcessor {
         return listaadmitidosService.findByIdCohorte(input.idCohorte()).stream()
                 .map(map::toOutput)
                 .toList();
+    }
+
+    public List<ListaadmitidosOutput> findByIdCohorte(Integer idCohorte) {
+        return listaadmitidosService.findByIdCohorte(idCohorte).stream()
+                .map(map::toOutput)
+                .toList();
+    }
+
+    public byte[] generarPdfAdmitidos(Integer idCohorte, String directorNombre) {
+        CohorteDTO cohorte = cohorteService.findById(idCohorte);
+        if (cohorte == null) {
+            throw new DomainException(CohorteErrorCode.COHORTE_NOT_FOUND, idCohorte);
+        }
+
+        List<AspiranteDTO> admitidos = aspiranteService.findAdmitidosByCohorte(idCohorte);
+
+        List<AspiranteOutput> aspirantesOutput = admitidos.stream()
+                .map(a -> AspiranteOutput.builder()
+                        .id(a.getId())
+                        .puntuacion(a.getPuntuacion())
+                        .persona(a.getPersona() != null ? PersonaOutput.builder()
+                                .nombres(a.getPersona().getNombres())
+                                .apellidos(a.getPersona().getApellidos())
+                                .correo(a.getPersona().getCorreo())
+                                .build() : null)
+                        .build())
+                .toList();
+
+        return pdfGeneratorService.generarListaAdmitidos(
+                cohorte.getNombre(), LocalDateTime.now(), aspirantesOutput, directorNombre);
     }
 
     private CohorteDTO validateAndGetCohorte(Integer idCohorte, Integer idAdministrativo) {
