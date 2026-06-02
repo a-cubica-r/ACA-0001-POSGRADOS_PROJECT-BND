@@ -15,6 +15,7 @@ import ufps.edu.co.processor.crud.*;
 // import ufps.edu.co.rest.services.TipodocumentoService;
 import ufps.edu.co.domain.exceptions.DomainException;
 import ufps.edu.co.domain.exceptions.errorcodes.AspiranteErrorCode;
+import ufps.edu.co.domain.exceptions.errorcodes.UsuarioErrorCode;
 import ufps.edu.co.records.input.entity.ProgramaInput;
 import ufps.edu.co.records.output.entity.*;
 import ufps.edu.co.rest.dto.*;
@@ -328,22 +329,27 @@ public class InscripcionCase {
         public ResponseEntity<RegistrarUsuarioOutput> registrarUsuario(
                         @RequestBody RegistrarUsuarioRequest body) {
 
-                ClaveDTO clave = claveService.create(ClaveDTO.builder()
-                                .valor(body.contrasena())
-                                .build());
+                        // Verify username uniqueness before creating key/usuario
+                        if (body.usuario() != null && usuarioService.findByNombreusuario(body.usuario()) != null) {
+                                throw new DomainException(UsuarioErrorCode.USUARIO_YA_EXISTE_CONFLICT, body.usuario());
+                        }
 
-                UsuarioDTO usuario = usuarioService.create(UsuarioDTO.builder()
-                                .idPersona(body.idPersona())
-                                .idClave(clave.getId())
-                                .idRol(
-                                        rolProcessor.findByNombre("ASPIRANTE").id()
-                                )
-                                .nombreusuario(body.usuario())
-                                .build());
+                        ClaveDTO clave = claveService.create(ClaveDTO.builder()
+                                        .valor(body.contrasena())
+                                        .build());
 
-                return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(new RegistrarUsuarioOutput(usuario.getId(), usuario.getNombreusuario(),
-                                                usuario.getIdPersona()));
+                        UsuarioDTO usuario = usuarioService.create(UsuarioDTO.builder()
+                                        .idPersona(body.idPersona())
+                                        .idClave(clave.getId())
+                                        .idRol(
+                                                rolProcessor.findByNombre("ASPIRANTE").id()
+                                        )
+                                        .nombreusuario(body.usuario())
+                                        .build());
+
+                        return ResponseEntity.status(HttpStatus.CREATED)
+                                        .body(new RegistrarUsuarioOutput(usuario.getId(), usuario.getNombreusuario(),
+                                                        usuario.getIdPersona()));
         }
 
         // ─── Endpoints GET existentes ────────────────────────────────────────────
