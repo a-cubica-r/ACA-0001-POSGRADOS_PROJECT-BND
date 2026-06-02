@@ -384,21 +384,19 @@ public class AspiranteCase {
         return ResponseEntity.ok(java.util.Map.of("correo", persona.getCorreo()));
     }
 
-    @PatchMapping(value = "/{idAspirante}/correo", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/{idAspirante}/correo")
     public ResponseEntity<Void> actualizarCorreo(
             @PathVariable Integer idAspirante,
-            @RequestBody java.util.Map<String, String> body) {
+            @RequestParam("correoNuevo") String correoNuevo) {
         AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
         if (aspirante == null) {
             throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
         }
-        String correoNuevo = body.get("correoNuevo");
         if (correoNuevo == null || correoNuevo.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo correoNuevo es requerido");
         }
-        PersonaDTO persona = personaService.findById(aspirante.getIdPersona());
-        persona.setCorreo(correoNuevo.trim().toLowerCase(java.util.Locale.ROOT));
-        personaService.update(persona.getId(), persona);
+        String correo = correoNuevo.trim().toLowerCase(java.util.Locale.ROOT);
+        personaService.updateCorreo(aspirante.getIdPersona(), correo);
         return ResponseEntity.ok().build();
     }
 

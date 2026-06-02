@@ -50,6 +50,17 @@ public class PersonaService extends GenericService<PersonaEntity, PersonaDTO> {
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
 
+    /**
+     * Update only the correo field of a Persona entity to avoid touching other
+     * relationships that can cause transient reference issues.
+     */
+    public void updateCorreo(Integer id, String correo) {
+        PersonaEntity entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Persona no encontrado con id: " + id));
+        entity.setCorreo(correo);
+        repository.save(entity);
+    }
+
     public void deleteById(Integer id) {
         repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Persona no encontrado con id: " + id));
