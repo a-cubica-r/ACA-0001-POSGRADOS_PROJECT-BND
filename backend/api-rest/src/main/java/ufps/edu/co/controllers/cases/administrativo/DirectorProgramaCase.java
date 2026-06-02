@@ -2,6 +2,7 @@ package ufps.edu.co.controllers.cases.administrativo;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Objects;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -95,6 +96,20 @@ import ufps.edu.co.records.input.entity.PruebaInput.PRUEBA_REAGENDAR_REQUEST;
 import ufps.edu.co.records.output.entity.PruebaResumenOutput;
 import ufps.edu.co.records.output.entity.PruebaSimpleOutput;
 import ufps.edu.co.services.S3Service;
+import ufps.edu.co.records.output.entity.PagoreciboDirectorOutput;
+import ufps.edu.co.records.input.entity.PagoEstadoInput;
+import ufps.edu.co.rest.dto.PagoreciboinscripcionDTO;
+import ufps.edu.co.rest.dto.PagorecibomatriculaDTO;
+import ufps.edu.co.rest.dto.PagoDTO;
+import ufps.edu.co.rest.dto.AspiranteDTO;
+import ufps.edu.co.rest.dto.CohorteDTO;
+import ufps.edu.co.rest.dto.PersonaDTO;
+import ufps.edu.co.rest.services.PagoreciboinscripcionService;
+import ufps.edu.co.rest.services.PagorecibomatriculaService;
+import ufps.edu.co.rest.services.PagoService;
+import ufps.edu.co.rest.services.CohorteService;
+import ufps.edu.co.processor.crud.PagoProcessor;
+import ufps.edu.co.records.output.entity.PagoOutput;
 
 @RestController
 @RequestMapping("/director-programa")
@@ -147,6 +162,21 @@ public class DirectorProgramaCase {
     @Autowired
     private AdministrativoService administrativoService;
 
+    @Autowired
+    private PagoreciboinscripcionService pagoreciboinscripcionService;
+
+    @Autowired
+    private PagorecibomatriculaService pagorecibomatriculaService;
+
+    @Autowired
+    private PagoService pagoService;
+
+    @Autowired
+    private CohorteService cohorteService;
+
+    @Autowired
+    private PagoProcessor pagoProcessor;
+
     @GetMapping(value = "/cohortes")
     public ResponseEntity<List<CohorteResumenOutput>> getCohortesByPrograma() {
         try {
@@ -174,6 +204,242 @@ public class DirectorProgramaCase {
             throw e;
         } catch (Exception e) {
             logger.error("Error obteniendo documentos del aspirante {}", idAspirante, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping(value = "/pagos/inscripcion")
+    public ResponseEntity<List<PagoreciboDirectorOutput>> listPagosInscripcion() {
+        try {
+            Integer programaId = resolvePrograma();
+            List<PagoreciboinscripcionDTO> recibos = pagoreciboinscripcionService.findAll();
+            var outputs = recibos.stream().map(r -> {
+                try {
+                    if (r == null || r.getIdPago() == null) return null;
+                    PagoDTO pago = pagoService.findById(r.getIdPago());
+                    if (pago == null || pago.getIdAspirante() == null) return null;
+                    AspiranteDTO aspirante = aspiranteService.findById(pago.getIdAspirante());
+                    if (aspirante == null) return null;
+                    CohorteDTO coh = aspirante.getCohorte();
+                    if (coh == null && aspirante.getIdCohorte() != null) {
+                        coh = cohorteService.findById(aspirante.getIdCohorte());
+                    }
+                    if (coh == null || !Objects.equals(coh.getIdPrograma(), programaId)) return null;
+
+                    PersonaDTO persona = aspirante.getPersona();
+                    String nombre = persona != null ? (persona.getNombres() + " " + persona.getApellidos()).trim() : null;
+                    String estadoName = null;
+                    if (r.getEstado() != null && r.getEstado().getTipo() != null) {
+                        estadoName = r.getEstado().getTipo();
+                    } else if (r.getIdEstado() != null) {
+                        var est = estadoService.findById(r.getIdEstado());
+                        if (est != null) estadoName = est.getTipo();
+                    }
+
+                    return PagoreciboDirectorOutput.builder()
+                            .id(r.getId())
+                            .idPago(r.getIdPago())
+                            .idAspirante(pago.getIdAspirante())
+                            .aspirante(nombre)
+                            .fechavencimiento(r.getFechavencimiento())
+                            .urlrecibo(r.getUrlrecibo())
+                            .urlfactura(r.getUrlfactura())
+                            .referenciapago(r.getReferenciapago())
+                            .valorpago(r.getValorpago())
+                            .idEstado(r.getIdEstado())
+                            .estado(estadoName)
+                            .build();
+                } catch (Exception ex) {
+                    logger.error("Error mapeando recibo inscripcion {}", r != null ? r.getId() : null, ex);
+                    return null;
+                }
+            }).filter(Objects::nonNull).toList();
+
+            return ResponseEntity.ok(outputs);
+        } catch (Exception e) {
+            logger.error("Error listando pagos de inscripción", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping(value = "/pagos/matricula")
+    public ResponseEntity<List<PagoreciboDirectorOutput>> listPagosMatricula() {
+        try {
+            Integer programaId = resolvePrograma();
+            List<PagorecibomatriculaDTO> recibos = pagorecibomatriculaService.findAll();
+            var outputs = recibos.stream().map(r -> {
+                try {
+                    if (r == null || r.getIdPago() == null) return null;
+                    PagoDTO pago = pagoService.findById(r.getIdPago());
+                    if (pago == null || pago.getIdAspirante() == null) return null;
+                    AspiranteDTO aspirante = aspiranteService.findById(pago.getIdAspirante());
+                    if (aspirante == null) return null;
+                    CohorteDTO coh = aspirante.getCohorte();
+                    if (coh == null && aspirante.getIdCohorte() != null) {
+                        coh = cohorteService.findById(aspirante.getIdCohorte());
+                    }
+                    if (coh == null || !Objects.equals(coh.getIdPrograma(), programaId)) return null;
+
+                    PersonaDTO persona = aspirante.getPersona();
+                    String nombre = persona != null ? (persona.getNombres() + " " + persona.getApellidos()).trim() : null;
+                    String estadoName = null;
+                    if (r.getEstado() != null && r.getEstado().getTipo() != null) {
+                        estadoName = r.getEstado().getTipo();
+                    } else if (r.getIdEstado() != null) {
+                        var est = estadoService.findById(r.getIdEstado());
+                        if (est != null) estadoName = est.getTipo();
+                    }
+
+                    return PagoreciboDirectorOutput.builder()
+                            .id(r.getId())
+                            .idPago(r.getIdPago())
+                            .idAspirante(pago.getIdAspirante())
+                            .aspirante(nombre)
+                            .fechavencimiento(r.getFechavencimiento())
+                            .urlrecibo(r.getUrlrecibo())
+                            .urlfactura(r.getUrlfactura())
+                            .referenciapago(r.getReferenciapago())
+                            .valorpago(r.getValorpago())
+                            .idEstado(r.getIdEstado())
+                            .estado(estadoName)
+                            .build();
+                } catch (Exception ex) {
+                    logger.error("Error mapeando recibo matricula {}", r != null ? r.getId() : null, ex);
+                    return null;
+                }
+            }).filter(Objects::nonNull).toList();
+
+            return ResponseEntity.ok(outputs);
+        } catch (Exception e) {
+            logger.error("Error listando pagos de matrícula", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PatchMapping(value = "/pagos/inscripcion/{idRecibo}/aprobar")
+    public ResponseEntity<PagoOutput> aprobarReciboInscripcion(@PathVariable Integer idRecibo) {
+        try {
+            PagoOutput out = pagoProcessor.approveReciboInscripcion(idRecibo);
+            return ResponseEntity.ok(out);
+        } catch (DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error aprobando recibo inscripción {}", idRecibo, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PatchMapping(value = "/pagos/matricula/{idRecibo}/aprobar")
+    public ResponseEntity<PagoOutput> aprobarReciboMatricula(@PathVariable Integer idRecibo) {
+        try {
+            PagoOutput out = pagoProcessor.approveReciboMatricula(idRecibo);
+            return ResponseEntity.ok(out);
+        } catch (DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error aprobando recibo matrícula {}", idRecibo, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PatchMapping(value = "/pagos/inscripcion/{idRecibo}/estado", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagoreciboDirectorOutput> cambiarEstadoReciboInscripcion(@PathVariable Integer idRecibo,
+            @RequestBody(required = false) PagoEstadoInput.PAGO_ESTADO_UPDATE request) {
+        try {
+            Integer nuevoIdEstado = request != null ? request.idEstado() : null;
+            if (nuevoIdEstado == null) {
+                var est = estadoService.findByTipoAndEntidad("RECHAZADO", "pagoinscripcion");
+                if (est == null) est = estadoService.findByTipoAndEntidad("RECHAZADO", "PAGOINSCRIPCION");
+                if (est == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                nuevoIdEstado = est.getId();
+            }
+
+            var pag = pagoProcessor.updateEstadoReciboInscripcion(idRecibo, nuevoIdEstado);
+            if (pag == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+            PagoDTO pago = pag.getPago() != null && pag.getPago().getId() != null ? pagoService.findById(pag.getPago().getId()) : null;
+            AspiranteDTO aspirante = pago != null && pago.getIdAspirante() != null ? aspiranteService.findById(pago.getIdAspirante()) : null;
+            PersonaDTO persona = aspirante != null ? aspirante.getPersona() : null;
+            String nombre = persona != null ? (persona.getNombres() + " " + persona.getApellidos()).trim() : null;
+
+            String estadoName = null;
+            if (pag.getEstado() != null && pag.getEstado().getTipo() != null) {
+                estadoName = pag.getEstado().getTipo();
+            } else if (pag.getIdEstado() != null) {
+                var est = estadoService.findById(pag.getIdEstado());
+                if (est != null) estadoName = est.getTipo();
+            }
+
+            PagoreciboDirectorOutput out = PagoreciboDirectorOutput.builder()
+                    .id(pag.getId())
+                    .idPago(pag.getIdPago())
+                    .idAspirante(pago != null ? pago.getIdAspirante() : null)
+                    .aspirante(nombre)
+                    .fechavencimiento(pag.getFechavencimiento())
+                    .urlrecibo(pag.getUrlrecibo())
+                    .urlfactura(pag.getUrlfactura())
+                    .referenciapago(pag.getReferenciapago())
+                    .valorpago(pag.getValorpago())
+                    .idEstado(pag.getIdEstado())
+                    .estado(estadoName)
+                    .build();
+
+            return ResponseEntity.ok(out);
+        } catch (DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error cambiando estado recibo inscripción {}", idRecibo, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PatchMapping(value = "/pagos/matricula/{idRecibo}/estado", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagoreciboDirectorOutput> cambiarEstadoReciboMatricula(@PathVariable Integer idRecibo,
+            @RequestBody(required = false) PagoEstadoInput.PAGO_ESTADO_UPDATE request) {
+        try {
+            Integer nuevoIdEstado = request != null ? request.idEstado() : null;
+            if (nuevoIdEstado == null) {
+                var est = estadoService.findByTipoAndEntidad("RECHAZADO", "pagomatricula");
+                if (est == null) est = estadoService.findByTipoAndEntidad("RECHAZADO", "PAGOMATRICULA");
+                if (est == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                nuevoIdEstado = est.getId();
+            }
+
+            var pag = pagoProcessor.updateEstadoReciboMatricula(idRecibo, nuevoIdEstado);
+            if (pag == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+            PagoDTO pago = pag.getPago() != null && pag.getPago().getId() != null ? pagoService.findById(pag.getPago().getId()) : null;
+            AspiranteDTO aspirante = pago != null && pago.getIdAspirante() != null ? aspiranteService.findById(pago.getIdAspirante()) : null;
+            PersonaDTO persona = aspirante != null ? aspirante.getPersona() : null;
+            String nombre = persona != null ? (persona.getNombres() + " " + persona.getApellidos()).trim() : null;
+
+            String estadoName = null;
+            if (pag.getEstado() != null && pag.getEstado().getTipo() != null) {
+                estadoName = pag.getEstado().getTipo();
+            } else if (pag.getIdEstado() != null) {
+                var est = estadoService.findById(pag.getIdEstado());
+                if (est != null) estadoName = est.getTipo();
+            }
+
+            PagoreciboDirectorOutput out = PagoreciboDirectorOutput.builder()
+                    .id(pag.getId())
+                    .idPago(pag.getIdPago())
+                    .idAspirante(pago != null ? pago.getIdAspirante() : null)
+                    .aspirante(nombre)
+                    .fechavencimiento(pag.getFechavencimiento())
+                    .urlrecibo(pag.getUrlrecibo())
+                    .urlfactura(pag.getUrlfactura())
+                    .referenciapago(pag.getReferenciapago())
+                    .valorpago(pag.getValorpago())
+                    .idEstado(pag.getIdEstado())
+                    .estado(estadoName)
+                    .build();
+
+            return ResponseEntity.ok(out);
+        } catch (DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error cambiando estado recibo matrícula {}", idRecibo, e);
             return ResponseEntity.internalServerError().build();
         }
     }

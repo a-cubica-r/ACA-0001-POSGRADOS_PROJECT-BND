@@ -1,34 +1,21 @@
 package ufps.edu.co.processor.crud;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.time.*;
+import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ufps.edu.co.domain.exceptions.DomainException;
-import ufps.edu.co.domain.exceptions.DuplicateAdmisionException;
-import ufps.edu.co.domain.exceptions.errorcodes.CohorteErrorCode;
-import ufps.edu.co.domain.exceptions.errorcodes.ListaadmitidosErrorCode;
-import ufps.edu.co.maps.specific.ListaadmitidosMap;
-import ufps.edu.co.records.input.entity.ListaadmitidosInput.GENERATE_LISTA;
-import ufps.edu.co.records.input.entity.ListaadmitidosInput.RECHAZAR_ASPIRANTE;
-import ufps.edu.co.records.output.entity.ListaAdmitidosResumenOutput;
-import ufps.edu.co.records.output.entity.ListaadmitidosOutput;
-import ufps.edu.co.rest.dto.AdministrativoDTO;
-import ufps.edu.co.rest.dto.AspiranteDTO;
-import ufps.edu.co.rest.dto.CohorteDTO;
-import ufps.edu.co.rest.dto.AdmitidoDTO;
-import ufps.edu.co.rest.services.*;
-import ufps.edu.co.rest.dto.EstadoDTO;
+import ufps.edu.co.domain.exceptions.*;
+import ufps.edu.co.domain.exceptions.errorcodes.*;
+import ufps.edu.co.maps.specific.*;
+import ufps.edu.co.records.input.entity.ListaadmitidosInput.*;
 import ufps.edu.co.records.output.entity.*;
+import ufps.edu.co.rest.dto.*;
+import ufps.edu.co.rest.services.*;
 import ufps.edu.co.services.*;
-import ufps.edu.co.utils.EmailTemplates;
+import ufps.edu.co.utils.*;
 
 @Service
 public class ListaadmitidosProcessor {

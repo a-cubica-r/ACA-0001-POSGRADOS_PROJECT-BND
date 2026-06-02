@@ -1,67 +1,28 @@
 package ufps.edu.co.controllers.cases.aspirante;
 
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.time.*;
+import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import ufps.edu.co.domain.exceptions.DomainException;
-import ufps.edu.co.domain.exceptions.errorcodes.AspiranteErrorCode;
-// import ufps.edu.co.persistence.entities.PersonaEntity;
-import ufps.edu.co.processor.cases.DocumentosrequisitoprogramaPE;
-import ufps.edu.co.processor.crud.AspiranteProcessor;
-import ufps.edu.co.processor.crud.DocumentoProcessor;
-import ufps.edu.co.processor.crud.EntrevistaProcessor;
-import ufps.edu.co.processor.crud.PruebaProcessor;
-import ufps.edu.co.records.input.entity.AspiranteInput.ASPIRANTE_FIND;
-// import ufps.edu.co.records.input.entity.DocumentoInput.DOCUMENTO_FIND;
-import ufps.edu.co.records.input.entity.EntrevistaInput.ENTREVISTA_CANCELAR_REQUEST;
-import ufps.edu.co.records.input.entity.EntrevistaInput.ENTREVISTA_FIND;
-import ufps.edu.co.records.input.entity.EntrevistaInput.ENTREVISTA_REQUEST_CHANGE;
-import ufps.edu.co.records.input.entity.PruebaInput.PRUEBA_CANCELAR_REQUEST;
-import ufps.edu.co.records.output.entity.AspiranteCriteriosOutput;
-import ufps.edu.co.records.output.entity.AspiranteDocumentosOutput;
-import ufps.edu.co.records.output.entity.AspiranteIdOutput;
-import ufps.edu.co.records.output.entity.DocumentoOutput;
-import ufps.edu.co.records.output.entity.DocumentoRequeridoOutput;
-import ufps.edu.co.rest.dto.DocumentoDTO;
-import ufps.edu.co.rest.dto.PersonaDTO;
-import ufps.edu.co.rest.services.CohorteService;
-import ufps.edu.co.rest.services.DocumentoService;
-import ufps.edu.co.rest.services.EstadodocumentoService;
-import ufps.edu.co.rest.services.PersonaService;
-import ufps.edu.co.services.EmailConfirmationTokenService;
-import ufps.edu.co.services.S3Service;
-import ufps.edu.co.services.SESService;
-import ufps.edu.co.utils.EmailTemplates;
-import ufps.edu.co.records.output.entity.EntrevistaOutput;
-import ufps.edu.co.records.output.entity.EntrevistaResumenOutput;
-import ufps.edu.co.records.output.entity.EntrevistaSimpleOutput;
-import ufps.edu.co.records.output.entity.PasoProcesoOutput;
-import ufps.edu.co.records.output.entity.PruebaResumenOutput;
-import ufps.edu.co.records.output.entity.PruebaSimpleOutput;
-import ufps.edu.co.rest.dto.UsuarioDTO;
-import ufps.edu.co.rest.services.AspiranteService;
-import ufps.edu.co.rest.services.EstadoService;
-import ufps.edu.co.rest.services.UsuarioService;
+import ufps.edu.co.domain.exceptions.*;
+import ufps.edu.co.domain.exceptions.errorcodes.*;
+import ufps.edu.co.processor.cases.*;
+import ufps.edu.co.processor.crud.*;
+import ufps.edu.co.records.input.entity.AspiranteInput.*;
+import ufps.edu.co.records.input.entity.EntrevistaInput.*;
+import ufps.edu.co.records.input.entity.PruebaInput.*;
+import ufps.edu.co.records.output.entity.*;
+import ufps.edu.co.rest.dto.*;
+import ufps.edu.co.rest.services.*;
+import ufps.edu.co.services.*;
+import ufps.edu.co.utils.*;
 
 @RestController
 @RequestMapping(value = "/aspirantes", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -371,18 +332,17 @@ public class AspiranteCase {
 
     @PatchMapping("/{idAspirante}/confirmar-correo")
     public ResponseEntity<Void> confirmarCorreo(@PathVariable Integer idAspirante) {
-        ufps.edu.co.rest.dto.AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
         if (aspirante == null) {
             throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
         }
         String estadoActual = aspirante.getEstado() != null ? aspirante.getEstado().getTipo() : null;
-        if (!"INSCRITO".equalsIgnoreCase(estadoActual)) {
+        if (!"NO CONFIRMADO".equalsIgnoreCase(estadoActual)) {
             throw new DomainException(AspiranteErrorCode.ESTADO_TRANSICION_INVALIDA_CONFLICT, estadoActual);
         }
-        ufps.edu.co.rest.dto.EstadoDTO estadoNuevo = estadoService.findByTipoAndEntidad("CORREO_CONFIRMADO",
-                "aspirante");
+        EstadoDTO estadoNuevo = estadoService.findByTipoAndEntidad("INSCRITO", "aspirante");
         if (estadoNuevo == null) {
-            throw new RuntimeException("Estado 'CORREO_CONFIRMADO' para aspirante no encontrado en la base de datos");
+            throw new RuntimeException("Estado 'INSCRITO' para aspirante no encontrado en la base de datos");
         }
         aspiranteService.updateEstado(idAspirante, estadoNuevo.getId());
         return ResponseEntity.ok().build();
@@ -390,7 +350,7 @@ public class AspiranteCase {
 
     @PostMapping("/{idAspirante}/enviar-confirmacion-correo")
     public ResponseEntity<Void> enviarConfirmacionCorreo(@PathVariable Integer idAspirante) {
-        ufps.edu.co.rest.dto.AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
         if (aspirante == null) {
             throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
         }
@@ -416,7 +376,7 @@ public class AspiranteCase {
 
     @GetMapping("/{idAspirante}/correo")
     public ResponseEntity<java.util.Map<String, String>> getCorreo(@PathVariable Integer idAspirante) {
-        ufps.edu.co.rest.dto.AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
         if (aspirante == null) {
             throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
         }
@@ -428,7 +388,7 @@ public class AspiranteCase {
     public ResponseEntity<Void> actualizarCorreo(
             @PathVariable Integer idAspirante,
             @RequestBody java.util.Map<String, String> body) {
-        ufps.edu.co.rest.dto.AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
         if (aspirante == null) {
             throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
         }
@@ -451,21 +411,21 @@ public class AspiranteCase {
             return ResponseEntity.badRequest()
                     .body(java.util.Map.of("error", ex.getMessage()));
         }
-        ufps.edu.co.rest.dto.AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
         if (aspirante == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(java.util.Map.of("error", "Aspirante no encontrado"));
         }
         String estadoActual = aspirante.getEstado() != null ? aspirante.getEstado().getTipo() : null;
-        if (!"INSCRITO".equalsIgnoreCase(estadoActual)) {
+        if (!"NO CONFIRMADO".equalsIgnoreCase(estadoActual)) {
             return ResponseEntity.badRequest()
                     .body(java.util.Map.of("error",
-                            "El correo ya fue confirmado o el aspirante no está en estado INSCRITO"));
+                            "El correo ya fue confirmado o el aspirante no está en estado NO CONFIRMADO"));
         }
-        ufps.edu.co.rest.dto.EstadoDTO estadoNuevo = estadoService.findByTipoAndEntidad("CORREO_CONFIRMADO", "aspirante");
+        EstadoDTO estadoNuevo = estadoService.findByTipoAndEntidad("INSCRITO", "aspirante");
         if (estadoNuevo == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(java.util.Map.of("error", "Estado 'CORREO_CONFIRMADO' no configurado en la base de datos"));
+                    .body(java.util.Map.of("error", "Estado 'INSCRITO' no configurado en la base de datos"));
         }
         aspiranteService.updateEstado(idAspirante, estadoNuevo.getId());
         return ResponseEntity.ok(java.util.Map.of("message", "Correo confirmado exitosamente"));

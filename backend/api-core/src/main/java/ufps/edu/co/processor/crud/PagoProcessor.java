@@ -1425,4 +1425,89 @@ public class PagoProcessor {
             return null;
         }
     }
+
+    // --- Director actions: approve/reject/update recibo states ---
+    public PagoreciboinscripcionDTO updateEstadoReciboInscripcion(Integer idRecibo, Integer idEstado) {
+        PagoreciboinscripcionDTO recibo = pagoreciboinscripcionService.findById(idRecibo);
+        if (recibo == null) {
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idRecibo);
+        }
+        recibo.setIdEstado(idEstado);
+        PagoreciboinscripcionDTO updated = pagoreciboinscripcionService.update(idRecibo, recibo);
+        if (updated != null && updated.getPago() == null && updated.getIdPago() != null) {
+            updated.setPago(PagoDTO.builder().id(updated.getIdPago()).build());
+        }
+        return updated;
+    }
+
+    public PagorecibomatriculaDTO updateEstadoReciboMatricula(Integer idRecibo, Integer idEstado) {
+        PagorecibomatriculaDTO recibo = pagorecibomatriculaService.findById(idRecibo);
+        if (recibo == null) {
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idRecibo);
+        }
+        recibo.setIdEstado(idEstado);
+        PagorecibomatriculaDTO updated = pagorecibomatriculaService.update(idRecibo, recibo);
+        if (updated != null && updated.getPago() == null && updated.getIdPago() != null) {
+            updated.setPago(PagoDTO.builder().id(updated.getIdPago()).build());
+        }
+        return updated;
+    }
+
+    public PagoOutput approveReciboInscripcion(Integer idRecibo) {
+        PagoreciboinscripcionDTO recibo = pagoreciboinscripcionService.findById(idRecibo);
+        if (recibo == null) {
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idRecibo);
+        }
+        if (recibo.getIdPago() == null) {
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idRecibo);
+        }
+
+        PagoDTO pago = pagoService.findById(recibo.getIdPago());
+        if (pago == null) {
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, recibo.getIdPago());
+        }
+
+        EstadoDTO estadoRealizado = resolveEstadoPago("REALIZADO");
+
+        Integer nuevoEstadoRecibo = resolveEstadoReciboCompletado().getId();
+        recibo.setIdEstado(nuevoEstadoRecibo);
+        pagoreciboinscripcionService.update(recibo.getId(), recibo);
+
+        pago.setIdEstado(estadoRealizado.getId());
+        pagoService.update(pago.getId(), pago);
+
+        actualizarEstadoAspirantePazYSalvo(pago.getIdAspirante());
+
+        PagoDTO updated = pagoService.findById(pago.getId());
+        return pagoMap.toOutput(updated);
+    }
+
+    public PagoOutput approveReciboMatricula(Integer idRecibo) {
+        PagorecibomatriculaDTO recibo = pagorecibomatriculaService.findById(idRecibo);
+        if (recibo == null) {
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idRecibo);
+        }
+        if (recibo.getIdPago() == null) {
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idRecibo);
+        }
+
+        PagoDTO pago = pagoService.findById(recibo.getIdPago());
+        if (pago == null) {
+            throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, recibo.getIdPago());
+        }
+
+        EstadoDTO estadoRealizado = resolveEstadoPago("REALIZADO");
+
+        Integer nuevoEstadoRecibo = resolveEstadoReciboCompletado().getId();
+        recibo.setIdEstado(nuevoEstadoRecibo);
+        pagorecibomatriculaService.update(recibo.getId(), recibo);
+
+        pago.setIdEstado(estadoRealizado.getId());
+        pagoService.update(pago.getId(), pago);
+
+        actualizarEstadoAspiranteLegalizado(pago.getIdAspirante());
+
+        PagoDTO updated = pagoService.findById(pago.getId());
+        return pagoMap.toOutput(updated);
+    }
 }
