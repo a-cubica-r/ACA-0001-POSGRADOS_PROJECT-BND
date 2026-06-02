@@ -81,9 +81,6 @@ public class AspiranteCase {
     @Value("${app.frontend-login-url}")
     private String frontendLoginUrl;
 
-    @Value("${app.frontend-login-url}")
-    private String frontendLoginUrl;
-
     @Autowired
     private PersonaService personaService;
 
