@@ -643,10 +643,18 @@ public class PagoProcessor {
             throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, null);
         }
 
+        log.info("Procesando webhook Wompi: event={} paymentId={} reference={} status={}",
+                request.event(), request.paymentId(), request.reference(), request.status());
+
         PagoDTO pago = resolvePagoDesdeWebhook(request);
         if (pago == null) {
+            log.warn("No se pudo resolver pago desde webhook: reference={} paymentId={}", request.reference(),
+                    request.paymentId());
             throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, request.reference());
         }
+
+        log.info("Pago resuelto desde webhook: id={} idPagoconcepto={} idAspirante={}", pago.getId(),
+                pago.getIdPagoconcepto(), pago.getIdAspirante());
 
         if (request.reference() != null && request.reference().startsWith("PAGO-")) {
             String[] parts = request.reference().split("-");
@@ -661,7 +669,7 @@ public class PagoProcessor {
 
         String status = request.status();
         if (status == null || !esEstadoAprobado(status)) {
-            log.info("Webhook Wompi ignorado por estado no aprobado paymentId={} reference={} status={}",
+            log.info("Webhook Wompi ignorado por estado no aprobado paymentId={} reference={} status=({},)",
                     request.paymentId(), request.reference(), status);
             return pagoMap.toOutput(pago);
         }
@@ -679,6 +687,7 @@ public class PagoProcessor {
         }
 
         EstadoDTO estadoRealizado = resolveEstadoPago("REALIZADO");
+        log.info("Webhook aprobado. Actualizando estados para pago id={}", pago.getId());
         actualizarEstadosPagoYRecibo(pago, estadoRealizado);
         PagoDTO updated = pagoService.findById(pago.getId());
 
@@ -708,15 +717,18 @@ public class PagoProcessor {
         if (reference == null || reference.isBlank()) {
             return null;
         }
-
         PagoreciboinscripcionDTO reciboInscripcion = pagoreciboinscripcionService.findAll().stream()
                 .filter(item -> reference.equalsIgnoreCase(item.getReferenciapago()))
                 .findFirst()
                 .orElse(null);
-        if (reciboInscripcion != null && reciboInscripcion.getIdPago() != null) {
-            PagoDTO pago = pagoService.findById(reciboInscripcion.getIdPago());
-            if (pago != null) {
-                return pago;
+        if (reciboInscripcion != null) {
+            log.info("Recibo inscripcion encontrado por referencia: id={} idPago={} referencia={}",
+                    reciboInscripcion.getId(), reciboInscripcion.getIdPago(), reciboInscripcion.getReferenciapago());
+            if (reciboInscripcion.getIdPago() != null) {
+                PagoDTO pago = pagoService.findById(reciboInscripcion.getIdPago());
+                if (pago != null) {
+                    return pago;
+                }
             }
         }
 
@@ -724,8 +736,12 @@ public class PagoProcessor {
                 .filter(item -> reference.equalsIgnoreCase(item.getReferenciapago()))
                 .findFirst()
                 .orElse(null);
-        if (reciboMatricula != null && reciboMatricula.getIdPago() != null) {
-            return pagoService.findById(reciboMatricula.getIdPago());
+        if (reciboMatricula != null) {
+            log.info("Recibo matricula encontrado por referencia: id={} idPago={} referencia={}",
+                    reciboMatricula.getId(), reciboMatricula.getIdPago(), reciboMatricula.getReferenciapago());
+            if (reciboMatricula.getIdPago() != null) {
+                return pagoService.findById(reciboMatricula.getIdPago());
+            }
         }
 
         return null;
@@ -790,15 +806,22 @@ public class PagoProcessor {
     }
 
     private void actualizarReciboMatriculaYPago(PagoDTO pago, EstadoDTO estadoRealizado) {
+        log.info("Actualizando recibo matricula para pago id={}", pago.getId());
         PagorecibomatriculaDTO recibo = pagorecibomatriculaService.findAll().stream()
                 .filter(item -> item.getIdPago() != null && Objects.equals(item.getIdPago(), pago.getId()))
                 .findFirst()
                 .orElse(null);
         if (recibo == null) {
+            log.warn("No se encontro recibo matricula para pago id={} aspirante={}", pago.getId(), pago.getIdAspirante());
             throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, pago.getIdAspirante());
         }
 
-        recibo.setIdEstado(resolveEstadoReciboCompletado().getId());
+        log.info("Recibo matricula encontrado id={} idPago={} idEstadoActual={}", recibo.getId(), recibo.getIdPago(),
+                recibo.getIdEstado());
+
+        Integer nuevoEstadoRecibo = resolveEstadoReciboCompletado().getId();
+        log.info("Seteando nuevo estado de recibo matricula id={} -> idEstado={}", recibo.getId(), nuevoEstadoRecibo);
+        recibo.setIdEstado(nuevoEstadoRecibo);
         pagorecibomatriculaService.update(recibo.getId(), recibo);
 
         pago.setIdEstado(estadoRealizado.getId());

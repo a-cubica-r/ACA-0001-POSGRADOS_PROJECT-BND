@@ -19,7 +19,9 @@ import ufps.edu.co.rest.dto.EstadoDTO;
 import ufps.edu.co.rest.dto.PersonaDTO;
 import ufps.edu.co.rest.dto.TipoentrevistaDTO;
 import ufps.edu.co.rest.dto.UbicacionDTO;
+import ufps.edu.co.rest.services.AdministrativoService;
 import ufps.edu.co.rest.services.AspiranteService;
+import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.rest.services.EntrevistaService;
 import ufps.edu.co.rest.services.EstadoService;
 import ufps.edu.co.rest.services.PersonaService;
@@ -52,6 +54,12 @@ public class EntrevistaProcessor implements
 
     @Autowired
     private EstadoService estadoService;
+
+    @Autowired
+    private CohorteService cohorteService;
+
+    @Autowired
+    private AdministrativoService administrativoService;
 
     @Autowired
     private EntrevistaMap map;
@@ -147,26 +155,7 @@ public class EntrevistaProcessor implements
                 throw new RuntimeException("Estado 'COMPLETADA' no encontrado para entidad 'entrevista'");
             }
             EntrevistaDTO updated = service.changeEstado(input.id(), estadoCompletada.getId(), "CONFIRMADA");
-
-            /*
-             * NOTE: El siguiente bloque de código está comentado porque actualmente el
-             * método changeEstado no actualiza el estado del aspirante a ENTREVISTADO, sino
-             * que solo cambia el estado de la entrevista. Para que este bloque funcione,
-             * habría que modificar el servicio para que al cambiar el estado de la
-             * entrevista a COMPLETADA, también actualice el estado del aspirante a
-             * ENTREVISTADO. Si se hace esa modificación, entonces este bloque se podría
-             * descomentar para que al completar la entrevista también se actualice el
-             * estado del aspirante.
-             * EstadoDTO estadoEntrevistado =
-             * estadoService.findByTipoAndEntidad("ENTREVISTADO", "aspirante");
-             * if (estadoEntrevistado == null) {
-             * throw new RuntimeException("Estado 'ENTREVISTADO' no encontrado para entidad
-             * 'aspirante'");
-             * }
-             */
-            // aspiranteService.updateEstado(updated.getIdAspirante(),
-            // estadoEntrevistado.getId());
-
+            notifyActividadCompletada(updated);
             return map.toOutput(updated);
         } catch (Exception e) {
             throw new RuntimeException("Error completing Entrevista: " + e.getMessage(), e);
@@ -174,10 +163,10 @@ public class EntrevistaProcessor implements
     }
 
     public EntrevistaOutput cancelInterview(ENTREVISTA_FIND input) {
-        return cancelInterview(input.id(), null);
+        return cancelInterview(input.id(), null, "DIRECTOR");
     }
 
-    public EntrevistaOutput cancelInterview(Integer id, String motivocambio) {
+    public EntrevistaOutput cancelInterview(Integer id, String motivocambio, String canceladoPor) {
         try {
             EstadoDTO estadoCancelada = estadoService.findByTipoAndEntidad("CANCELADA", "entrevista");
             if (estadoCancelada == null) {
@@ -185,6 +174,7 @@ public class EntrevistaProcessor implements
             }
             EntrevistaDTO updated = service.changeEstadoWithMotivo(id, estadoCancelada.getId(), "CONFIRMADA",
                     motivocambio);
+            notifyCancelacion(updated, canceladoPor, motivocambio);
             return map.toOutput(updated);
         } catch (Exception e) {
             throw new RuntimeException("Error cancelling Entrevista: " + e.getMessage(), e);
@@ -199,6 +189,7 @@ public class EntrevistaProcessor implements
             }
             EntrevistaDTO updated = service.changeEstado(input.id(), estadoConfirmada.getId(),
                     "PENDIENTE DE CONFIRMACION");
+            notifyConfirmacionAlDirector(updated);
             return map.toOutput(updated);
         } catch (Exception e) {
             throw new RuntimeException("Error confirming Entrevista: " + e.getMessage(), e);
@@ -208,6 +199,7 @@ public class EntrevistaProcessor implements
     public EntrevistaOutput requestChangeInterview(Integer id, String motivocambio) {
         try {
             EntrevistaDTO updated = service.requestChange(id, motivocambio);
+            notifyCambioSolicitadoAlDirector(updated, motivocambio);
             return map.toOutput(updated);
         } catch (Exception e) {
             throw new RuntimeException("Error requesting change for Entrevista: " + e.getMessage(), e);
@@ -314,25 +306,93 @@ public class EntrevistaProcessor implements
     }
 
     private void notifyEntrevistaEliminada(EntrevistaDTO entrevista) {
+        notifyCancelacion(entrevista, "DIRECTOR", null);
+    }
+
+    private void notifyConfirmacionAlDirector(EntrevistaDTO entrevista) {
         try {
             AspiranteDTO aspirante = aspiranteService.findById(entrevista.getIdAspirante());
-            if (aspirante == null || aspirante.getPersona() == null)
-                return;
-
-            String nombre = aspirante.getPersona().getNombres();
-            String correoAspirante = aspirante.getPersona().getCorreo();
-            String fecha = entrevista.getFecha() != null ? entrevista.getFecha().toString() : "No definida";
-            String hora = entrevista.getTiempo() != null ? entrevista.getTiempo().toString() : "No definida";
-
-            String html = "<p>Hola <strong>" + nombre + "</strong>,</p>"
-                    + "<p>Te informamos que tu entrevista programada para el <strong>" + fecha
-                    + "</strong> a las <strong>" + hora + "</strong> ha sido cancelada.</p>"
-                    + "<p>Pronto te contactaremos con más detalles sobre los próximos pasos en tu proceso de admisión.</p>";
-
-            sesService.enviarCorreo(correoAspirante, "Entrevista Cancelada - Posgrados UFPS", html);
+            if (aspirante == null || aspirante.getPersona() == null) return;
+            ufps.edu.co.rest.dto.AdministrativoDTO director = findDirectorForAspirante(aspirante);
+            if (director == null || director.getPersona() == null) return;
+            String tipo = entrevista.getTipoentrevista() != null ? entrevista.getTipoentrevista().getTipo() : "No definido";
+            String lugar = entrevista.getUbicacion() != null ? entrevista.getUbicacion().getDireccion() : "No definido";
+            sesService.enviarCorreo(director.getPersona().getCorreo(), EmailTemplates.ASUNTO_ASPIRANTE_CONFIRMA,
+                    EmailTemplates.cuerpoConfirmacionAlDirector(
+                            aspirante.getPersona().getNombres(), "entrevista", tipo,
+                            entrevista.getFecha(), entrevista.getTiempo(), lugar));
         } catch (Exception e) {
-            logger.warn("No se pudo notificar entrevista eliminada para entrevista {}: {}", entrevista.getId(),
-                    e.getMessage());
+            logger.warn("No se pudo notificar confirmación de entrevista al director: {}", e.getMessage());
+        }
+    }
+
+    private void notifyActividadCompletada(EntrevistaDTO entrevista) {
+        try {
+            AspiranteDTO aspirante = aspiranteService.findById(entrevista.getIdAspirante());
+            if (aspirante == null || aspirante.getPersona() == null) return;
+            String tipo = entrevista.getTipoentrevista() != null ? entrevista.getTipoentrevista().getTipo() : "No definido";
+            String lugar = entrevista.getUbicacion() != null ? entrevista.getUbicacion().getDireccion() : "No definido";
+            sesService.enviarCorreo(aspirante.getPersona().getCorreo(), EmailTemplates.ASUNTO_ACTIVIDAD_COMPLETADA,
+                    EmailTemplates.cuerpoActividadCompletada(
+                            aspirante.getPersona().getNombres(), "entrevista", tipo,
+                            entrevista.getFecha(), entrevista.getTiempo(), lugar));
+        } catch (Exception e) {
+            logger.warn("No se pudo notificar entrevista completada al aspirante: {}", e.getMessage());
+        }
+    }
+
+    private void notifyCambioSolicitadoAlDirector(EntrevistaDTO entrevista, String motivo) {
+        try {
+            AspiranteDTO aspirante = aspiranteService.findById(entrevista.getIdAspirante());
+            if (aspirante == null || aspirante.getPersona() == null) return;
+            ufps.edu.co.rest.dto.AdministrativoDTO director = findDirectorForAspirante(aspirante);
+            if (director == null || director.getPersona() == null) return;
+            String tipo = entrevista.getTipoentrevista() != null ? entrevista.getTipoentrevista().getTipo() : "No definido";
+            sesService.enviarCorreo(director.getPersona().getCorreo(), EmailTemplates.ASUNTO_SOLICITUD_CAMBIO,
+                    EmailTemplates.cuerpoCambioSolicitadoAlDirector(
+                            aspirante.getPersona().getNombres(), "entrevista", tipo,
+                            entrevista.getFecha(), entrevista.getTiempo(),
+                            motivo != null ? motivo : "Sin motivo especificado"));
+        } catch (Exception e) {
+            logger.warn("No se pudo notificar solicitud de cambio al director: {}", e.getMessage());
+        }
+    }
+
+    private void notifyCancelacion(EntrevistaDTO entrevista, String canceladoPor, String motivo) {
+        try {
+            AspiranteDTO aspirante = aspiranteService.findById(entrevista.getIdAspirante());
+            if (aspirante == null || aspirante.getPersona() == null) return;
+            String tipo = entrevista.getTipoentrevista() != null ? entrevista.getTipoentrevista().getTipo() : "No definido";
+            // String lugar = entrevista.getUbicacion() != null ? entrevista.getUbicacion().getDireccion() : "No definido";
+            String motivoTexto = motivo != null ? motivo : "Sin motivo especificado";
+
+            if ("ASPIRANTE".equalsIgnoreCase(canceladoPor)) {
+                ufps.edu.co.rest.dto.AdministrativoDTO director = findDirectorForAspirante(aspirante);
+                if (director == null || director.getPersona() == null) return;
+                sesService.enviarCorreo(director.getPersona().getCorreo(), EmailTemplates.ASUNTO_CANCELACION_POR_ASPIRANTE,
+                        EmailTemplates.cuerpoCancelacionPorAspirante(
+                                aspirante.getPersona().getNombres(), "entrevista", tipo,
+                                entrevista.getFecha(), entrevista.getTiempo(), motivoTexto));
+            } else {
+                sesService.enviarCorreo(aspirante.getPersona().getCorreo(), EmailTemplates.ASUNTO_CANCELACION_POR_DIRECTOR,
+                        EmailTemplates.cuerpoCancelacionPorDirector(
+                                aspirante.getPersona().getNombres(), "entrevista", tipo,
+                                entrevista.getFecha(), entrevista.getTiempo(), motivoTexto));
+            }
+        } catch (Exception e) {
+            logger.warn("No se pudo notificar cancelación de entrevista {}: {}", entrevista.getId(), e.getMessage());
+        }
+    }
+
+    private ufps.edu.co.rest.dto.AdministrativoDTO findDirectorForAspirante(AspiranteDTO aspirante) {
+        try {
+            if (aspirante.getIdCohorte() == null) return null;
+            ufps.edu.co.rest.dto.CohorteDTO cohorte = cohorteService.findById(aspirante.getIdCohorte());
+            if (cohorte == null || cohorte.getIdPrograma() == null) return null;
+            return administrativoService.findDirectorByIdPrograma(cohorte.getIdPrograma());
+        } catch (Exception e) {
+            logger.warn("No se pudo obtener el director para aspirante {}: {}", aspirante.getId(), e.getMessage());
+            return null;
         }
     }
 }

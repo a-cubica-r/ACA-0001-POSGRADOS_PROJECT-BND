@@ -200,6 +200,13 @@ public class AdministrativoService extends GenericService<AdministrativoEntity, 
                 .orElseThrow(() -> new RuntimeException("Estado no encontrado: " + tipo + " / " + entidad));
     }
 
+    @Transactional(readOnly = true)
+    public AdministrativoDTO findDirectorByIdPrograma(Integer idPrograma) {
+        return repository.findDirectorByIdPrograma(idPrograma)
+                .map(e -> entityToDto(java.util.Optional.of(e)))
+                .orElse(null);
+    }
+
     public List<AdministrativoDTO> findPosiblesDirectores() {
 
         List<String> nombres = List.of("DIRECTOR DE FACULTAD", "DIRECTOR DE PROGRAMA", "ADMINISTADOR", "SUPER ADMINISTRADOR");

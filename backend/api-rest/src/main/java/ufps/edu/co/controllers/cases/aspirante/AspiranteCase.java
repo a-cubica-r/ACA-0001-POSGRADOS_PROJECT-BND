@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,7 @@ import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.rest.services.DocumentoService;
 import ufps.edu.co.rest.services.EstadodocumentoService;
 import ufps.edu.co.rest.services.PersonaService;
+import ufps.edu.co.services.EmailConfirmationTokenService;
 import ufps.edu.co.services.S3Service;
 import ufps.edu.co.services.SESService;
 import ufps.edu.co.utils.EmailTemplates;
@@ -58,6 +60,7 @@ import ufps.edu.co.records.output.entity.PruebaResumenOutput;
 import ufps.edu.co.records.output.entity.PruebaSimpleOutput;
 import ufps.edu.co.rest.dto.UsuarioDTO;
 import ufps.edu.co.rest.services.AspiranteService;
+import ufps.edu.co.rest.services.EstadoService;
 import ufps.edu.co.rest.services.UsuarioService;
 
 @RestController
@@ -104,6 +107,15 @@ public class AspiranteCase {
 
     // @Autowired
     // private EmailTemplates emailTemplates;
+
+    @Autowired
+    private EstadoService estadoService;
+
+    @Autowired
+    private EmailConfirmationTokenService confirmationTokenService;
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     @Autowired
     private PersonaService personaService;
@@ -314,7 +326,7 @@ public class AspiranteCase {
     public ResponseEntity<EntrevistaSimpleOutput> cancelarEntrevista(
             @PathVariable Integer idEntrevista,
             @RequestBody ENTREVISTA_CANCELAR_REQUEST body) {
-        EntrevistaOutput o = entrevistaProcessor.cancelInterview(idEntrevista, body.motivocambio());
+        EntrevistaOutput o = entrevistaProcessor.cancelInterview(idEntrevista, body.motivocambio(), "ASPIRANTE");
         return ResponseEntity.ok(EntrevistaSimpleOutput.builder()
                 .idEntrevista(o.id())
                 .idAspirante(o.idAspirante())
@@ -354,6 +366,106 @@ public class AspiranteCase {
     public ResponseEntity<PruebaSimpleOutput> cancelarPrueba(
             @PathVariable Integer idPrueba,
             @RequestBody PRUEBA_CANCELAR_REQUEST body) {
-        return ResponseEntity.ok(pruebaProcessor.cancelarPrueba(idPrueba, body.motivocambio()));
+        return ResponseEntity.ok(pruebaProcessor.cancelarPrueba(idPrueba, body.motivocambio(), "ASPIRANTE"));
+    }
+
+    @PatchMapping("/{idAspirante}/confirmar-correo")
+    public ResponseEntity<Void> confirmarCorreo(@PathVariable Integer idAspirante) {
+        ufps.edu.co.rest.dto.AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        if (aspirante == null) {
+            throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
+        }
+        String estadoActual = aspirante.getEstado() != null ? aspirante.getEstado().getTipo() : null;
+        if (!"INSCRITO".equalsIgnoreCase(estadoActual)) {
+            throw new DomainException(AspiranteErrorCode.ESTADO_TRANSICION_INVALIDA_CONFLICT, estadoActual);
+        }
+        ufps.edu.co.rest.dto.EstadoDTO estadoNuevo = estadoService.findByTipoAndEntidad("CORREO_CONFIRMADO", "aspirante");
+        if (estadoNuevo == null) {
+            throw new RuntimeException("Estado 'CORREO_CONFIRMADO' para aspirante no encontrado en la base de datos");
+        }
+        aspiranteService.updateEstado(idAspirante, estadoNuevo.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{idAspirante}/enviar-confirmacion-correo")
+    public ResponseEntity<Void> enviarConfirmacionCorreo(@PathVariable Integer idAspirante) {
+        ufps.edu.co.rest.dto.AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        if (aspirante == null) {
+            throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
+        }
+        String estadoActual = aspirante.getEstado() != null ? aspirante.getEstado().getTipo() : null;
+        if (!"INSCRITO".equalsIgnoreCase(estadoActual)) {
+            throw new DomainException(AspiranteErrorCode.ESTADO_TRANSICION_INVALIDA_CONFLICT, estadoActual);
+        }
+        String token = confirmationTokenService.generateToken(idAspirante);
+        String enlace = baseUrl + "/api/application/case/aspirantes/confirmar-correo?token=" + token;
+        PersonaDTO persona = personaService.findById(aspirante.getIdPersona());
+        try {
+            sesService.enviarCorreo(
+                    persona.getCorreo(),
+                    EmailTemplates.ASUNTO_CONFIRMACION_CORREO,
+                    EmailTemplates.cuerpoConfirmacionCorreo(persona.getNombres(), enlace));
+        } catch (Exception ex) {
+            log.error("[CONFIRMACION_EMAIL] Fallo al enviar correo de confirmación a '{}': {}",
+                    persona.getCorreo(), ex.getMessage(), ex);
+            throw new RuntimeException("No se pudo enviar el correo de confirmación", ex);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{idAspirante}/correo")
+    public ResponseEntity<java.util.Map<String, String>> getCorreo(@PathVariable Integer idAspirante) {
+        ufps.edu.co.rest.dto.AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        if (aspirante == null) {
+            throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
+        }
+        PersonaDTO persona = personaService.findById(aspirante.getIdPersona());
+        return ResponseEntity.ok(java.util.Map.of("correo", persona.getCorreo()));
+    }
+
+    @PatchMapping(value = "/{idAspirante}/correo", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> actualizarCorreo(
+            @PathVariable Integer idAspirante,
+            @RequestBody java.util.Map<String, String> body) {
+        ufps.edu.co.rest.dto.AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        if (aspirante == null) {
+            throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
+        }
+        String correoNuevo = body.get("correoNuevo");
+        if (correoNuevo == null || correoNuevo.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo correoNuevo es requerido");
+        }
+        PersonaDTO persona = personaService.findById(aspirante.getIdPersona());
+        persona.setCorreo(correoNuevo.trim().toLowerCase(java.util.Locale.ROOT));
+        personaService.update(persona.getId(), persona);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/confirmar-correo")
+    public ResponseEntity<java.util.Map<String, String>> confirmarCorreoPorToken(@RequestParam String token) {
+        Integer idAspirante;
+        try {
+            idAspirante = confirmationTokenService.validateAndExtract(token);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest()
+                    .body(java.util.Map.of("error", ex.getMessage()));
+        }
+        ufps.edu.co.rest.dto.AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+        if (aspirante == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(java.util.Map.of("error", "Aspirante no encontrado"));
+        }
+        String estadoActual = aspirante.getEstado() != null ? aspirante.getEstado().getTipo() : null;
+        if (!"INSCRITO".equalsIgnoreCase(estadoActual)) {
+            return ResponseEntity.badRequest()
+                    .body(java.util.Map.of("error", "El correo ya fue confirmado o el aspirante no está en estado INSCRITO"));
+        }
+        ufps.edu.co.rest.dto.EstadoDTO estadoNuevo = estadoService.findByTipoAndEntidad("CORREO_CONFIRMADO", "aspirante");
+        if (estadoNuevo == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("error", "Estado 'CORREO_CONFIRMADO' no configurado en la base de datos"));
+        }
+        aspiranteService.updateEstado(idAspirante, estadoNuevo.getId());
+        return ResponseEntity.ok(java.util.Map.of("message", "Correo confirmado exitosamente"));
     }
 }

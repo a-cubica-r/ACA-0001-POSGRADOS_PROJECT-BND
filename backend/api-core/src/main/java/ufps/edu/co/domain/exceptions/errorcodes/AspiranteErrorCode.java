@@ -27,7 +27,10 @@ public enum AspiranteErrorCode implements BaseErrorCode {
         "La persona ya existe en la base de datos"),
     INSCRIPCION_CORREO_NO_ENVIADO_CONFLICT(
         "INSCRIPCION_CORREO_NO_ENVIADO_CONFLICT",
-        "No se pudo enviar el correo de confirmación de inscripción");
+        "No se pudo enviar el correo de confirmación de inscripción"),
+    ESTADO_TRANSICION_INVALIDA_CONFLICT(
+        "ESTADO_TRANSICION_INVALIDA_CONFLICT",
+        "El aspirante no se encuentra en el estado requerido para esta operación");
 
     private final String code;
     private final String defaultMessage;

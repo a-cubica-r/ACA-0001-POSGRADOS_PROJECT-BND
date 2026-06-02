@@ -20,7 +20,9 @@ import ufps.edu.co.rest.dto.EstadoDTO;
 import ufps.edu.co.rest.dto.PruebaDTO;
 import ufps.edu.co.rest.dto.TipopruebaDTO;
 import ufps.edu.co.rest.dto.UbicacionDTO;
+import ufps.edu.co.rest.services.AdministrativoService;
 import ufps.edu.co.rest.services.AspiranteService;
+import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.rest.services.EstadoService;
 import ufps.edu.co.rest.services.PruebaService;
 import ufps.edu.co.rest.services.TipopruebaService;
@@ -37,6 +39,8 @@ public class PruebaProcessor implements
 
     @Autowired private PruebaService service;
     @Autowired private AspiranteService aspiranteService;
+    @Autowired private CohorteService cohorteService;
+    @Autowired private AdministrativoService administrativoService;
     @Autowired private UbicacionService ubicacionService;
     @Autowired private TipopruebaService tipopruebaService;
     @Autowired private EstadoService estadoService;
@@ -213,7 +217,9 @@ public class PruebaProcessor implements
                 throw new RuntimeException("Estado 'COMPLETADA' no encontrado para entidad 'prueba'");
             }
             PruebaDTO updated = service.changeEstado(idPrueba, estadoCompletada.getId(), "CONFIRMADA");
-            return toPruebaSimple(service.findById(updated.getId()));
+            PruebaDTO full = service.findById(updated.getId());
+            notifyPruebaCompletada(full);
+            return toPruebaSimple(full);
         } catch (Exception e) {
             throw new RuntimeException("Error completing Prueba: " + e.getMessage(), e);
         }
@@ -226,7 +232,9 @@ public class PruebaProcessor implements
                 throw new RuntimeException("Estado 'CONFIRMADA' no encontrado para entidad 'prueba'");
             }
             PruebaDTO updated = service.changeEstado(idPrueba, estadoConfirmada.getId(), "PENDIENTE DE CONFIRMACION");
-            return toPruebaSimple(service.findById(updated.getId()));
+            PruebaDTO full = service.findById(updated.getId());
+            notifyConfirmacionPruebaAlDirector(full);
+            return toPruebaSimple(full);
         } catch (Exception e) {
             throw new RuntimeException("Error confirming Prueba: " + e.getMessage(), e);
         }
@@ -239,20 +247,24 @@ public class PruebaProcessor implements
                 throw new RuntimeException("Estado 'SOLICITUD DE CAMBIO' no encontrado para entidad 'prueba'");
             }
             PruebaDTO updated = service.changeEstadoWithMotivo(idPrueba, estadoSolicitud.getId(), "PENDIENTE DE CONFIRMACION", motivocambio);
-            return toPruebaSimple(service.findById(updated.getId()));
+            PruebaDTO full = service.findById(updated.getId());
+            notifyCambioPruebaAlDirector(full, motivocambio);
+            return toPruebaSimple(full);
         } catch (Exception e) {
             throw new RuntimeException("Error requesting change for Prueba: " + e.getMessage(), e);
         }
     }
 
-    public PruebaSimpleOutput cancelarPrueba(Integer idPrueba, String motivocambio) {
+    public PruebaSimpleOutput cancelarPrueba(Integer idPrueba, String motivocambio, String canceladoPor) {
         try {
             EstadoDTO estadoCancelada = estadoService.findByTipoAndEntidad("CANCELADA", "prueba");
             if (estadoCancelada == null) {
                 throw new RuntimeException("Estado 'CANCELADA' no encontrado para entidad 'prueba'");
             }
             PruebaDTO updated = service.changeEstadoWithMotivo(idPrueba, estadoCancelada.getId(), "CONFIRMADA", motivocambio);
-            return toPruebaSimple(service.findById(updated.getId()));
+            PruebaDTO full = service.findById(updated.getId());
+            notifyCancelacionPrueba(full, canceladoPor, motivocambio);
+            return toPruebaSimple(full);
         } catch (Exception e) {
             throw new RuntimeException("Error cancelling Prueba: " + e.getMessage(), e);
         }
@@ -309,22 +321,93 @@ public class PruebaProcessor implements
     }
 
     private void notifyPruebaEliminada(PruebaDTO prueba) {
+        notifyCancelacionPrueba(prueba, "DIRECTOR", null);
+    }
+
+    private void notifyConfirmacionPruebaAlDirector(PruebaDTO prueba) {
         try {
             AspiranteDTO aspirante = aspiranteService.findById(prueba.getIdAspirante());
             if (aspirante == null || aspirante.getPersona() == null) return;
-
-            String nombre = aspirante.getPersona().getNombres();
-            String correoAspirante = aspirante.getPersona().getCorreo();
+            ufps.edu.co.rest.dto.AdministrativoDTO director = findDirectorForAspirante(aspirante);
+            if (director == null || director.getPersona() == null) return;
             String nombrePrueba = prueba.getNombre() != null ? prueba.getNombre() : "No definido";
-
-            String html = "<p>Hola <strong>" + nombre + "</strong>,</p>"
-                    + "<p>Te informamos que la prueba <strong>" + nombrePrueba
-                    + "</strong> programada para tu proceso de admisión ha sido cancelada.</p>"
-                    + "<p>Pronto te contactaremos con más detalles sobre los próximos pasos en tu proceso de admisión.</p>";
-
-            sesService.enviarCorreo(correoAspirante, "Prueba Cancelada - Posgrados UFPS", html);
+            String lugar = prueba.getUbicacion() != null ? prueba.getUbicacion().getDireccion() : "No definido";
+            sesService.enviarCorreo(director.getPersona().getCorreo(), EmailTemplates.ASUNTO_ASPIRANTE_CONFIRMA,
+                    EmailTemplates.cuerpoConfirmacionAlDirector(
+                            aspirante.getPersona().getNombres(), "prueba", nombrePrueba,
+                            prueba.getFecha(), prueba.getTiempo(), lugar));
         } catch (Exception e) {
-            logger.warn("No se pudo notificar prueba eliminada para prueba {}: {}", prueba.getId(), e.getMessage());
+            logger.warn("No se pudo notificar confirmación de prueba al director: {}", e.getMessage());
+        }
+    }
+
+    private void notifyPruebaCompletada(PruebaDTO prueba) {
+        try {
+            AspiranteDTO aspirante = aspiranteService.findById(prueba.getIdAspirante());
+            if (aspirante == null || aspirante.getPersona() == null) return;
+            String nombrePrueba = prueba.getNombre() != null ? prueba.getNombre() : "No definido";
+            String lugar = prueba.getUbicacion() != null ? prueba.getUbicacion().getDireccion() : "No definido";
+            sesService.enviarCorreo(aspirante.getPersona().getCorreo(), EmailTemplates.ASUNTO_ACTIVIDAD_COMPLETADA,
+                    EmailTemplates.cuerpoActividadCompletada(
+                            aspirante.getPersona().getNombres(), "prueba", nombrePrueba,
+                            prueba.getFecha(), prueba.getTiempo(), lugar));
+        } catch (Exception e) {
+            logger.warn("No se pudo notificar prueba completada al aspirante: {}", e.getMessage());
+        }
+    }
+
+    private void notifyCambioPruebaAlDirector(PruebaDTO prueba, String motivo) {
+        try {
+            AspiranteDTO aspirante = aspiranteService.findById(prueba.getIdAspirante());
+            if (aspirante == null || aspirante.getPersona() == null) return;
+            ufps.edu.co.rest.dto.AdministrativoDTO director = findDirectorForAspirante(aspirante);
+            if (director == null || director.getPersona() == null) return;
+            String nombrePrueba = prueba.getNombre() != null ? prueba.getNombre() : "No definido";
+            sesService.enviarCorreo(director.getPersona().getCorreo(), EmailTemplates.ASUNTO_SOLICITUD_CAMBIO,
+                    EmailTemplates.cuerpoCambioSolicitadoAlDirector(
+                            aspirante.getPersona().getNombres(), "prueba", nombrePrueba,
+                            prueba.getFecha(), prueba.getTiempo(),
+                            motivo != null ? motivo : "Sin motivo especificado"));
+        } catch (Exception e) {
+            logger.warn("No se pudo notificar solicitud de cambio de prueba al director: {}", e.getMessage());
+        }
+    }
+
+    private void notifyCancelacionPrueba(PruebaDTO prueba, String canceladoPor, String motivo) {
+        try {
+            AspiranteDTO aspirante = aspiranteService.findById(prueba.getIdAspirante());
+            if (aspirante == null || aspirante.getPersona() == null) return;
+            String nombrePrueba = prueba.getNombre() != null ? prueba.getNombre() : "No definido";
+            String lugar = prueba.getUbicacion() != null ? prueba.getUbicacion().getDireccion() : "No definido";
+            String motivoTexto = motivo != null ? motivo : "Sin motivo especificado";
+
+            if ("ASPIRANTE".equalsIgnoreCase(canceladoPor)) {
+                ufps.edu.co.rest.dto.AdministrativoDTO director = findDirectorForAspirante(aspirante);
+                if (director == null || director.getPersona() == null) return;
+                sesService.enviarCorreo(director.getPersona().getCorreo(), EmailTemplates.ASUNTO_CANCELACION_POR_ASPIRANTE,
+                        EmailTemplates.cuerpoCancelacionPorAspirante(
+                                aspirante.getPersona().getNombres(), "prueba", nombrePrueba,
+                                prueba.getFecha(), prueba.getTiempo(), motivoTexto));
+            } else {
+                sesService.enviarCorreo(aspirante.getPersona().getCorreo(), EmailTemplates.ASUNTO_CANCELACION_POR_DIRECTOR,
+                        EmailTemplates.cuerpoCancelacionPorDirector(
+                                aspirante.getPersona().getNombres(), "prueba", nombrePrueba,
+                                prueba.getFecha(), prueba.getTiempo(), motivoTexto));
+            }
+        } catch (Exception e) {
+            logger.warn("No se pudo notificar cancelación de prueba {}: {}", prueba.getId(), e.getMessage());
+        }
+    }
+
+    private ufps.edu.co.rest.dto.AdministrativoDTO findDirectorForAspirante(AspiranteDTO aspirante) {
+        try {
+            if (aspirante.getIdCohorte() == null) return null;
+            ufps.edu.co.rest.dto.CohorteDTO cohorte = cohorteService.findById(aspirante.getIdCohorte());
+            if (cohorte == null || cohorte.getIdPrograma() == null) return null;
+            return administrativoService.findDirectorByIdPrograma(cohorte.getIdPrograma());
+        } catch (Exception e) {
+            logger.warn("No se pudo obtener el director para aspirante {}: {}", aspirante.getId(), e.getMessage());
+            return null;
         }
     }
 }

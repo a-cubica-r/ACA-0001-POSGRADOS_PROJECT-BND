@@ -29,6 +29,18 @@ public class EmailTemplates {
 
   public static final String ASUNTO_CALIFICACION_CRITERIO = "Calificación de criterio registrada - Posgrados UFPS";
 
+  public static final String ASUNTO_CONFIRMACION_CORREO = "Confirma tu correo electrónico - Posgrados UFPS";
+
+  public static final String ASUNTO_ASPIRANTE_CONFIRMA = "Confirmación de asistencia recibida - Posgrados UFPS";
+
+  public static final String ASUNTO_ACTIVIDAD_COMPLETADA = "Actividad completada - Posgrados UFPS";
+
+  public static final String ASUNTO_SOLICITUD_CAMBIO = "Solicitud de cambio recibida - Posgrados UFPS";
+
+  public static final String ASUNTO_CANCELACION_POR_ASPIRANTE = "Cancelación de actividad por aspirante - Posgrados UFPS";
+
+  public static final String ASUNTO_CANCELACION_POR_DIRECTOR = "Tu actividad ha sido cancelada - Posgrados UFPS";
+
   public static final String ASUNTO_ADMITIDO = "¡Felicitaciones! Has sido admitido - Posgrados UFPS";
 
   public static final String ASUNTO_RECHAZADO = "Resultado del proceso de admisión - Posgrados UFPS";
@@ -380,6 +392,203 @@ public class EmailTemplates {
         </body>
         </html>
         """.formatted(nombreAspirante, nombreCriterio, puntajeObtenido, puntajeTotal);
+  }
+
+  /**
+   * Aspirante confirma entrevista/prueba → se envía al director.
+   * tipoActividad: "entrevista" o "prueba". nombreActividad: tipo de entrevista o nombre de prueba.
+   */
+  public static String cuerpoConfirmacionAlDirector(
+      String nombreAspirante,
+      String tipoActividad,
+      String nombreActividad,
+      LocalDate fecha,
+      LocalTime hora,
+      String lugar) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1a7a4a;">Confirmación de asistencia</h2>
+          <p>El/La aspirante <strong>%s</strong> ha confirmado su asistencia a la %s
+             <strong>%s</strong> con los siguientes detalles:</p>
+          <table style="border-collapse: collapse; width: 100%%;">
+            <tr>
+              <td style="padding: 6px 12px; font-weight: bold;">Fecha:</td>
+              <td style="padding: 6px 12px;">%s</td>
+            </tr>
+            <tr style="background-color: #f4f6f7;">
+              <td style="padding: 6px 12px; font-weight: bold;">Hora:</td>
+              <td style="padding: 6px 12px;">%s</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 12px; font-weight: bold;">Lugar:</td>
+              <td style="padding: 6px 12px;">%s</td>
+            </tr>
+          </table>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(nombreAspirante, tipoActividad, nombreActividad, fecha, hora, lugar);
+  }
+
+  /**
+   * Director marca entrevista/prueba como completada → se envía al aspirante.
+   */
+  public static String cuerpoActividadCompletada(
+      String nombreAspirante,
+      String tipoActividad,
+      String nombreActividad,
+      LocalDate fecha,
+      LocalTime hora,
+      String lugar) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1a7a4a;">Actividad completada</h2>
+          <p>Estimado/a <strong>%s</strong>,</p>
+          <p>La %s <strong>%s</strong> realizada el <strong>%s</strong> a las <strong>%s</strong>
+             en <strong>%s</strong> ha sido registrada como <strong style="color: #1a7a4a;">completada</strong>.</p>
+          <p>Puede consultar el estado de su proceso a través del sistema.</p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(nombreAspirante, tipoActividad, nombreActividad, fecha, hora, lugar);
+  }
+
+  /**
+   * Aspirante solicita cambio de entrevista/prueba → se envía al director.
+   */
+  public static String cuerpoCambioSolicitadoAlDirector(
+      String nombreAspirante,
+      String tipoActividad,
+      String nombreActividad,
+      LocalDate fecha,
+      LocalTime hora,
+      String motivo) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #b7770d;">Solicitud de cambio</h2>
+          <p>El/La aspirante <strong>%s</strong> ha solicitado un cambio en la %s
+             <strong>%s</strong> programada para el <strong>%s</strong> a las <strong>%s</strong>.</p>
+          <table style="border-collapse: collapse; width: 100%%; border: 1px solid #e0a800; border-radius: 4px;">
+            <tr style="background-color: #fef9e7;">
+              <td style="padding: 10px 14px; font-weight: bold; color: #b7770d;">Motivo:</td>
+              <td style="padding: 10px 14px;">%s</td>
+            </tr>
+          </table>
+          <p>Por favor, revise la solicitud y realice los ajustes necesarios en el sistema.</p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(nombreAspirante, tipoActividad, nombreActividad, fecha, hora, motivo);
+  }
+
+  /**
+   * Aspirante cancela entrevista/prueba → se envía al director.
+   */
+  public static String cuerpoCancelacionPorAspirante(
+      String nombreAspirante,
+      String tipoActividad,
+      String nombreActividad,
+      LocalDate fecha,
+      LocalTime hora,
+      String motivo) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #a93226;">Cancelación por aspirante</h2>
+          <p>El/La aspirante <strong>%s</strong> ha cancelado la %s <strong>%s</strong>
+             programada para el <strong>%s</strong> a las <strong>%s</strong>.</p>
+          <table style="border-collapse: collapse; width: 100%%; border: 1px solid #e74c3c; border-radius: 4px;">
+            <tr style="background-color: #fdf2f0;">
+              <td style="padding: 10px 14px; font-weight: bold; color: #a93226;">Motivo:</td>
+              <td style="padding: 10px 14px;">%s</td>
+            </tr>
+          </table>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(nombreAspirante, tipoActividad, nombreActividad, fecha, hora, motivo);
+  }
+
+  /**
+   * Director cancela entrevista/prueba → se envía al aspirante.
+   */
+  public static String cuerpoCancelacionPorDirector(
+      String nombreAspirante,
+      String tipoActividad,
+      String nombreActividad,
+      LocalDate fecha,
+      LocalTime hora,
+      String motivo) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #a93226;">Actividad cancelada</h2>
+          <p>Estimado/a <strong>%s</strong>,</p>
+          <p>Lamentamos informarle que la %s <strong>%s</strong> programada para el
+             <strong>%s</strong> a las <strong>%s</strong> ha sido
+             <strong style="color: #a93226;">cancelada</strong> por el director de programa.</p>
+          <table style="border-collapse: collapse; width: 100%%; border: 1px solid #e74c3c; border-radius: 4px;">
+            <tr style="background-color: #fdf2f0;">
+              <td style="padding: 10px 14px; font-weight: bold; color: #a93226;">Motivo:</td>
+              <td style="padding: 10px 14px;">%s</td>
+            </tr>
+          </table>
+          <p>Pronto recibirá más información sobre los próximos pasos en su proceso de admisión.</p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(nombreAspirante, tipoActividad, nombreActividad, fecha, hora, motivo);
+  }
+
+  public static String cuerpoConfirmacionCorreo(String nombres, String enlaceConfirmacion) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1a5276;">Confirma tu correo electrónico</h2>
+          <p>Estimado/a <strong>%s</strong>,</p>
+          <p>Gracias por inscribirte en el proceso de admisión de posgrados de la UFPS.
+             Para continuar, por favor confirma tu correo electrónico haciendo clic en el siguiente botón:</p>
+          <p style="text-align: center; margin: 32px 0;">
+            <a href="%s"
+               style="background-color: #1a5276; color: #ffffff; padding: 12px 28px;
+                      text-decoration: none; border-radius: 4px; font-size: 1em; display: inline-block;">
+              Confirmar correo
+            </a>
+          </p>
+          <p style="color: #888; font-size: 0.85em;">
+            Este enlace es válido por 24 horas. Si no realizaste esta solicitud, ignora este correo.
+          </p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(nombres, enlaceConfirmacion);
   }
 
   public static String cuerpoAdmitido(

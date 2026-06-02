@@ -41,6 +41,9 @@ public class S3Service {
     public record UploadResult(String keyfile, String enlaceurl) {
     }
 
+    public record DownloadResult(byte[] content, String contentType, String contentDisposition, String keyfile) {
+    }
+
     public UploadResult uploadFile(MultipartFile file) {
         String originalName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "file";
         int dotIndex = originalName.lastIndexOf(".");
@@ -103,6 +106,21 @@ public class S3Service {
                         .key(key)
                         .build());
         return objectAsBytes.asByteArray();
+    }
+
+    public DownloadResult downloadDocumentWithMetadata(DOCUMENTO_FIND input) {
+        DocumentoOutput output = documentoProcessor.findById(input);
+        String key = output.keyfile();
+        ResponseBytes<GetObjectResponse> objectAsBytes = s3Client.getObjectAsBytes(
+                GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(key)
+                        .build());
+        GetObjectResponse resp = objectAsBytes.response();
+        byte[] content = objectAsBytes.asByteArray();
+        String contentType = resp.contentType();
+        String contentDisposition = resp.contentDisposition();
+        return new DownloadResult(content, contentType, contentDisposition, key);
     }
 
     public List<DocumentoOutput> findDocumentByAspirantId(ASPIRANTE_FIND input) {

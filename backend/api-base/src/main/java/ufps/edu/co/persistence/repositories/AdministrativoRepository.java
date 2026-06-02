@@ -59,6 +59,9 @@ public interface AdministrativoRepository extends JpaRepository<AdministrativoEn
 	@Query("SELECT a.cargo.nombre FROM AdministrativoEntity a WHERE a.idPersona = :idPersona")
 	Optional<String> findCargoNombreByIdPersona(@Param("idPersona") Integer idPersona);
 
+	@Query("SELECT a FROM AdministrativoEntity a WHERE a.cargo.idPrograma = :idPrograma AND a.cargo.nombre = 'DIRECTOR DE PROGRAMA'")
+	Optional<AdministrativoEntity> findDirectorByIdPrograma(@Param("idPrograma") Integer idPrograma);
+
 	// Insert specific finders here
 
 	//List<AdministrativoEntity> findByXxx(String xxx);

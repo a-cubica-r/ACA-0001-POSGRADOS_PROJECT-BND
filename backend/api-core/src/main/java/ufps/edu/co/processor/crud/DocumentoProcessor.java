@@ -351,7 +351,7 @@ public class DocumentoProcessor implements
 
     public AspiranteDocumentosOutput getDocumentosDeAspiranteParaDirector(Integer aspiranteId) {
         try {
-            return buildAspiranteDocumentosOutput(aspiranteId);
+            return buildAspiranteDocumentosOutputForDirector(aspiranteId);
         } catch (DomainException e) {
             throw e;
         } catch (Exception e) {
@@ -359,6 +359,60 @@ public class DocumentoProcessor implements
         }
     }
 
+        private AspiranteDocumentosOutput buildAspiranteDocumentosOutputForDirector(Integer aspiranteId) {
+        AspiranteDTO aspirante = aspiranteService.findById(aspiranteId);
+        if (aspirante == null) {
+            throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, aspiranteId);
+        }
+        PersonaDTO p = aspirante != null ? aspirante.getPersona() : null;
+        String nombre = p != null
+            ? ((p.getNombres() != null ? p.getNombres() : "") + " "
+                + (p.getApellidos() != null ? p.getApellidos() : "")).trim()
+            : "";
+        String cedula = p != null && p.getDocumentopersona() != null
+            && p.getDocumentopersona().getNumerodocumento() != null
+                ? p.getDocumentopersona().getNumerodocumento().toString()
+                : null;
+
+        List<DocumentoDTO> docs = service.findByIdAspirante(aspiranteId);
+        long total = docs.size();
+        long validados = docs.stream()
+            .filter(d -> d.getEstadodocumento() != null
+                && "APROBADO".equalsIgnoreCase(d.getEstadodocumento().getEstado()))
+            .count();
+
+        String estadoGeneral;
+        if (total > 0 && validados == total) {
+            estadoGeneral = "validados";
+        } else if (validados > 0) {
+            estadoGeneral = "en progreso";
+        } else {
+            estadoGeneral = "pendiente";
+        }
+
+        List<DocumentoResumenOutput> documentosResumen = docs.stream()
+            .map(doc -> DocumentoResumenOutput.builder()
+                .idDocumento(doc.getId())
+                .idDocumentosrequisitoconsejocohorte(doc.getIdDocumentosrequisitoconsejocohorte())
+                .idDocumentosrequisitoprogramacohorte(doc.getIdDocumentosrequisitoprogramacohorte())
+                .nombreTitulo(resolverNombreTitulo(doc))
+                .estado(doc.getEstadodocumento() != null ? doc.getEstadodocumento().getEstado()
+                    : "PENDIENTE")
+                .motivoRechazo(doc.getObservaciones())
+                .linkArchivo("/director-programa/documentos/" + doc.getId() + "/archivo")
+                .build())
+            .toList();
+
+        return AspiranteDocumentosOutput.builder()
+            .idAspirante(aspiranteId)
+            .nombreAspirante(nombre)
+            .cedula(cedula)
+            .estadoGeneral(estadoGeneral)
+            .documentos(documentosResumen)
+            .build();
+        }
+
+    @SuppressWarnings("unused")
     private AspiranteDocumentosOutput buildAspiranteDocumentosOutput(Integer aspiranteId) {
         AspiranteDTO aspirante = aspiranteService.findById(aspiranteId);
         if (aspirante == null) {

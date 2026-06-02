@@ -27,7 +27,8 @@ public class SecurityConfig {
                         "/v3/api-docs/**",
                         "/error",
                         "/api/application/case/inscripciones/**",
-                        "/api/application/case/wompi/**"
+                        "/api/application/case/wompi/**",
+                        "/api/application/case/aspirantes/confirmar-correo"
         };
 
         // Rutas del director de programa: bloque propio y bloque compartido.
