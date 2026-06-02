@@ -52,7 +52,14 @@ public class MunicipioService extends GenericService<MunicipioEntity, MunicipioD
 
     @Transactional(readOnly = true)
     public List<MunicipioDTO> findByIdDepartamento(Integer idDepartamento) {
-        return entityListToDtoList(repository.findByIdDepartamento(idDepartamento));
+        // Build shallow DTOs to avoid ModelMapper cycles (departamento -> municipio -> departamento ...)
+        return repository.findByIdDepartamento(idDepartamento).stream().map(entity -> {
+            MunicipioDTO dto = new MunicipioDTO();
+            dto.setId(entity.getId());
+            dto.setIdDepartamento(entity.getIdDepartamento());
+            dto.setNombre(entity.getNombre());
+            return dto;
+        }).toList();
     }
 
     public void deleteById(Integer id) {

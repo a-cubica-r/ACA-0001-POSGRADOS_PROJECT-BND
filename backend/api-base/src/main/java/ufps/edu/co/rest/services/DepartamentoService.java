@@ -52,7 +52,14 @@ public class DepartamentoService extends GenericService<DepartamentoEntity, Depa
 
     @Transactional(readOnly = true)
     public List<DepartamentoDTO> findByIdPais(Integer idPais) {
-        return entityListToDtoList(repository.findByIdPais(idPais));
+        // Build shallow DTOs to avoid ModelMapper cycles (pais -> departamento -> pais ...)
+        return repository.findByIdPais(idPais).stream().map(entity -> {
+            DepartamentoDTO dto = new DepartamentoDTO();
+            dto.setId(entity.getId());
+            dto.setIdPais(entity.getIdPais());
+            dto.setNombre(entity.getNombre());
+            return dto;
+        }).toList();
     }
 
     public void deleteById(Integer id) {

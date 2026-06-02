@@ -31,7 +31,13 @@ public class PaisService extends GenericService<PaisEntity, PaisDTO> {
 
     @Transactional(readOnly = true)
     public List<PaisDTO> findAll() {
-        return entityListToDtoList(repository.findAll());
+        // Build DTOs manually to avoid ModelMapper mapping cycles (departamento -> pais -> ...)
+        return repository.findAll().stream().map(entity -> {
+            PaisDTO dto = new PaisDTO();
+            dto.setId(entity.getId());
+            dto.setNombre(entity.getNombre());
+            return dto;
+        }).toList();
     }
 
     @Transactional(readOnly = true)
