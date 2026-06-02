@@ -212,19 +212,14 @@ public class DirectorProgramaCase {
     public ResponseEntity<List<PagoreciboDirectorOutput>> listPagosInscripcion() {
         try {
             Integer programaId = resolvePrograma();
-            List<PagoreciboinscripcionDTO> recibos = pagoreciboinscripcionService.findAll();
+            List<PagoreciboinscripcionDTO> recibos = pagoreciboinscripcionService.findByProgramaId(programaId);
             var outputs = recibos.stream().map(r -> {
                 try {
-                    if (r == null || r.getIdPago() == null) return null;
-                    PagoDTO pago = pagoService.findById(r.getIdPago());
-                    if (pago == null || pago.getIdAspirante() == null) return null;
-                    AspiranteDTO aspirante = aspiranteService.findById(pago.getIdAspirante());
+                    if (r == null) return null;
+                    PagoDTO pago = r.getPago() != null ? r.getPago() : (r.getIdPago() != null ? pagoService.findById(r.getIdPago()) : null);
+                    if (pago == null) return null;
+                    AspiranteDTO aspirante = pago.getAspirante() != null ? pago.getAspirante() : (pago.getIdAspirante() != null ? aspiranteService.findById(pago.getIdAspirante()) : null);
                     if (aspirante == null) return null;
-                    CohorteDTO coh = aspirante.getCohorte();
-                    if (coh == null && aspirante.getIdCohorte() != null) {
-                        coh = cohorteService.findById(aspirante.getIdCohorte());
-                    }
-                    if (coh == null || !Objects.equals(coh.getIdPrograma(), programaId)) return null;
 
                     PersonaDTO persona = aspirante.getPersona();
                     String nombre = persona != null ? (persona.getNombres() + " " + persona.getApellidos()).trim() : null;
@@ -266,19 +261,14 @@ public class DirectorProgramaCase {
     public ResponseEntity<List<PagoreciboDirectorOutput>> listPagosMatricula() {
         try {
             Integer programaId = resolvePrograma();
-            List<PagorecibomatriculaDTO> recibos = pagorecibomatriculaService.findAll();
+            List<PagorecibomatriculaDTO> recibos = pagorecibomatriculaService.findByProgramaId(programaId);
             var outputs = recibos.stream().map(r -> {
                 try {
-                    if (r == null || r.getIdPago() == null) return null;
-                    PagoDTO pago = pagoService.findById(r.getIdPago());
-                    if (pago == null || pago.getIdAspirante() == null) return null;
-                    AspiranteDTO aspirante = aspiranteService.findById(pago.getIdAspirante());
+                    if (r == null) return null;
+                    PagoDTO pago = r.getPago() != null ? r.getPago() : (r.getIdPago() != null ? pagoService.findById(r.getIdPago()) : null);
+                    if (pago == null) return null;
+                    AspiranteDTO aspirante = pago.getAspirante() != null ? pago.getAspirante() : (pago.getIdAspirante() != null ? aspiranteService.findById(pago.getIdAspirante()) : null);
                     if (aspirante == null) return null;
-                    CohorteDTO coh = aspirante.getCohorte();
-                    if (coh == null && aspirante.getIdCohorte() != null) {
-                        coh = cohorteService.findById(aspirante.getIdCohorte());
-                    }
-                    if (coh == null || !Objects.equals(coh.getIdPrograma(), programaId)) return null;
 
                     PersonaDTO persona = aspirante.getPersona();
                     String nombre = persona != null ? (persona.getNombres() + " " + persona.getApellidos()).trim() : null;

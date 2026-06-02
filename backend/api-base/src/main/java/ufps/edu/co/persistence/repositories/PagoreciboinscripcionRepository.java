@@ -10,6 +10,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ufps.edu.co.persistence.entities.PagoreciboinscripcionEntity;
+import java.util.List;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Spring Data JPA repository for the PagoreciboinscripcionEntity entity.
@@ -46,6 +49,16 @@ public interface PagoreciboinscripcionRepository extends JpaRepository<Pagorecib
 			String tipo, String entidad);
 
 	//List<PagoreciboinscripcionEntity> findByXxx(String xxx);
+
+	@Query("select r from PagoreciboinscripcionEntity r "
+		+ "join fetch r.pago p "
+		+ "join fetch p.aspirante a "
+		+ "left join fetch a.persona per "
+		+ "left join fetch a.cohorte coh "
+		+ "left join fetch coh.programa prog "
+		+ "left join fetch r.estado est "
+		+ "where prog.id = :programaId")
+	List<PagoreciboinscripcionEntity> findByProgramaIdWithJoins(@Param("programaId") Integer programaId);
 
 	//List<PagoreciboinscripcionEntity> findByXxxStartingWith(String xxx);
 

@@ -67,6 +67,11 @@ public class PagoreciboinscripcionService extends GenericService<Pagoreciboinscr
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
 
+    @Transactional(readOnly = true)
+    public List<PagoreciboinscripcionDTO> findByProgramaId(Integer programaId) {
+        return entityListToDtoList(repository.findByProgramaIdWithJoins(programaId));
+    }
+
     public void deleteById(Integer id) {
         repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pagoreciboinscripcion no encontrado con id: " + id));

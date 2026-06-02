@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ufps.edu.co.persistence.entities.PagorecibomatriculaEntity;
+import java.util.List;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Spring Data JPA repository for the PagorecibomatriculaEntity entity.
@@ -44,6 +47,16 @@ public interface PagorecibomatriculaRepository extends JpaRepository<Pagorecibom
 			String tipoEstado, String entidadEstado);
 
 	// Insert specific finders here 
+
+	@Query("select r from PagorecibomatriculaEntity r "
+		+ "join fetch r.pago p "
+		+ "join fetch p.aspirante a "
+		+ "left join fetch a.persona per "
+		+ "left join fetch a.cohorte coh "
+		+ "left join fetch coh.programa prog "
+		+ "left join fetch r.estado est "
+		+ "where prog.id = :programaId")
+	List<PagorecibomatriculaEntity> findByProgramaIdWithJoins(@Param("programaId") Integer programaId);
 
 	//List<PagorecibomatriculaEntity> findByXxx(String xxx);
 

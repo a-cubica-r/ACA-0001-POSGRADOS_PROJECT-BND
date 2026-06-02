@@ -67,6 +67,11 @@ public class PagorecibomatriculaService extends GenericService<Pagorecibomatricu
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
 
+    @Transactional(readOnly = true)
+    public List<PagorecibomatriculaDTO> findByProgramaId(Integer programaId) {
+        return entityListToDtoList(repository.findByProgramaIdWithJoins(programaId));
+    }
+
     public void deleteById(Integer id) {
         repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pagorecibomatricula no encontrado con id: " + id));
