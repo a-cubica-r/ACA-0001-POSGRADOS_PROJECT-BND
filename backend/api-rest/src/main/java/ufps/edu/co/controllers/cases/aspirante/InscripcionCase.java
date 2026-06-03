@@ -169,8 +169,44 @@ public class InscripcionCase {
         public record RegistrarUsuarioOutput(Integer idUsuario, String nombreusuario, Integer idPersona) {
         }
 
+        public record RegistrarNuevoUsuarioRequest(
+                        String nombres,
+                        String apellidos,
+                        Integer idTipoDoc,
+                        String numeroDocumento,
+                        Integer idEstadoCivil,
+                        Integer idGenero,
+                        LocalDate fechaNacimiento,
+                        LocalDate fechaExpedicionDocumento,
+                        Integer idDeptoExpedicionDoc,
+                        Integer idMunicipioExpedicionDoc,
+                        String titulosPostgrado,
+                        String tituloPregrado,
+                        String email,
+                        String telefonoContacto,
+                        BigDecimal promedioPonderadoAcumulado,
+                        Integer idGrupoEtnico,
+                        Integer idPuebloIndigena,
+                        Integer idCapacidadExcepcional,
+                        Boolean egresadoUfpsCucuta,
+                        String experienciaLaboral,
+                        Integer idDiscapacidad,
+                        UbicacionNacimientoRequest ubicacionNacimiento,
+                        UbicacionTrabajoRequest ubicacionTrabajo,
+                        UbicacionResidenciaRequest ubicacionResidencia,
+                        Integer idCohorte,
+                        Integer idTipoVinculacion,
+                        String usuario,
+                        String contrasena) {
+        }
+
+        public record RegistrarNuevoUsuarioOutput(Integer idPersona, Integer idAspirante, Integer idUsuario,
+                        String nombreusuario) {
+        }
+
         // ─── Endpoint 14: Registrar Formulario Completo ─────────────────────────
 
+        @Deprecated
         @Transactional(rollbackFor = Exception.class)
         @PostMapping(value = "/formulario", consumes = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<FormularioInscripcionOutput> registrarFormulario(
@@ -281,7 +317,8 @@ public class InscripcionCase {
                 if (cohorte.getIdPrograma() == null) {
                         throw new RuntimeException("La cohorte indicada no tiene programa asociado");
                 }
-                ProgramaOutput programa = programaProcessor.findById(new ProgramaInput.PROGRAMA_FIND(cohorte.getIdPrograma()));
+                ProgramaOutput programa = programaProcessor
+                                .findById(new ProgramaInput.PROGRAMA_FIND(cohorte.getIdPrograma()));
                 if (programa == null) {
                         throw new RuntimeException("Programa no encontrado con id: " + cohorte.getIdPrograma());
                 }
@@ -302,7 +339,7 @@ public class InscripcionCase {
                                                         cohorte.getNombre(), programa.nombre()));
                 } catch (SesEmailException ex) {
                         log.error("[INSCRIPCION_EMAIL] Fallo al enviar correo de confirmación a '{}': {}",
-                                persona.getCorreo(), ex.getMessage(), ex);
+                                        persona.getCorreo(), ex.getMessage(), ex);
                 }
                 try {
                         String token = confirmationTokenService.generateToken(aspirante.getId());
@@ -337,8 +374,10 @@ public class InscripcionCase {
                 if (body.numeroDocumento() != null && body.idTipoDoc() != null) {
                         personaExistePorDocumento = documentopersonaService.findAll().stream()
                                         .anyMatch(doc -> doc.getNumerodocumento() != null
-                                                        && body.numeroDocumento().equals(String.valueOf(doc.getNumerodocumento()))
-                                                        && java.util.Objects.equals(doc.getIdTipodocumento(), body.idTipoDoc()));
+                                                        && body.numeroDocumento().equals(
+                                                                        String.valueOf(doc.getNumerodocumento()))
+                                                        && java.util.Objects.equals(doc.getIdTipodocumento(),
+                                                                        body.idTipoDoc()));
                 }
 
                 if (personaExistePorDocumento) {
@@ -349,31 +388,208 @@ public class InscripcionCase {
 
         // ─── Endpoint 15: Registrar Usuario del Aspirante ───────────────────────
 
+        @Deprecated
         @PostMapping(value = "/usuario", consumes = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<RegistrarUsuarioOutput> registrarUsuario(
                         @RequestBody RegistrarUsuarioRequest body) {
 
-                        // Verify username uniqueness before creating key/usuario
-                        if (body.usuario() != null && usuarioService.findByNombreusuario(body.usuario()) != null) {
-                                throw new DomainException(UsuarioErrorCode.USUARIO_YA_EXISTE_CONFLICT, body.usuario());
+                // Verify username uniqueness before creating key/usuario
+                if (body.usuario() != null && usuarioService.findByNombreusuario(body.usuario()) != null) {
+                        throw new DomainException(UsuarioErrorCode.USUARIO_YA_EXISTE_CONFLICT, body.usuario());
+                }
+
+                ClaveDTO clave = claveService.create(ClaveDTO.builder()
+                                .valor(body.contrasena())
+                                .build());
+
+                UsuarioDTO usuario = usuarioService.create(UsuarioDTO.builder()
+                                .idPersona(body.idPersona())
+                                .idClave(clave.getId())
+                                .idRol(
+                                                rolProcessor.findByNombre("ASPIRANTE").id())
+                                .nombreusuario(body.usuario())
+                                .build());
+
+                return ResponseEntity.status(HttpStatus.CREATED)
+                                .body(new RegistrarUsuarioOutput(usuario.getId(), usuario.getNombreusuario(),
+                                                usuario.getIdPersona()));
+        }
+
+        // ─── Endpoint Unificado: Registrar Formulario + Usuario ─────────────────
+        @Transactional(rollbackFor = Exception.class)
+        @PostMapping(value = "/formulario/registrar-nuevo-usuario", consumes = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<RegistrarNuevoUsuarioOutput> registrarNuevoUsuario(
+                        @RequestBody RegistrarNuevoUsuarioRequest body) {
+
+                // Validate full form (will throw DomainException on validation errors)
+                FormularioInscripcionRequest form = new FormularioInscripcionRequest(
+                                body.nombres(), body.apellidos(), body.idTipoDoc(), body.numeroDocumento(),
+                                body.idEstadoCivil(), body.idGenero(), body.fechaNacimiento(),
+                                body.fechaExpedicionDocumento(), body.idDeptoExpedicionDoc(),
+                                body.idMunicipioExpedicionDoc(), body.titulosPostgrado(), body.tituloPregrado(),
+                                body.email(), body.telefonoContacto(), body.promedioPonderadoAcumulado(),
+                                body.idGrupoEtnico(), body.idPuebloIndigena(), body.idCapacidadExcepcional(),
+                                body.egresadoUfpsCucuta(), body.experienciaLaboral(), body.idDiscapacidad(),
+                                body.ubicacionNacimiento(), body.ubicacionTrabajo(), body.ubicacionResidencia(),
+                                body.idCohorte(), body.idTipoVinculacion(), body.usuario());
+
+                validarFormulario(form);
+
+                if (body.promedioPonderadoAcumulado() != null) {
+                        BigDecimal promedio = body.promedioPonderadoAcumulado();
+                        if (promedio.compareTo(BigDecimal.ZERO) < 0) {
+                                throw new RuntimeException(
+                                                "El promedio ponderado acumulado debe ser un valor positivo");
                         }
+                }
 
-                        ClaveDTO clave = claveService.create(ClaveDTO.builder()
-                                        .valor(body.contrasena())
-                                        .build());
+                String experienciaLaboralJson = body.experienciaLaboral();
 
-                        UsuarioDTO usuario = usuarioService.create(UsuarioDTO.builder()
-                                        .idPersona(body.idPersona())
-                                        .idClave(clave.getId())
-                                        .idRol(
-                                                rolProcessor.findByNombre("ASPIRANTE").id()
-                                        )
-                                        .nombreusuario(body.usuario())
-                                        .build());
+                // 3. Ubicación del lugar de expedición del documento
+                UbicacionDTO ubicExpedicion = ubicacionService.create(
+                                UbicacionDTO.builder()
+                                                .idMunicipio(body.idMunicipioExpedicionDoc())
+                                                .direccion("")
+                                                .build());
 
-                        return ResponseEntity.status(HttpStatus.CREATED)
-                                        .body(new RegistrarUsuarioOutput(usuario.getId(), usuario.getNombreusuario(),
-                                                        usuario.getIdPersona()));
+                // 5. Documento de identidad de la persona
+                DocumentopersonaDTO docPersona = documentopersonaService.create(
+                                DocumentopersonaDTO.builder()
+                                                .numerodocumento(body.numeroDocumento())
+                                                .idTipodocumento(body.idTipoDoc())
+                                                .idLugarexpedicion(ubicExpedicion.getId())
+                                                .build());
+
+                // 6. Ubicación de nacimiento
+                UbicacionDTO ubicNacimiento = ubicacionService.create(
+                                UbicacionDTO.builder()
+                                                .idMunicipio(body.ubicacionNacimiento().idMunicipioNacimiento())
+                                                .direccion("")
+                                                .build());
+
+                // 7. Ubicación de trabajo (opcional)
+                Integer idUbicacionTrabajo = null;
+                if (body.ubicacionTrabajo() != null) {
+                        String dirTrabajo = body.ubicacionTrabajo().direccionTrabajo() != null
+                                        ? body.ubicacionTrabajo().direccionTrabajo()
+                                        : "";
+                        UbicacionDTO ubicTrabajo = ubicacionService.create(
+                                        UbicacionDTO.builder()
+                                                        .idMunicipio(body.ubicacionTrabajo().idMunicipioTrabajo())
+                                                        .direccion(dirTrabajo)
+                                                        .build());
+                        idUbicacionTrabajo = ubicTrabajo.getId();
+                }
+
+                // 8. Ubicación de residencia
+                boolean esUrbana = body.ubicacionResidencia() != null
+                                && "Urbana".equalsIgnoreCase(body.ubicacionResidencia().zonaResidencia());
+                UbicacionDTO ubicResidencia = ubicacionService.create(
+                                UbicacionDTO.builder()
+                                                .idMunicipio(body.ubicacionResidencia().idMunicipioResidencia())
+                                                .direccion(body.ubicacionResidencia().direccionResidencia())
+                                                .zonaurbana(esUrbana)
+                                                .build());
+
+                // 9. Persona
+                PersonaDTO persona = personaService.create(
+                                PersonaDTO.builder()
+                                                .nombres(body.nombres())
+                                                .apellidos(body.apellidos())
+                                                .correo(body.email())
+                                                .celular(body.telefonoContacto())
+                                                .egresadoufps(body.egresadoUfpsCucuta())
+                                                .experiencialaboral(experienciaLaboralJson)
+                                                .fechanacimiento(body.fechaNacimiento())
+                                                .promediopregrado(body.promedioPonderadoAcumulado())
+                                                .titulopregrado(body.tituloPregrado())
+                                                .titulosposgrados(body.titulosPostgrado())
+                                                .idDocumentopersona(docPersona.getId())
+                                                .idCapacidadexepcional(body.idCapacidadExcepcional())
+                                                .idDiscapacidad(body.idDiscapacidad())
+                                                .idEstadocivil(body.idEstadoCivil())
+                                                .idGenero(body.idGenero())
+                                                .idGrupoetnico(body.idGrupoEtnico())
+                                                .idPoblacionindigena(body.idPuebloIndigena())
+                                                .idUbicacionnacimiento(ubicNacimiento.getId())
+                                                .idUbicaciontrabajo(idUbicacionTrabajo)
+                                                .idUbicacionvivienda(ubicResidencia.getId())
+                                                .build());
+
+                // 10. Estado inicial del aspirante
+                EstadoDTO estado = estadoService.findByTipoAndEntidad("NO CONFIRMADO", "ASPIRANTE");
+                if (estado == null) {
+                        throw new RuntimeException(
+                                        "Estado inicial 'NO CONFIRMADO' para ASPIRANTE no encontrado en la base de datos");
+                }
+
+                // Validar cohorte enviada por el front
+                if (body.idCohorte() == null) {
+                        throw new RuntimeException("Se debe enviar idCohorte en el formulario de inscripción");
+                }
+                CohorteDTO cohorte = cohorteService.findById(body.idCohorte());
+                if (cohorte == null) {
+                        throw new RuntimeException("Cohorte no encontrada con id: " + body.idCohorte());
+                }
+                if (cohorte.getEstado() != null && cohorte.getEstado().getTipo() != null
+                                && !"ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo())) {
+                        throw new RuntimeException("La cohorte indicada no está abierta");
+                }
+
+                if (cohorte.getIdPrograma() == null) {
+                        throw new RuntimeException("La cohorte indicada no tiene programa asociado");
+                }
+                ProgramaOutput programa = programaProcessor
+                                .findById(new ProgramaInput.PROGRAMA_FIND(cohorte.getIdPrograma()));
+                if (programa == null) {
+                        throw new RuntimeException("Programa no encontrado con id: " + cohorte.getIdPrograma());
+                }
+
+                // 11. Aspirante
+                AspiranteDTO aspirante = aspiranteService.create(
+                                AspiranteDTO.builder()
+                                                .idPersona(persona.getId())
+                                                .idEstado(estado.getId())
+                                                .idCohorte(body.idCohorte())
+                                                .idTipovinculacion(body.idTipoVinculacion())
+                                                .build());
+
+                pagoProcessor.ensureInitialPaymentsForAspirante(aspirante.getId());
+                try {
+                        sesService.enviarCorreo(persona.getCorreo(), EmailTemplates.ASUNTO_INSCRIPCION,
+                                        EmailTemplates.cuerpoInscripcion(persona.getNombres(), persona.getApellidos(),
+                                                        cohorte.getNombre(), programa.nombre()));
+                } catch (SesEmailException ex) {
+                        log.error("[INSCRIPCION_EMAIL] Fallo al enviar correo de confirmación a '{}': {}",
+                                        persona.getCorreo(), ex.getMessage(), ex);
+                }
+                try {
+                        String token = confirmationTokenService.generateToken(aspirante.getId());
+                        String enlace = baseUrl + "/api/application/case/aspirantes/confirmar-correo?token=" + token;
+                        sesService.enviarCorreo(
+                                        persona.getCorreo(),
+                                        EmailTemplates.ASUNTO_CONFIRMACION_CORREO,
+                                        EmailTemplates.cuerpoConfirmacionCorreo(persona.getNombres(), enlace));
+                } catch (Exception ex) {
+                        log.error("[VERIFICACION_EMAIL] Fallo al enviar correo de verificación a '{}': {}",
+                                        persona.getCorreo(), ex.getMessage(), ex);
+                }
+
+                // 12. Crear clave y usuario
+                ClaveDTO clave = claveService.create(ClaveDTO.builder()
+                                .valor(body.contrasena())
+                                .build());
+
+                UsuarioDTO usuario = usuarioService.create(UsuarioDTO.builder()
+                                .idPersona(persona.getId())
+                                .idClave(clave.getId())
+                                .idRol(rolProcessor.findByNombre("ASPIRANTE").id())
+                                .nombreusuario(body.usuario())
+                                .build());
+
+                return ResponseEntity.status(HttpStatus.CREATED)
+                                .body(new RegistrarNuevoUsuarioOutput(persona.getId(), aspirante.getId(),
+                                                usuario.getId(), usuario.getNombreusuario()));
         }
 
         // ─── Endpoints GET existentes ────────────────────────────────────────────
