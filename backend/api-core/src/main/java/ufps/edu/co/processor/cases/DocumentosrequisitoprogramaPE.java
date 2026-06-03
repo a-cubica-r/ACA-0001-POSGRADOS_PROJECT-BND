@@ -19,7 +19,7 @@ import ufps.edu.co.rest.services.DocumentosrequisitoconsejocohorteService;
 
 @Service
 public class DocumentosrequisitoprogramaPE extends DocumentosrequisitoprogramaProcessor {
-    
+
     @Autowired
     private DocumentosrequisitoprogramaService service;
 
@@ -70,11 +70,11 @@ public class DocumentosrequisitoprogramaPE extends DocumentosrequisitoprogramaPr
             throw new RuntimeException("Error finding Documentosrequisitoprograma by programa: " + e.getMessage(), e);
         }
     }
-    
+
     public Listdocumentosprogramaconsejo findByIdProgramaAndConsejo(Integer idPrograma) {
         try {
             List<DocumentosrequisitoprogramaOutput> documentosPrograma = findByIdPrograma(idPrograma);
-            List<DocumentosrequisitoprogramaOutput> documentosConsejo = consejoService.findByIdPrograma(idPrograma)
+            List<DocumentosrequisitoprogramaOutput> documentosConsejo = consejoService.findAll()
                     .stream()
                     .map(doc -> toProgramaOutput(doc, idPrograma))
                     .toList();
@@ -84,11 +84,13 @@ public class DocumentosrequisitoprogramaPE extends DocumentosrequisitoprogramaPr
                     .documentosPrograma(documentosPrograma)
                     .build();
         } catch (Exception e) {
-            throw new RuntimeException("Error finding Documentosrequisitoprograma by programa y consejo: " + e.getMessage(), e);
+            throw new RuntimeException(
+                    "Error finding Documentosrequisitoprograma by programa y consejo: " + e.getMessage(), e);
         }
     }
 
-    private DocumentosrequisitoprogramaOutput toProgramaOutput(DocumentosrequisitoconsejoDTO consejoDoc, Integer idPrograma) {
+    private DocumentosrequisitoprogramaOutput toProgramaOutput(DocumentosrequisitoconsejoDTO consejoDoc,
+            Integer idPrograma) {
         return DocumentosrequisitoprogramaOutput.builder()
                 .id(consejoDoc.getId())
                 .nombre(consejoDoc.getNombre())
