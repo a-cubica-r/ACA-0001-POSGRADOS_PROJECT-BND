@@ -1013,6 +1013,20 @@ public class DirectorProgramaCase {
         }
     }
 
+    @GetMapping("/admitidos/exists/cohorte/{cohorteId}")
+    public ResponseEntity<Boolean> existsAnyAdmitidoForCohorte(@PathVariable Integer cohorteId) {
+        try {
+            if (cohorteId == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            boolean exists = !listaadmitidosService.findByIdCohorte(cohorteId).isEmpty();
+            return ResponseEntity.ok(exists);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @PostMapping(value = "/cohorte/{cohorteId}/admitir/todos")
     public ResponseEntity<List<ListaadmitidosOutput>> admitAllValidated(@PathVariable Integer cohorteId) {
         try {
