@@ -22,6 +22,7 @@ public class DocumentosrequisitoconsejoMap extends UniversalMapper<Documentosreq
                 .id(dto.getId())
                 .nombre(dto.getNombre())
                 .tamanomaximo(dto.getTamanomaximo())
+                .urlformato(dto.getUrlformato())
                 .build();
     }
 }
