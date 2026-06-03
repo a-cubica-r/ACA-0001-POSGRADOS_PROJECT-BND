@@ -5,6 +5,8 @@
 package ufps.edu.co.rest.services;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +53,15 @@ public class DocumentosrequisitoprogramacohorteService extends GenericService<Do
     @Transactional(readOnly = true)
     public List<DocumentosrequisitoprogramacohorteDTO> findByIdCohorte(Integer idCohorte) {
         return entityListToDtoList(repository.findByIdCohorte(idCohorte));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Integer, String> findNombreMapByCohorte(Integer idCohorte) {
+        return repository.findByIdCohorteWithRequisito(idCohorte).stream()
+                .filter(dpc -> dpc.getDocumentosrequisitoprograma() != null)
+                .collect(Collectors.toMap(
+                        DocumentosrequisitoprogramacohorteEntity::getId,
+                        dpc -> dpc.getDocumentosrequisitoprograma().getNombre()));
     }
 
     public DocumentosrequisitoprogramacohorteDTO create(DocumentosrequisitoprogramacohorteDTO dto) {
