@@ -966,6 +966,12 @@ public class PagoProcessor {
             return new PagoreciboinscripcionResultado(existente, false);
         }
 
+        // If there is a last rejected recibo, reuse it as well (behaves like EN CURSO)
+        PagoreciboinscripcionDTO rechazado = pagoreciboinscripcionService.findLastRejectedByIdAspirante(idAspirante);
+        if (rechazado != null) {
+            return new PagoreciboinscripcionResultado(rechazado, false);
+        }
+
         String referenciaNueva = construirReferenciaUnica(referencia);
 
         EstadoDTO estadoEnCurso = resolveEstadoPagoInscripcionEnCurso();
@@ -985,6 +991,12 @@ public class PagoProcessor {
         PagorecibomatriculaDTO existente = pagorecibomatriculaService.findCurrentByIdAspirante(idAspirante);
         if (existente != null) {
             return new PagorecibomatriculaResultado(existente, false);
+        }
+
+        // If there is a last rejected recibo, reuse it as well (behaves like EN CURSO)
+        PagorecibomatriculaDTO rechazado = pagorecibomatriculaService.findLastRejectedByIdAspirante(idAspirante);
+        if (rechazado != null) {
+            return new PagorecibomatriculaResultado(rechazado, false);
         }
 
         BigDecimal valorValidado = validarMontoElegidoMatricula(montoElegido, montoTotal);
