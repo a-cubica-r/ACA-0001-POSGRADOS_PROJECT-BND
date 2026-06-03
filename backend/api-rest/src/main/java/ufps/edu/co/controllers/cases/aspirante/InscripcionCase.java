@@ -144,6 +144,7 @@ public class InscripcionCase {
                         String titulosPostgrado,
                         String tituloPregrado,
                         String email,
+                        String empresa,
                         String telefonoContacto,
                         BigDecimal promedioPonderadoAcumulado,
                         Integer idGrupoEtnico,
@@ -183,6 +184,7 @@ public class InscripcionCase {
                         String titulosPostgrado,
                         String tituloPregrado,
                         String email,
+                        String empresa,
                         String telefonoContacto,
                         BigDecimal promedioPonderadoAcumulado,
                         Integer idGrupoEtnico,
@@ -423,15 +425,34 @@ public class InscripcionCase {
 
                 // Validate full form (will throw DomainException on validation errors)
                 FormularioInscripcionRequest form = new FormularioInscripcionRequest(
-                                body.nombres(), body.apellidos(), body.idTipoDoc(), body.numeroDocumento(),
-                                body.idEstadoCivil(), body.idGenero(), body.fechaNacimiento(),
-                                body.fechaExpedicionDocumento(), body.idDeptoExpedicionDoc(),
-                                body.idMunicipioExpedicionDoc(), body.titulosPostgrado(), body.tituloPregrado(),
-                                body.email(), body.telefonoContacto(), body.promedioPonderadoAcumulado(),
-                                body.idGrupoEtnico(), body.idPuebloIndigena(), body.idCapacidadExcepcional(),
-                                body.egresadoUfpsCucuta(), body.experienciaLaboral(), body.idDiscapacidad(),
-                                body.ubicacionNacimiento(), body.ubicacionTrabajo(), body.ubicacionResidencia(),
-                                body.idCohorte(), body.idTipoVinculacion(), body.usuario());
+                                body.nombres(),
+                                body.apellidos(),
+                                body.idTipoDoc(), 
+                                body.numeroDocumento(),
+                                body.idEstadoCivil(), 
+                                body.idGenero(), 
+                                body.fechaNacimiento(),
+                                body.fechaExpedicionDocumento(), 
+                                body.idDeptoExpedicionDoc(),
+                                body.idMunicipioExpedicionDoc(), 
+                                body.titulosPostgrado(), 
+                                body.tituloPregrado(),
+                                body.email(),
+                                body.empresa(),
+                                body.telefonoContacto(), 
+                                body.promedioPonderadoAcumulado(),
+                                body.idGrupoEtnico(), 
+                                body.idPuebloIndigena(), 
+                                body.idCapacidadExcepcional(),
+                                body.egresadoUfpsCucuta(), 
+                                body.experienciaLaboral(), 
+                                body.idDiscapacidad(),
+                                body.ubicacionNacimiento(), 
+                                body.ubicacionTrabajo(), 
+                                body.ubicacionResidencia(),
+                                body.idCohorte(), 
+                                body.idTipoVinculacion(), 
+                                body.usuario());
 
                 validarFormulario(form);
 
@@ -497,6 +518,7 @@ public class InscripcionCase {
                                                 .nombres(body.nombres())
                                                 .apellidos(body.apellidos())
                                                 .correo(body.email())
+                                                .empresa(body.empresa())
                                                 .celular(body.telefonoContacto())
                                                 .egresadoufps(body.egresadoUfpsCucuta())
                                                 .experiencialaboral(experienciaLaboralJson)

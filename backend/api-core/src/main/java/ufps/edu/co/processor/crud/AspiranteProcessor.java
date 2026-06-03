@@ -914,7 +914,7 @@ public class AspiranteProcessor implements
                 && "ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo());
 
         var admitidosList = admitidoService.findByCohorte(cohorte.getId());
-        Set<Integer> admitidosIds = admitidosList.stream()
+        @SuppressWarnings("unused") Set<Integer> admitidosIds = admitidosList.stream()
                 .map(a -> a.getIdAspirante())
                 .collect(Collectors.toSet());
 
