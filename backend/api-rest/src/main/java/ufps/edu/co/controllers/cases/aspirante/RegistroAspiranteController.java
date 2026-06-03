@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ufps.edu.co.auth.contract.PasswordHashService;
 import ufps.edu.co.rest.dto.ClaveDTO;
 import ufps.edu.co.rest.dto.UsuarioDTO;
 import ufps.edu.co.rest.services.ClaveService;
@@ -24,11 +25,13 @@ public class RegistroAspiranteController {
     @Autowired
     private ClaveService claveService;
 
+    @Autowired
+    private PasswordHashService passwordHashService;
+
     @PostMapping(value = "/registro", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UsuarioDTO> registrarUsuario(@RequestBody RegistroUsuarioRequest body) {
-        // Crear la clave (nota: here no hashing is applied)
         ClaveDTO clave = ClaveDTO.builder()
-                .valor(body.contrasena())
+                .valor(passwordHashService.encode(body.contrasena()))
                 .build();
         ClaveDTO savedClave = claveService.create(clave);
 

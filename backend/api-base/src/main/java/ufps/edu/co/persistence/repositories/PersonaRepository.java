@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.persistence.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -38,4 +40,6 @@ import ufps.edu.co.persistence.entities.PersonaEntity;
 public interface PersonaRepository extends JpaRepository<PersonaEntity, Integer> {
 
 	boolean existsByCorreoIgnoreCase(String correo);
+
+	Optional<PersonaEntity> findByCorreo(String correo);
 }

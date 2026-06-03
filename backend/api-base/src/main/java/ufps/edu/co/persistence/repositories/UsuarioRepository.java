@@ -43,13 +43,15 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
 
 	Optional<UsuarioEntity> findByNombreusuario(String nombreusuario);
 
+	Optional<UsuarioEntity> findByIdPersona(Integer idPersona);
+
 	@Query("SELECT u.idPersona FROM UsuarioEntity u WHERE u.nombreusuario = :nombreusuario")
 	Optional<Integer> findIdPersonaByNombreusuario(@Param("nombreusuario") String nombreusuario);
 
 	@Query("SELECT u.idPersona FROM UsuarioEntity u WHERE u.id = :id")
 	Optional<Integer> findIdPersonaById(@Param("id") Integer id);
 
-	// Insert specific finders here 
+	// Insert specific finders here
 
 	//List<UsuarioEntity> findByXxx(String xxx);
 

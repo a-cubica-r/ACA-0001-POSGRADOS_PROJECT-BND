@@ -41,6 +41,8 @@ public class EmailTemplates {
 
   public static final String ASUNTO_CONFIRMACION_CORREO = "Confirma tu correo electrónico - Posgrados UFPS";
 
+  public static final String ASUNTO_RECUPERAR_CONTRASENA = "Recuperación de contraseña - Posgrados UFPS";
+
   public static final String ASUNTO_ASPIRANTE_CONFIRMA = "Confirmación de asistencia recibida - Posgrados UFPS";
 
   public static final String ASUNTO_ACTIVIDAD_COMPLETADA = "Actividad completada - Posgrados UFPS";
@@ -698,6 +700,36 @@ public class EmailTemplates {
         </body>
         </html>
         """.formatted(encabezado(), nombres, apellidos);
+  }
+
+  public static String cuerpoRecuperacionContrasena(String nombres, String enlaceReset) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
+          <h2 style="color: #1a5276;">Recuperación de contraseña</h2>
+          <p>Estimado/a <strong>%s</strong>,</p>
+          <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en la plataforma de
+             Posgrados UFPS. Haz clic en el siguiente botón para continuar:</p>
+          <p style="text-align: center; margin: 32px 0;">
+            <a href="%s"
+               style="background-color: #1a5276; color: #ffffff; padding: 12px 28px;
+                      text-decoration: none; border-radius: 4px; font-size: 1em; display: inline-block;">
+              Restablecer contraseña
+            </a>
+          </p>
+          <p style="color: #888; font-size: 0.85em;">
+            Este enlace es válido por 1 hora. Si no realizaste esta solicitud, ignora este correo;
+            tu contraseña no será modificada.
+          </p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(encabezado(), nombres, enlaceReset);
   }
 
   public static String cuerpoRechazoPagoMatricula(String nombres, String apellidos) {
