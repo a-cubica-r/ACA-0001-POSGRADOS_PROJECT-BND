@@ -28,6 +28,7 @@ import ufps.edu.co.rest.dto.PagoCheckoutPreviewDTO;
 import ufps.edu.co.rest.dto.PagoCheckoutPreviewDataDTO;
 import ufps.edu.co.rest.dto.PagoreciboinscripcionDTO;
 import ufps.edu.co.rest.dto.PagorecibomatriculaDTO;
+import ufps.edu.co.rest.dto.PersonaDTO;
 import ufps.edu.co.records.output.entity.PagoListadoOutput;
 import ufps.edu.co.records.output.entity.PagoconceptoResumenOutput;
 import ufps.edu.co.records.output.entity.PagoOutput;
@@ -38,15 +39,9 @@ import ufps.edu.co.rest.dto.PagoResumenDTO;
 import ufps.edu.co.rest.dto.PagoconceptoDTO;
 import ufps.edu.co.processor.receipt.ReciboInscripcionBuildInput;
 import ufps.edu.co.processor.receipt.ReciboInscripcionBuilderPort;
-import ufps.edu.co.rest.services.AspiranteService;
-import ufps.edu.co.rest.services.EstadoService;
-import ufps.edu.co.rest.services.PagoService;
-import ufps.edu.co.rest.services.PagoconceptoService;
-import ufps.edu.co.rest.services.CohorteService;
-import ufps.edu.co.rest.services.ProgramaService;
-import ufps.edu.co.rest.services.PagorecibomatriculaService;
-import ufps.edu.co.rest.services.PagoreciboinscripcionService;
-import ufps.edu.co.rest.services.UsuarioService;
+import ufps.edu.co.rest.services.*;
+import ufps.edu.co.services.*;
+import ufps.edu.co.utils.*;
 import org.springframework.context.ApplicationEventPublisher;
 import ufps.edu.co.processor.events.AspiranteLegalizadoEvent;
 import ufps.edu.co.wompi.WompiGateway;
@@ -97,6 +92,12 @@ public class PagoProcessor {
 
     @Autowired
     private ProgramaService programaService;
+
+    @Autowired
+    private PersonaService personaService;
+
+    @Autowired
+    private SESService sesService;
 
     @Autowired
     private ReciboInscripcionBuilderPort reciboInscripcionBuilderPort;
@@ -1537,6 +1538,10 @@ public class PagoProcessor {
 
         actualizarEstadoAspirantePazYSalvo(pago.getIdAspirante());
 
+        notificarPago(pago.getIdAspirante(),
+                EmailTemplates.ASUNTO_APROBACION_PAGO_INSCRIPCION,
+                (n, a) -> EmailTemplates.cuerpoAprobacionPagoInscripcion(n, a));
+
         PagoDTO updated = pagoService.findById(pago.getId());
         return pagoMap.toOutput(updated);
     }
@@ -1566,7 +1571,25 @@ public class PagoProcessor {
 
         actualizarEstadoAspiranteLegalizado(pago.getIdAspirante());
 
+        notificarPago(pago.getIdAspirante(),
+                EmailTemplates.ASUNTO_APROBACION_PAGO_MATRICULA,
+                (n, a) -> EmailTemplates.cuerpoAprobacionPagoMatricula(n, a));
+
         PagoDTO updated = pagoService.findById(pago.getId());
         return pagoMap.toOutput(updated);
+    }
+
+    private void notificarPago(Integer idAspirante, String asunto,
+            java.util.function.BiFunction<String, String, String> cuerpoFn) {
+        try {
+            AspiranteDTO aspirante = aspiranteService.findById(idAspirante);
+            if (aspirante == null) return;
+            PersonaDTO persona = personaService.findById(aspirante.getIdPersona());
+            if (persona == null || persona.getCorreo() == null) return;
+            sesService.enviarCorreoAsync(persona.getCorreo(), asunto,
+                    cuerpoFn.apply(persona.getNombres(), persona.getApellidos()));
+        } catch (Exception e) {
+            log.warn("No se pudo enviar correo de pago al aspirante {}: {}", idAspirante, e.getMessage());
+        }
     }
 }

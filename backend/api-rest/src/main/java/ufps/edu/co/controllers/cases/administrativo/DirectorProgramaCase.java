@@ -192,10 +192,10 @@ public class DirectorProgramaCase {
         }
     }
 
-    @GetMapping(value = "/cohortes/{idCohorte}/aspirantes")
-    public ResponseEntity<List<AspiranteCohorteOutput>> getAspirantesByCohorte(@PathVariable Integer idCohorte) {
+    @GetMapping(value = "/cohorte/{idCohorte}/aspirantes-a-validar")
+    public ResponseEntity<List<AspiranteCohorteOutput>> getAspirantesAValidar(@PathVariable Integer idCohorte) {
         try {
-            return ResponseEntity.ok(aspiranteProcessor.findByCohorteConResumen(idCohorte));
+            return ResponseEntity.ok(aspiranteProcessor.findAValidarByCohorte(idCohorte));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -393,6 +393,17 @@ public class DirectorProgramaCase {
                     .estado(estadoName)
                     .build();
 
+            if (persona != null && persona.getCorreo() != null) {
+                try {
+                    sesService.enviarCorreoAsync(persona.getCorreo(),
+                            EmailTemplates.ASUNTO_RECHAZO_PAGO_INSCRIPCION,
+                            EmailTemplates.cuerpoRechazoPagoInscripcion(
+                                    persona.getNombres(), persona.getApellidos()));
+                } catch (Exception emailEx) {
+                    logger.warn("No se pudo enviar correo de rechazo de inscripción: {}", emailEx.getMessage());
+                }
+            }
+
             return ResponseEntity.ok(out);
         } catch (DomainException e) {
             throw e;
@@ -443,6 +454,17 @@ public class DirectorProgramaCase {
                     .idEstado(pag.getIdEstado())
                     .estado(estadoName)
                     .build();
+
+            if (persona != null && persona.getCorreo() != null) {
+                try {
+                    sesService.enviarCorreoAsync(persona.getCorreo(),
+                            EmailTemplates.ASUNTO_RECHAZO_PAGO_MATRICULA,
+                            EmailTemplates.cuerpoRechazoPagoMatricula(
+                                    persona.getNombres(), persona.getApellidos()));
+                } catch (Exception emailEx) {
+                    logger.warn("No se pudo enviar correo de rechazo de matrícula: {}", emailEx.getMessage());
+                }
+            }
 
             return ResponseEntity.ok(out);
         } catch (DomainException e) {

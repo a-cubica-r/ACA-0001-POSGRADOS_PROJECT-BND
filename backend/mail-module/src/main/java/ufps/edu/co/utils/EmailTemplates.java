@@ -57,6 +57,14 @@ public class EmailTemplates {
 
   public static final String ASUNTO_CODIGO_ESTUDIANTIL = "Tu código estudiantil ha sido generado - Posgrados UFPS";
 
+  public static final String ASUNTO_APROBACION_PAGO_INSCRIPCION = "Pago de inscripción aprobado - Posgrados UFPS";
+
+  public static final String ASUNTO_RECHAZO_PAGO_INSCRIPCION = "Pago de inscripción rechazado - Posgrados UFPS";
+
+  public static final String ASUNTO_APROBACION_PAGO_MATRICULA = "Pago de matrícula aprobado - Posgrados UFPS";
+
+  public static final String ASUNTO_RECHAZO_PAGO_MATRICULA = "Pago de matrícula rechazado - Posgrados UFPS";
+
   // ─── Cuerpos HTML ────────────────────────────────────────────────────────────
 
   public static String cuerpoInscripcion(
@@ -623,5 +631,95 @@ public class EmailTemplates {
         </body>
         </html>
         """.formatted(encabezado(), nombres, apellidos, nombrePrograma, codigoEstudiante);
+  }
+
+  public static String cuerpoAprobacionPagoInscripcion(String nombres, String apellidos) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
+          <h2 style="color: #1a7a4a;">¡Pago de inscripción aprobado!</h2>
+          <p>Estimado/a <strong>%s %s</strong>,</p>
+          <p>Le informamos que su <strong>pago de inscripción</strong> ha sido
+             <strong style="color: #1a7a4a;">aprobado</strong> satisfactoriamente por la
+             Oficina de Posgrados de la UFPS.</p>
+          <p>Su proceso de inscripción continúa activo. En los próximos días recibirá
+             información sobre los siguientes pasos a seguir.</p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(encabezado(), nombres, apellidos);
+  }
+
+  public static String cuerpoRechazoPagoInscripcion(String nombres, String apellidos) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
+          <h2 style="color: #a93226;">Pago de inscripción rechazado</h2>
+          <p>Estimado/a <strong>%s %s</strong>,</p>
+          <p>Le informamos que su <strong>pago de inscripción</strong> ha sido
+             <strong style="color: #a93226;">rechazado</strong> por la Oficina de
+             Posgrados de la UFPS.</p>
+          <p>Por favor, verifique que el comprobante cargado sea legible y corresponda
+             al pago de inscripción. Puede volver a cargar su factura desde la plataforma.</p>
+          <p>Si tiene dudas, comuníquese con la Oficina de Posgrados.</p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(encabezado(), nombres, apellidos);
+  }
+
+  public static String cuerpoAprobacionPagoMatricula(String nombres, String apellidos) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
+          <h2 style="color: #1a7a4a;">¡Pago de matrícula aprobado!</h2>
+          <p>Estimado/a <strong>%s %s</strong>,</p>
+          <p>Le informamos que su <strong>pago de matrícula</strong> ha sido
+             <strong style="color: #1a7a4a;">aprobado</strong> satisfactoriamente por la
+             Oficina de Posgrados de la UFPS.</p>
+          <p>Su proceso de legalización ha sido completado. A continuación recibirá
+             su código estudiantil para acceder a los servicios académicos.</p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(encabezado(), nombres, apellidos);
+  }
+
+  public static String cuerpoRechazoPagoMatricula(String nombres, String apellidos) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
+          <h2 style="color: #a93226;">Pago de matrícula rechazado</h2>
+          <p>Estimado/a <strong>%s %s</strong>,</p>
+          <p>Le informamos que su <strong>pago de matrícula</strong> ha sido
+             <strong style="color: #a93226;">rechazado</strong> por la Oficina de
+             Posgrados de la UFPS.</p>
+          <p>Por favor, verifique que el comprobante cargado sea legible y corresponda
+             al pago de matrícula. Puede volver a cargar su factura desde la plataforma.</p>
+          <p>Si tiene dudas, comuníquese con la Oficina de Posgrados.</p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(encabezado(), nombres, apellidos);
   }
 }

@@ -184,6 +184,12 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
     }
 
     @Transactional(readOnly = true)
+    public List<AspiranteDTO> findAValidarByCohorte(int cohorteId) {
+        return entityListToDtoList(repository.findByIdCohorteAndEstadoTipoIn(
+                cohorteId, List.of("PAZ Y SALVO", "VALIDADO_POR_CALIFICAR")));
+    }
+
+    @Transactional(readOnly = true)
     public AspiranteDTO findByIdPersona(Integer idPersona) {
         return entityToDto(repository.findFirstByIdPersona(idPersona));
     }

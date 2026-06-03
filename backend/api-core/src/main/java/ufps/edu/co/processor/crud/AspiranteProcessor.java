@@ -874,6 +874,37 @@ public class AspiranteProcessor implements
         }).toList();
     }
 
+    public List<AspiranteCohorteOutput> findAValidarByCohorte(Integer cohorteId) {
+        return service.findAValidarByCohorte(cohorteId).stream().map(aspirante -> {
+            PersonaDTO p = aspirante.getPersona();
+            String nombre = p != null
+                    ? ((p.getNombres() != null ? p.getNombres() : "") + " "
+                            + (p.getApellidos() != null ? p.getApellidos() : "")).trim()
+                    : "";
+            String cedula = p != null && p.getDocumentopersona() != null
+                    && p.getDocumentopersona().getNumerodocumento() != null
+                            ? p.getDocumentopersona().getNumerodocumento().toString()
+                            : null;
+
+            List<DocumentoDTO> docs = documentoService.findByIdAspirante(aspirante.getId());
+            long total = docs.size();
+            long validados = docs.stream()
+                    .filter(d -> d.getEstadodocumento() != null
+                            && "APROBADO".equalsIgnoreCase(d.getEstadodocumento().getEstado()))
+                    .count();
+
+            return AspiranteCohorteOutput.builder()
+                    .id(aspirante.getId())
+                    .nombre(nombre)
+                    .cedula(cedula)
+                    .correo(p != null ? p.getCorreo() : null)
+                    .documentosValidados(validados)
+                    .totalDocumentos(total)
+                    .estadoGeneral(aspirante.getEstado().getTipo())
+                    .build();
+        }).toList();
+    }
+
     public RankingAdmitidosOutput getRankingAdmitidos(Integer cohorteId) {
         CohorteDTO cohorte = cohorteService.findById(cohorteId);
         if (cohorte == null) {
