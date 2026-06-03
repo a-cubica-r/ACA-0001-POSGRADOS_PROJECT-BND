@@ -69,7 +69,13 @@ public class RecuperarContrasenaController {
 
     @PostMapping(value = "/cambiar", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> cambiarContrasena(@RequestBody CambiarContrasenaRequest body) {
-        PersonaEntity persona = personaRepository.findByCorreo(body.correo())
+        String correo;
+        try {
+            correo = passwordResetTokenService.validateAndExtract(body.token());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        PersonaEntity persona = personaRepository.findByCorreo(correo)
                 .orElseThrow(() -> new RuntimeException("No se encontró un usuario con ese correo"));
         UsuarioEntity usuario = usuarioRepository.findByIdPersona(persona.getId())
                 .orElseThrow(() -> new RuntimeException("No se encontró un usuario asociado a ese correo"));
@@ -82,5 +88,5 @@ public class RecuperarContrasenaController {
 
     public static record SolicitarRecuperacionRequest(String correo) {}
 
-    public static record CambiarContrasenaRequest(String correo, String nuevaContrasena) {}
+    public static record CambiarContrasenaRequest(String token, String nuevaContrasena) {}
 }
