@@ -30,6 +30,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import jakarta.validation.Valid;
 
+import ufps.edu.co.persistence.entities.*;
+import ufps.edu.co.persistence.repositories.*;
 import ufps.edu.co.domain.exceptions.DomainException;
 // import ufps.edu.co.domain.exceptions.errorcodes.ListaadmitidosErrorCode;
 import ufps.edu.co.domain.exceptions.DuplicateAdmisionException;
@@ -106,6 +108,7 @@ import ufps.edu.co.records.output.entity.PruebaResumenOutput;
 import ufps.edu.co.records.output.entity.PruebaSimpleOutput;
 import ufps.edu.co.services.*;
 import ufps.edu.co.utils.*;
+import ufps.edu.co.records.output.entity.AspiranteDatosOutput;
 import ufps.edu.co.records.output.entity.PagoreciboDirectorOutput;
 import ufps.edu.co.records.input.entity.PagoEstadoInput;
 // import ufps.edu.co.rest.dto.PagoreciboinscripcionDTO;
@@ -194,6 +197,9 @@ public class DirectorProgramaCase {
     private SESService sesService;
 
     @Autowired
+    private PersonaRepository personaRepository;
+
+    @Autowired
     private PagoProcessor pagoProcessor;
 
     @GetMapping(value = "/cohortes")
@@ -213,6 +219,45 @@ public class DirectorProgramaCase {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @GetMapping(value = "/aspirantes/{idAspirante}/datos")
+    public ResponseEntity<AspiranteDatosOutput> getDatosAspirante(@PathVariable Integer idAspirante) {
+        Integer idPersona = aspiranteService.findIdPersonaById(idAspirante);
+        if (idPersona == null) {
+            return ResponseEntity.notFound().build();
+        }
+        PersonaEntity persona = personaRepository.findById(idPersona).orElse(null);
+        if (persona == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String documento = null;
+        String tipodocumento = null;
+        if (persona.getDocumentopersona() != null) {
+            documento = persona.getDocumentopersona().getNumerodocumento();
+            if (persona.getDocumentopersona().getTipodocumentopersona() != null) {
+                tipodocumento = persona.getDocumentopersona().getTipodocumentopersona().getTipo();
+            }
+        }
+        String ubicaciontrabajo = null;
+        if (persona.getUbicacion3() != null) {
+            ubicaciontrabajo = persona.getUbicacion3().getDireccion();
+        }
+        return ResponseEntity.ok(AspiranteDatosOutput.builder()
+                .nombres(persona.getNombres())
+                .apellidos(persona.getApellidos())
+                .celular(persona.getCelular())
+                .correo(persona.getCorreo())
+                .documento(documento)
+                .tipodocumento(tipodocumento)
+                .egresadoufps(persona.getEgresadoufps())
+                .empresa(persona.getEmpresa())
+                .experiencialaboral(persona.getExperiencialaboral())
+                .promediopregrado(persona.getPromediopregrado())
+                .titulopregrado(persona.getTitulopregrado())
+                .titulosposgrados(persona.getTitulosposgrados())
+                .ubicaciontrabajo(ubicaciontrabajo)
+                .build());
     }
 
     @GetMapping(value = "/aspirantes/{idAspirante}/documentos")

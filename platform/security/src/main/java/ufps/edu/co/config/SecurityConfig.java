@@ -28,7 +28,9 @@ public class SecurityConfig {
                         "/error",
                         "/api/application/case/inscripciones/**",
                         "/api/application/case/wompi/**",
-                        "/api/application/case/aspirantes/confirmar-correo"
+                        "/api/application/case/aspirantes/confirmar-correo",
+                        "/api/application/case/recuperarContrasena/solicitar",
+                        "/api/application/case/recuperarContrasena/cambiar"
         };
 
         // Rutas del director de programa: bloque propio y bloque compartido.
