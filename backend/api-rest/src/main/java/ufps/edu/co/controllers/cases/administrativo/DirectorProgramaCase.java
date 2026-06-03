@@ -23,7 +23,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import jakarta.validation.Valid;
 
 import ufps.edu.co.domain.exceptions.DomainException;
@@ -225,10 +229,10 @@ public class DirectorProgramaCase {
 
     @GetMapping(value = "/pagos/inscripcion")
     public ResponseEntity<?> listPagosInscripcion(
-            @org.springframework.web.bind.annotation.RequestParam(value = "page", required = false) Integer page,
-            @org.springframework.web.bind.annotation.RequestParam(value = "size", required = false) Integer size) {
+            @RequestParam(value = "idPrograma") Integer programaId,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
         try {
-            Integer programaId = resolvePrograma();
             if (page == null) {
                 List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> recibos = pagoreciboinscripcionService
                         .findDirectorByProgramaId(programaId);
@@ -259,11 +263,10 @@ public class DirectorProgramaCase {
             } else {
                 int p = Math.max(0, page);
                 int s = (size != null && size > 0) ? size : 50;
-                org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(p,
-                        s);
-                org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagoreciboinscripcionService
+                Pageable pageable = PageRequest.of(p, s);
+                Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagoreciboinscripcionService
                         .findDirectorByProgramaId(programaId, pageable);
-                org.springframework.data.domain.Page<PagoreciboDirectorOutput> mapped = pageResult
+                Page<PagoreciboDirectorOutput> mapped = pageResult
                         .map(r -> PagoreciboDirectorOutput.builder()
                                 .id(r.getId())
                                 .idPago(r.getIdPago())
@@ -287,10 +290,10 @@ public class DirectorProgramaCase {
 
     @GetMapping(value = "/pagos/matricula")
     public ResponseEntity<?> listPagosMatricula(
-            @org.springframework.web.bind.annotation.RequestParam(value = "page", required = false) Integer page,
-            @org.springframework.web.bind.annotation.RequestParam(value = "size", required = false) Integer size) {
+            @RequestParam(value = "idPrograma") Integer programaId,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
         try {
-            Integer programaId = resolvePrograma();
             if (page == null) {
                 List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> recibos = pagorecibomatriculaService
                         .findDirectorByProgramaId(programaId);
@@ -321,11 +324,10 @@ public class DirectorProgramaCase {
             } else {
                 int p = Math.max(0, page);
                 int s = (size != null && size > 0) ? size : 50;
-                org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(p,
-                        s);
-                org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagorecibomatriculaService
+                Pageable pageable = PageRequest.of(p, s);
+                Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagorecibomatriculaService
                         .findDirectorByProgramaId(programaId, pageable);
-                org.springframework.data.domain.Page<PagoreciboDirectorOutput> mapped = pageResult
+                Page<PagoreciboDirectorOutput> mapped = pageResult
                         .map(r -> PagoreciboDirectorOutput.builder()
                                 .id(r.getId())
                                 .idPago(r.getIdPago())
