@@ -11,6 +11,6 @@ public record AspiranteCheckoutDTO(
         String correo,
         String celular,
         String telefono,
-        Integer numerodocumento,
+        String numerodocumento,
         String tipoDocumento) implements Serializable {
 }
