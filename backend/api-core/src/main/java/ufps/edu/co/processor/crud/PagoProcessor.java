@@ -561,7 +561,7 @@ public class PagoProcessor {
             data.programa(),
             data.periodo(),
             construirNombreCompleto(data.nombres(), data.apellidos()),
-            formatearDocumento(data.numerodocumento()),
+            data.numerodocumento(),
             data.facultad(),
             data.tipo(),
             monto,
@@ -620,7 +620,7 @@ public class PagoProcessor {
             data.programa(),
             data.periodo(),
             construirNombreCompleto(data.nombres(), data.apellidos()),
-            formatearDocumento(data.numerodocumento()),
+            data.numerodocumento(),
             data.facultad(),
             data.tipo(),
             monto,
@@ -1405,6 +1405,7 @@ public class PagoProcessor {
         return (nombresLimpios + " " + apellidosLimpios).trim();
     }
 
+    @SuppressWarnings("unused")
     private String formatearDocumento(String numerodocumento) {
         if (numerodocumento == null) {
             return null;
