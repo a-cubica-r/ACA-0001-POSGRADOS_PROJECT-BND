@@ -926,6 +926,8 @@ public class AspiranteProcessor implements
                 .filter(a -> a.getEstado() != null
                         && ("VALIDADO_CALIFICADO".equalsIgnoreCase(a.getEstado().getTipo())
                                 || "CANCELADO".equalsIgnoreCase(a.getEstado().getTipo())
+                                || "POR LEGALIZAR".equalsIgnoreCase(a.getEstado().getTipo())
+                                || "LEGALIZADO".equalsIgnoreCase(a.getEstado().getTipo())
                                 || "ADMITIDO".equalsIgnoreCase(a.getEstado().getTipo())))
                 .sorted(Comparator.comparing(AspiranteDTO::getPuntuacion,
                         Comparator.nullsLast(Comparator.reverseOrder())))
