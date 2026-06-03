@@ -9,7 +9,7 @@ public record PagoCheckoutPreviewDataDTO(
         String periodo,
         String nombres,
         String apellidos,
-        Integer numerodocumento,
+        String numerodocumento,
         String facultad,
         String tipo) implements Serializable {
 }
