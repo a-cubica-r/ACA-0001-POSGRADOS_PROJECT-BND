@@ -108,5 +108,14 @@
     "name": "app.module.name.api-test",
     "type": "java.lang.String",
     "description": "A description for 'app.module.name.api-test'"
+  },
+  {
+    "name": "app.frontend-login-url",
+    "type": "java.lang.String",
+    "description": "A description for 'app.frontend-login-url'"
+  },{
+    "name": "app.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'app.base-url'"
   }
 ]}

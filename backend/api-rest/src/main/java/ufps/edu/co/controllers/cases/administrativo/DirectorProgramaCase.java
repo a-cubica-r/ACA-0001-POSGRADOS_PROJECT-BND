@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import ufps.edu.co.domain.exceptions.DomainException;
+// import ufps.edu.co.domain.exceptions.errorcodes.ListaadmitidosErrorCode;
 import ufps.edu.co.domain.exceptions.DuplicateAdmisionException;
 import ufps.edu.co.processor.crud.AspiranteProcessor;
 import ufps.edu.co.processor.crud.CalificacioncriterioProcessor;
@@ -818,7 +819,9 @@ public class DirectorProgramaCase {
                     ? admin.getPersona().getNombres() + " " + admin.getPersona().getApellidos()
                     : "Director de Programa";
 
-            byte[] pdf = listaadmitidosProcessor.generarPdfAdmitidos(idCohorte, directorNombre);
+            // Generate PDF and update aspirantes to POR LEGALIZAR via processor
+            byte[] pdf = listaadmitidosProcessor.generarPdfAdmitidosYActualizarEstados(idCohorte, directorNombre);
+
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                             "attachment; filename=\"admitidos_cohorte_" + idCohorte + ".pdf\"")

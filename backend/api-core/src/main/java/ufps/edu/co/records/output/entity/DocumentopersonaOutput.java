@@ -6,7 +6,7 @@ import ufps.edu.co.records.OutputResponse;
 @Builder
 public record DocumentopersonaOutput(
         Integer id,
-        Integer numerodocumento,
+        String numerodocumento,
         Integer idTipodocumento,
         Integer idLugarexpedicion) implements OutputResponse {
 }

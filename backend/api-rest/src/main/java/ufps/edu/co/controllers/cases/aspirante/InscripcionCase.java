@@ -197,7 +197,7 @@ public class InscripcionCase {
                 // 5. Documento de identidad de la persona
                 DocumentopersonaDTO docPersona = documentopersonaService.create(
                                 DocumentopersonaDTO.builder()
-                                                .numerodocumento(Integer.parseInt(body.numeroDocumento()))
+                                                .numerodocumento(body.numeroDocumento())
                                                 .idTipodocumento(body.idTipoDoc())
                                                 .idLugarexpedicion(ubicExpedicion.getId())
                                                 .build());

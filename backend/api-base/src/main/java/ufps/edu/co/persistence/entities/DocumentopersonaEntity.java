@@ -39,7 +39,7 @@ public class DocumentopersonaEntity implements Serializable {
 
     //--- OTHER DATA FIELDS 
     @Column(name="numerodocumento", nullable=false)
-    private Integer        numerodocumento ;
+    private String        numerodocumento ;
 
     @Column(name="id_tipodocumento", nullable=false)
     private Integer        idTipodocumento ;

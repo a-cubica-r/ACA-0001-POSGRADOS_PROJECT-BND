@@ -30,7 +30,7 @@ public class DocumentopersonaDTO implements Serializable {
     //--- PRIMARY KEY 
     private Integer id ;
     //--- OTHER DATA FIELDS 
-    private Integer numerodocumento ;
+    private String numerodocumento ;
     private Integer idTipodocumento ;
     private Integer idLugarexpedicion ;
     //--- LINKS ( RELATIONSHIPS )

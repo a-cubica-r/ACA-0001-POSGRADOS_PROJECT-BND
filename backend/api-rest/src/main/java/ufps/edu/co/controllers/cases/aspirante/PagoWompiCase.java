@@ -110,31 +110,33 @@ public class PagoWompiCase {
         return ResponseEntity.ok(pagoProcessor.iniciarCheckoutInscripcion(idAspirante, authenticatedUserId, true));
     }
 
-        @PostMapping(value = "/matricula/checkout", produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<WompiCheckoutResponse> iniciarCheckoutMatricula(@PathVariable Integer idAspirante,
+    @PostMapping(value = "/matricula/checkout", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WompiCheckoutResponse> iniciarCheckoutMatricula(@PathVariable Integer idAspirante,
             Authentication authentication,
             @RequestParam("montoelegido") Long montoElegidoCentavos) {
         Integer authenticatedUserId = extractAuthenticatedUserId(authentication);
-        BigDecimal montoElegido = montoElegidoCentavos != null ? BigDecimal.valueOf(montoElegidoCentavos).movePointLeft(2)
-            : null;
+        BigDecimal montoElegido = montoElegidoCentavos != null
+                ? BigDecimal.valueOf(montoElegidoCentavos).movePointLeft(2)
+                : null;
         return ResponseEntity.ok(pagoProcessor.iniciarCheckoutMatricula(idAspirante, authenticatedUserId, montoElegido,
-            true));
-        }
+                true));
+    }
 
     @GetMapping(value = "/inscripcion/resumen", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagoCheckoutPreviewDTO> obtenerResumenCheckoutInscripcion(@PathVariable Integer idAspirante,
             Authentication authentication) {
         Integer authenticatedUserId = extractAuthenticatedUserId(authentication);
-        return ResponseEntity.ok(pagoProcessor.obtenerResumenCheckoutInscripcion(idAspirante, authenticatedUserId, true));
+        return ResponseEntity
+                .ok(pagoProcessor.obtenerResumenCheckoutInscripcion(idAspirante, authenticatedUserId, true));
     }
 
     @GetMapping(value = "/matricula/resumen", produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<PagoCheckoutPreviewDTO> obtenerResumenCheckoutMatricula(@PathVariable Integer idAspirante,
+    public ResponseEntity<PagoCheckoutPreviewDTO> obtenerResumenCheckoutMatricula(@PathVariable Integer idAspirante,
             Authentication authentication) {
         Integer authenticatedUserId = extractAuthenticatedUserId(authentication);
         return ResponseEntity.ok(pagoProcessor.obtenerResumenCheckoutMatricula(idAspirante, authenticatedUserId,
-            null, true));
-        }
+                null, true));
+    }
 
     @GetMapping(value = "/inscripcion/recibo", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<WompiReceiptData> prepararReciboInscripcion(@PathVariable Integer idAspirante,
@@ -144,13 +146,13 @@ public class PagoWompiCase {
                 true));
     }
 
-        @GetMapping(value = "/matricula/recibo", produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<WompiReceiptData> prepararReciboMatricula(@PathVariable Integer idAspirante,
+    @GetMapping(value = "/matricula/recibo", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WompiReceiptData> prepararReciboMatricula(@PathVariable Integer idAspirante,
             Authentication authentication) {
         Integer authenticatedUserId = extractAuthenticatedUserId(authentication);
         return ResponseEntity.ok(pagoProcessor.prepararReciboMatricula(idAspirante, authenticatedUserId, null,
-            true));
-        }
+                true));
+    }
 
     private Integer extractAuthenticatedUserId(Authentication authentication) {
         if (authentication == null) {
