@@ -95,4 +95,10 @@ public class PagorecibomatriculaService extends GenericService<Pagorecibomatricu
                 idAspirante, "RECHAZADO", "pagomatricula");
         return entityToDto(entity);
     }
+
+    @Transactional(readOnly = true)
+    public PagorecibomatriculaDTO findLastByIdAspirante(Integer idAspirante) {
+        var entity = repository.findFirstByPago_IdAspiranteOrderByIdDesc(idAspirante).orElse(null);
+        return entityToDto(entity);
+    }
 }

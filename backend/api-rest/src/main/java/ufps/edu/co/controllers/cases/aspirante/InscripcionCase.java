@@ -156,7 +156,8 @@ public class InscripcionCase {
                         UbicacionTrabajoRequest ubicacionTrabajo,
                         UbicacionResidenciaRequest ubicacionResidencia,
                         Integer idCohorte,
-                        Integer idTipoVinculacion) {
+                        Integer idTipoVinculacion,
+                        String usuario) {
         }
 
         public record FormularioInscripcionOutput(Integer idPersona, Integer idAspirante) {
@@ -324,9 +325,13 @@ public class InscripcionCase {
                                         body.telefonoContacto());
                 }
 
-                boolean personaExistePorCorreo = body.email() != null && personaService.findAll().stream()
-                                .anyMatch(persona -> persona.getCorreo() != null
-                                                && persona.getCorreo().equalsIgnoreCase(body.email()));
+                if (body.email() != null && personaService.existsByCorreo(body.email())) {
+                        throw new DomainException(AspiranteErrorCode.CORREO_YA_REGISTRADO_CONFLICT, body.email());
+                }
+
+                if (body.usuario() != null && usuarioService.findByNombreusuario(body.usuario()) != null) {
+                        throw new DomainException(UsuarioErrorCode.USUARIO_YA_EXISTE_CONFLICT, body.usuario());
+                }
 
                 boolean personaExistePorDocumento = false;
                 if (body.numeroDocumento() != null && body.idTipoDoc() != null) {
@@ -336,9 +341,9 @@ public class InscripcionCase {
                                                         && java.util.Objects.equals(doc.getIdTipodocumento(), body.idTipoDoc()));
                 }
 
-                if (personaExistePorCorreo || personaExistePorDocumento) {
+                if (personaExistePorDocumento) {
                         throw new DomainException(AspiranteErrorCode.PERSONA_INSCRIPCION_YA_EXISTE_CONFLICT,
-                                        body.email() != null ? body.email() : body.numeroDocumento());
+                                        body.numeroDocumento());
                 }
         }
 

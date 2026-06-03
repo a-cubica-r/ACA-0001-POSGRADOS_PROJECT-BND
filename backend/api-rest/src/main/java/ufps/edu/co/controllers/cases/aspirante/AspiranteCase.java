@@ -178,10 +178,10 @@ public class AspiranteCase {
         String correo = personaService.findCorreoById(idPersona);
         try {
             sesService.enviarCorreo(correo, EmailTemplates.ASUNTO_SUBIDA_DOCUMENTO,
-                EmailTemplates.cuerpoSubidaDocumento(nombrePersona, nombreDocumento, LocalDate.now()));
+                    EmailTemplates.cuerpoSubidaDocumento(nombrePersona, nombreDocumento, LocalDate.now()));
         } catch (Exception ex) {
             log.error("[DOCUMENTO_EMAIL] Fallo al enviar correo de subida de documento a '{}': {}",
-                correo, ex.getMessage(), ex);
+                    correo, ex.getMessage(), ex);
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(toDocumentoOutput(documentoService.create(doc)));
     }
@@ -231,21 +231,38 @@ public class AspiranteCase {
     public ResponseEntity<Void> corregirFacturaInscripcion(@PathVariable Integer idAspirante,
             @RequestParam("file") MultipartFile file) {
         try {
-            if (file == null || file.isEmpty()) {
-                throw new IllegalArgumentException("Archivo inválido");
+            if (file != null && !file.isEmpty()) {
+                var recibo = pagoreciboinscripcionService.findLastRejectedByIdAspirante(idAspirante);
+                if (recibo == null) {
+                    recibo = pagoreciboinscripcionService.findLastByIdAspirante(idAspirante);
+                }
+                if (recibo == null) {
+                    throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idAspirante);
+                }
+
+                String tipoEstado = recibo.getEstado() != null ? recibo.getEstado().getTipo() : null;
+                if (tipoEstado == null && recibo.getIdEstado() != null) {
+                    var tmp = estadoService.findById(recibo.getIdEstado());
+                    tipoEstado = tmp != null ? tmp.getTipo() : null;
+                }
+
+                var upload = s3Service.uploadFile(file);
+                recibo.setUrlfactura(upload.enlaceurl());
+
+                if ("RECHAZADO".equalsIgnoreCase(tipoEstado)) {
+                    EstadoDTO estadoEnCurso = estadoService.findByTipoAndEntidad("EN CURSO", "pagoinscripcion");
+                    if (estadoEnCurso == null) {
+                        estadoEnCurso = estadoService.findByTipoAndEntidad("EN CURSO", "PAGOINSCRIPCION");
+                    }
+                    if (estadoEnCurso != null) {
+                        recibo.setIdEstado(estadoEnCurso.getId());
+                    }
+                }
+
+                pagoreciboinscripcionService.update(recibo.getId(), recibo);
+                return ResponseEntity.ok().build();
             }
-            var recibo = pagoreciboinscripcionService.findLastRejectedByIdAspirante(idAspirante);
-            if (recibo == null) {
-                throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idAspirante);
-            }
-            String tipoEstado = recibo.getEstado() != null ? recibo.getEstado().getTipo() : null;
-            if (!"RECHAZADO".equalsIgnoreCase(tipoEstado)) {
-                throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, recibo.getId());
-            }
-            var upload = s3Service.uploadFile(file);
-            recibo.setUrlfactura(upload.enlaceurl());
-            pagoreciboinscripcionService.update(recibo.getId(), recibo);
-            return ResponseEntity.ok().build();
+            throw new DomainException(null, file);
         } catch (DomainException e) {
             throw e;
         } catch (Exception e) {
@@ -262,14 +279,31 @@ public class AspiranteCase {
             }
             var recibo = pagorecibomatriculaService.findLastRejectedByIdAspirante(idAspirante);
             if (recibo == null) {
+                recibo = pagorecibomatriculaService.findLastByIdAspirante(idAspirante);
+            }
+            if (recibo == null) {
                 throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idAspirante);
             }
+
             String tipoEstado = recibo.getEstado() != null ? recibo.getEstado().getTipo() : null;
-            if (!"RECHAZADO".equalsIgnoreCase(tipoEstado)) {
-                throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, recibo.getId());
+            if (tipoEstado == null && recibo.getIdEstado() != null) {
+                var tmp = estadoService.findById(recibo.getIdEstado());
+                tipoEstado = tmp != null ? tmp.getTipo() : null;
             }
+
             var upload = s3Service.uploadFile(file);
             recibo.setUrlfactura(upload.enlaceurl());
+
+            if ("RECHAZADO".equalsIgnoreCase(tipoEstado)) {
+                EstadoDTO estadoEnCurso = estadoService.findByTipoAndEntidad("EN CURSO", "pagomatricula");
+                if (estadoEnCurso == null) {
+                    estadoEnCurso = estadoService.findByTipoAndEntidad("EN CURSO", "PAGOMATRICULA");
+                }
+                if (estadoEnCurso != null) {
+                    recibo.setIdEstado(estadoEnCurso.getId());
+                }
+            }
+
             pagorecibomatriculaService.update(recibo.getId(), recibo);
             return ResponseEntity.ok().build();
         } catch (DomainException e) {
@@ -427,12 +461,12 @@ public class AspiranteCase {
         String correo = personaService.findCorreoById(aspirante.getIdPersona());
         try {
             sesService.enviarCorreo(
-                correo,
-                EmailTemplates.ASUNTO_CONFIRMACION_CORREO,
-                EmailTemplates.cuerpoConfirmacionCorreo(nombrePersona, enlace));
+                    correo,
+                    EmailTemplates.ASUNTO_CONFIRMACION_CORREO,
+                    EmailTemplates.cuerpoConfirmacionCorreo(nombrePersona, enlace));
         } catch (Exception ex) {
             log.error("[CONFIRMACION_EMAIL] Fallo al enviar correo de confirmación a '{}': {}",
-                correo, ex.getMessage(), ex);
+                    correo, ex.getMessage(), ex);
             throw new RuntimeException("No se pudo enviar el correo de confirmación", ex);
         }
         return ResponseEntity.ok().build();

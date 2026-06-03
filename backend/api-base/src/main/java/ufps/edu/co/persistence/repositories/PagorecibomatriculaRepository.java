@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.persistence.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -42,6 +44,8 @@ public interface PagorecibomatriculaRepository extends JpaRepository<Pagorecibom
 
 	PagorecibomatriculaEntity findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
 			Integer idAspirante, String tipoEstado, String entidadEstado);
+
+	Optional<PagorecibomatriculaEntity> findFirstByPago_IdAspiranteOrderByIdDesc(Integer idAspirante);
 
 	boolean existsByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCase(Integer idAspirante,
 			String tipoEstado, String entidadEstado);

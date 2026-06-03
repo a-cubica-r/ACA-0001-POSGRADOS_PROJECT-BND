@@ -25,6 +25,9 @@ public enum AspiranteErrorCode implements BaseErrorCode {
     PERSONA_INSCRIPCION_YA_EXISTE_CONFLICT(
         "PERSONA_INSCRIPCION_YA_EXISTE_CONFLICT",
         "La persona ya existe en la base de datos"),
+    CORREO_YA_REGISTRADO_CONFLICT(
+        "CORREO_YA_REGISTRADO_CONFLICT",
+        "El correo electrónico ya está registrado en el sistema. Por favor utilice otro correo"),
     INSCRIPCION_CORREO_NO_ENVIADO_CONFLICT(
         "INSCRIPCION_CORREO_NO_ENVIADO_CONFLICT",
         "No se pudo enviar el correo de confirmación de inscripción"),

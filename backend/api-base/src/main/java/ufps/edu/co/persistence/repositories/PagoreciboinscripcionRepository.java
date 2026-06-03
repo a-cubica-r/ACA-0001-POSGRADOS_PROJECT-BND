@@ -20,12 +20,20 @@ import org.springframework.data.repository.query.Param;
  * This interface extends {@link JpaRepository}, so it automatically inherits
  * standard persistence operations, including:
  * <ul>
- *   <li> Create/update entities: {@link JpaRepository#save(Object)} and {@link JpaRepository#saveAll(Iterable)}</li>
- *   <li> Basic queries: {@link JpaRepository#findById(Object)}, {@link JpaRepository#findAll()}, and {@link JpaRepository#getReferenceById(Object)}</li>
- *   <li> Validation and counting: {@link JpaRepository#existsById(Object)} and {@link JpaRepository#count()}</li>
- *   <li> Deletion: {@link JpaRepository#deleteById(Object)}, {@link JpaRepository#delete(Object)}, and {@link JpaRepository#deleteAll()}</li>
- *   <li> Paging and sorting: {@link org.springframework.data.repository.PagingAndSortingRepository#findAll(org.springframework.data.domain.Pageable)}
- *     and {@link org.springframework.data.repository.PagingAndSortingRepository#findAll(org.springframework.data.domain.Sort)}</li>
+ * <li>Create/update entities: {@link JpaRepository#save(Object)} and
+ * {@link JpaRepository#saveAll(Iterable)}</li>
+ * <li>Basic queries: {@link JpaRepository#findById(Object)},
+ * {@link JpaRepository#findAll()}, and
+ * {@link JpaRepository#getReferenceById(Object)}</li>
+ * <li>Validation and counting: {@link JpaRepository#existsById(Object)} and
+ * {@link JpaRepository#count()}</li>
+ * <li>Deletion: {@link JpaRepository#deleteById(Object)},
+ * {@link JpaRepository#delete(Object)}, and
+ * {@link JpaRepository#deleteAll()}</li>
+ * <li>Paging and sorting:
+ * {@link org.springframework.data.repository.PagingAndSortingRepository#findAll(org.springframework.data.domain.Pageable)}
+ * and
+ * {@link org.springframework.data.repository.PagingAndSortingRepository#findAll(org.springframework.data.domain.Sort)}</li>
  * </ul>
  *
  * It can also be extended with derived query methods (findBy...),
@@ -45,22 +53,24 @@ public interface PagoreciboinscripcionRepository extends JpaRepository<Pagorecib
 	Optional<PagoreciboinscripcionEntity> findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
 			Integer idAspirante, String tipo, String entidad);
 
+	Optional<PagoreciboinscripcionEntity> findFirstByPago_IdAspiranteOrderByIdDesc(Integer idAspirante);
+
 	boolean existsByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCase(Integer idAspirante,
 			String tipo, String entidad);
 
-	//List<PagoreciboinscripcionEntity> findByXxx(String xxx);
+	// List<PagoreciboinscripcionEntity> findByXxx(String xxx);
 
 	@Query("select r from PagoreciboinscripcionEntity r "
-		+ "join fetch r.pago p "
-		+ "join fetch p.aspirante a "
-		+ "left join fetch a.persona per "
-		+ "left join fetch a.cohorte coh "
-		+ "left join fetch coh.programa prog "
-		+ "left join fetch r.estado est "
-		+ "where prog.id = :programaId")
+			+ "join fetch r.pago p "
+			+ "join fetch p.aspirante a "
+			+ "left join fetch a.persona per "
+			+ "left join fetch a.cohorte coh "
+			+ "left join fetch coh.programa prog "
+			+ "left join fetch r.estado est "
+			+ "where prog.id = :programaId")
 	List<PagoreciboinscripcionEntity> findByProgramaIdWithJoins(@Param("programaId") Integer programaId);
 
-		@Query("select new ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO(r.id, p.id, a.id, concat(coalesce(per.nombres,''), ' ', coalesce(per.apellidos,'')), r.fechavencimiento, r.urlrecibo, r.urlfactura, r.referenciapago, r.valorpago, r.idEstado, est.tipo) "
+	@Query("select new ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO(r.id, p.id, a.id, concat(coalesce(per.nombres,''), ' ', coalesce(per.apellidos,'')), r.fechavencimiento, r.urlrecibo, r.urlfactura, r.referenciapago, r.valorpago, r.idEstado, est.tipo) "
 			+ "from PagoreciboinscripcionEntity r "
 			+ "join r.pago p "
 			+ "join p.aspirante a "
@@ -69,9 +79,10 @@ public interface PagoreciboinscripcionRepository extends JpaRepository<Pagorecib
 			+ "left join coh.programa prog "
 			+ "left join r.estado est "
 			+ "where prog.id = :programaId")
-		List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByProgramaId(@Param("programaId") Integer programaId);
+	List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByProgramaId(
+			@Param("programaId") Integer programaId);
 
-		@Query(value = "select new ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO(r.id, p.id, a.id, concat(coalesce(per.nombres,''), ' ', coalesce(per.apellidos,'')), r.fechavencimiento, r.urlrecibo, r.urlfactura, r.referenciapago, r.valorpago, r.idEstado, est.tipo) "
+	@Query(value = "select new ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO(r.id, p.id, a.id, concat(coalesce(per.nombres,''), ' ', coalesce(per.apellidos,'')), r.fechavencimiento, r.urlrecibo, r.urlfactura, r.referenciapago, r.valorpago, r.idEstado, est.tipo) "
 			+ "from PagoreciboinscripcionEntity r "
 			+ "join r.pago p "
 			+ "join p.aspirante a "
@@ -79,15 +90,16 @@ public interface PagoreciboinscripcionRepository extends JpaRepository<Pagorecib
 			+ "left join a.cohorte coh "
 			+ "left join coh.programa prog "
 			+ "left join r.estado est "
-			+ "where prog.id = :programaId",
-			countQuery = "select count(r) from PagoreciboinscripcionEntity r join r.pago p join p.aspirante a left join a.cohorte coh left join coh.programa prog where prog.id = :programaId")
-		org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByProgramaId(@Param("programaId") Integer programaId, org.springframework.data.domain.Pageable pageable);
+			+ "where prog.id = :programaId", countQuery = "select count(r) from PagoreciboinscripcionEntity r join r.pago p join p.aspirante a left join a.cohorte coh left join coh.programa prog where prog.id = :programaId")
+	org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByProgramaId(
+			@Param("programaId") Integer programaId, org.springframework.data.domain.Pageable pageable);
 
-	//List<PagoreciboinscripcionEntity> findByXxxStartingWith(String xxx);
+	// List<PagoreciboinscripcionEntity> findByXxxStartingWith(String xxx);
 
-	//List<PagoreciboinscripcionEntity> findByXxxContaining(String xxx);
+	// List<PagoreciboinscripcionEntity> findByXxxContaining(String xxx);
 
-	//List<PagoreciboinscripcionEntity> findByYyy(BigDecimal yyy);
+	// List<PagoreciboinscripcionEntity> findByYyy(BigDecimal yyy);
 
-	//List<PagoreciboinscripcionEntity> findByXxxContainingAndYyy(String xxx, BigDecimal yyy);
+	// List<PagoreciboinscripcionEntity> findByXxxContainingAndYyy(String xxx,
+	// BigDecimal yyy);
 }

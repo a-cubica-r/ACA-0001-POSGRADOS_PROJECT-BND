@@ -15,7 +15,10 @@ public enum ListaadmitidosErrorCode implements BaseErrorCode {
             "La cohorte no pertenece al programa del director de programa"),
     ESTADO_POR_LEGALIZAR_NOT_FOUND(
             "ESTADO_POR_LEGALIZAR_NOT_FOUND",
-            "No se encontró el estado POR LEGALIZAR para aspirante en la tabla de estados");
+            "No se encontró el estado POR LEGALIZAR para aspirante en la tabla de estados"),
+    NO_ADMITIDOS_EN_COHORTE(
+            "NO_ADMITIDOS_EN_COHORTE",
+            "No hay aspirantes con estado ADMITIDO en la cohorte especificada");
 
     private final String code;
     private final String defaultMessage;

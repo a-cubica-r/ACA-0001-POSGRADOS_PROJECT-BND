@@ -1,6 +1,8 @@
 package ufps.edu.co.controllers.cases.administrativo;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.List;
@@ -35,6 +37,7 @@ import ufps.edu.co.processor.crud.DocumentoProcessor;
 import ufps.edu.co.processor.crud.DocumentosrequisitoprogramacohorteProcessor;
 import ufps.edu.co.processor.crud.EntrevistaProcessor;
 import ufps.edu.co.processor.crud.ListaadmitidosProcessor;
+import ufps.edu.co.maps.specific.ListaadmitidosMap;
 import ufps.edu.co.processor.crud.PruebaProcessor;
 import ufps.edu.co.records.output.entity.DocumentosrequisitoprogramacohorteOutput;
 import ufps.edu.co.records.input.entity.AspiranteInput.ASPIRANTE_FIND;
@@ -61,6 +64,7 @@ import ufps.edu.co.rest.dto.EstadoDTO;
 import ufps.edu.co.rest.services.AdministrativoService;
 import ufps.edu.co.rest.services.UsuarioService;
 import ufps.edu.co.rest.services.ListaadmitidosService;
+import ufps.edu.co.domain.exceptions.errorcodes.ListaadmitidosErrorCode;
 import ufps.edu.co.rest.services.AspiranteService;
 import ufps.edu.co.rest.services.EstadoService;
 import ufps.edu.co.records.input.entity.DocumentoInput.DOCUMENTO_FIND;
@@ -133,6 +137,12 @@ public class DirectorProgramaCase {
 
     @Autowired
     private ListaadmitidosProcessor listaadmitidosProcessor;
+
+    @Autowired
+    private ListaadmitidosMap listaadmitidosMap;
+
+    @Autowired
+    private PdfGeneratorService pdfGeneratorService;
 
     @Autowired
     private ListaadmitidosService listaadmitidosService;
@@ -214,53 +224,59 @@ public class DirectorProgramaCase {
     }
 
     @GetMapping(value = "/pagos/inscripcion")
-    public ResponseEntity<?> listPagosInscripcion(@org.springframework.web.bind.annotation.RequestParam(value = "page", required = false) Integer page,
+    public ResponseEntity<?> listPagosInscripcion(
+            @org.springframework.web.bind.annotation.RequestParam(value = "page", required = false) Integer page,
             @org.springframework.web.bind.annotation.RequestParam(value = "size", required = false) Integer size) {
         try {
             Integer programaId = resolvePrograma();
             if (page == null) {
-                List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> recibos = pagoreciboinscripcionService.findDirectorByProgramaId(programaId);
+                List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> recibos = pagoreciboinscripcionService
+                        .findDirectorByProgramaId(programaId);
                 var outputs = recibos.stream().map(r -> {
-                try {
-                    if (r == null) return null;
-                    return PagoreciboDirectorOutput.builder()
-                            .id(r.getId())
-                            .idPago(r.getIdPago())
-                            .idAspirante(r.getIdAspirante())
-                            .aspirante(r.getAspirante())
-                            .fechavencimiento(r.getFechavencimiento())
-                            .urlrecibo(r.getUrlrecibo())
-                            .urlfactura(r.getUrlfactura())
-                            .referenciapago(r.getReferenciapago())
-                            .valorpago(r.getValorpago())
-                            .idEstado(r.getIdEstado())
-                            .estado(r.getEstado())
-                            .build();
-                } catch (Exception ex) {
-                    logger.error("Error mapeando recibo inscripcion {}", r != null ? r.getId() : null, ex);
-                    return null;
-                }
-            }).filter(Objects::nonNull).toList();
+                    try {
+                        if (r == null)
+                            return null;
+                        return PagoreciboDirectorOutput.builder()
+                                .id(r.getId())
+                                .idPago(r.getIdPago())
+                                .idAspirante(r.getIdAspirante())
+                                .aspirante(r.getAspirante())
+                                .fechavencimiento(r.getFechavencimiento())
+                                .urlrecibo(r.getUrlrecibo())
+                                .urlfactura(r.getUrlfactura())
+                                .referenciapago(r.getReferenciapago())
+                                .valorpago(r.getValorpago())
+                                .idEstado(r.getIdEstado())
+                                .estado(r.getEstado())
+                                .build();
+                    } catch (Exception ex) {
+                        logger.error("Error mapeando recibo inscripcion {}", r != null ? r.getId() : null, ex);
+                        return null;
+                    }
+                }).filter(Objects::nonNull).toList();
 
-            return ResponseEntity.ok(outputs);
+                return ResponseEntity.ok(outputs);
             } else {
                 int p = Math.max(0, page);
                 int s = (size != null && size > 0) ? size : 50;
-                org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(p, s);
-                org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagoreciboinscripcionService.findDirectorByProgramaId(programaId, pageable);
-                org.springframework.data.domain.Page<PagoreciboDirectorOutput> mapped = pageResult.map(r -> PagoreciboDirectorOutput.builder()
-                        .id(r.getId())
-                        .idPago(r.getIdPago())
-                        .idAspirante(r.getIdAspirante())
-                        .aspirante(r.getAspirante())
-                        .fechavencimiento(r.getFechavencimiento())
-                        .urlrecibo(r.getUrlrecibo())
-                        .urlfactura(r.getUrlfactura())
-                        .referenciapago(r.getReferenciapago())
-                        .valorpago(r.getValorpago())
-                        .idEstado(r.getIdEstado())
-                        .estado(r.getEstado())
-                        .build());
+                org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(p,
+                        s);
+                org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagoreciboinscripcionService
+                        .findDirectorByProgramaId(programaId, pageable);
+                org.springframework.data.domain.Page<PagoreciboDirectorOutput> mapped = pageResult
+                        .map(r -> PagoreciboDirectorOutput.builder()
+                                .id(r.getId())
+                                .idPago(r.getIdPago())
+                                .idAspirante(r.getIdAspirante())
+                                .aspirante(r.getAspirante())
+                                .fechavencimiento(r.getFechavencimiento())
+                                .urlrecibo(r.getUrlrecibo())
+                                .urlfactura(r.getUrlfactura())
+                                .referenciapago(r.getReferenciapago())
+                                .valorpago(r.getValorpago())
+                                .idEstado(r.getIdEstado())
+                                .estado(r.getEstado())
+                                .build());
                 return ResponseEntity.ok(mapped);
             }
         } catch (Exception e) {
@@ -270,15 +286,18 @@ public class DirectorProgramaCase {
     }
 
     @GetMapping(value = "/pagos/matricula")
-    public ResponseEntity<?> listPagosMatricula(@org.springframework.web.bind.annotation.RequestParam(value = "page", required = false) Integer page,
+    public ResponseEntity<?> listPagosMatricula(
+            @org.springframework.web.bind.annotation.RequestParam(value = "page", required = false) Integer page,
             @org.springframework.web.bind.annotation.RequestParam(value = "size", required = false) Integer size) {
         try {
             Integer programaId = resolvePrograma();
             if (page == null) {
-                List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> recibos = pagorecibomatriculaService.findDirectorByProgramaId(programaId);
+                List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> recibos = pagorecibomatriculaService
+                        .findDirectorByProgramaId(programaId);
                 var outputs = recibos.stream().map(r -> {
                     try {
-                        if (r == null) return null;
+                        if (r == null)
+                            return null;
                         return PagoreciboDirectorOutput.builder()
                                 .id(r.getId())
                                 .idPago(r.getIdPago())
@@ -302,21 +321,24 @@ public class DirectorProgramaCase {
             } else {
                 int p = Math.max(0, page);
                 int s = (size != null && size > 0) ? size : 50;
-                org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(p, s);
-                org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagorecibomatriculaService.findDirectorByProgramaId(programaId, pageable);
-                org.springframework.data.domain.Page<PagoreciboDirectorOutput> mapped = pageResult.map(r -> PagoreciboDirectorOutput.builder()
-                        .id(r.getId())
-                        .idPago(r.getIdPago())
-                        .idAspirante(r.getIdAspirante())
-                        .aspirante(r.getAspirante())
-                        .fechavencimiento(r.getFechavencimiento())
-                        .urlrecibo(r.getUrlrecibo())
-                        .urlfactura(r.getUrlfactura())
-                        .referenciapago(r.getReferenciapago())
-                        .valorpago(r.getValorpago())
-                        .idEstado(r.getIdEstado())
-                        .estado(r.getEstado())
-                        .build());
+                org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(p,
+                        s);
+                org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagorecibomatriculaService
+                        .findDirectorByProgramaId(programaId, pageable);
+                org.springframework.data.domain.Page<PagoreciboDirectorOutput> mapped = pageResult
+                        .map(r -> PagoreciboDirectorOutput.builder()
+                                .id(r.getId())
+                                .idPago(r.getIdPago())
+                                .idAspirante(r.getIdAspirante())
+                                .aspirante(r.getAspirante())
+                                .fechavencimiento(r.getFechavencimiento())
+                                .urlrecibo(r.getUrlrecibo())
+                                .urlfactura(r.getUrlfactura())
+                                .referenciapago(r.getReferenciapago())
+                                .valorpago(r.getValorpago())
+                                .idEstado(r.getIdEstado())
+                                .estado(r.getEstado())
+                                .build());
                 return ResponseEntity.ok(mapped);
             }
         } catch (Exception e) {
@@ -358,16 +380,23 @@ public class DirectorProgramaCase {
             Integer nuevoIdEstado = request != null ? request.idEstado() : null;
             if (nuevoIdEstado == null) {
                 var est = estadoService.findByTipoAndEntidad("RECHAZADO", "pagoinscripcion");
-                if (est == null) est = estadoService.findByTipoAndEntidad("RECHAZADO", "PAGOINSCRIPCION");
-                if (est == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                if (est == null)
+                    est = estadoService.findByTipoAndEntidad("RECHAZADO", "PAGOINSCRIPCION");
+                if (est == null)
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 nuevoIdEstado = est.getId();
             }
 
             var pag = pagoProcessor.updateEstadoReciboInscripcion(idRecibo, nuevoIdEstado);
-            if (pag == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            if (pag == null)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-            PagoDTO pago = pag.getPago() != null && pag.getPago().getId() != null ? pagoService.findById(pag.getPago().getId()) : null;
-            AspiranteDTO aspirante = pago != null && pago.getIdAspirante() != null ? aspiranteService.findById(pago.getIdAspirante()) : null;
+            PagoDTO pago = pag.getPago() != null && pag.getPago().getId() != null
+                    ? pagoService.findById(pag.getPago().getId())
+                    : null;
+            AspiranteDTO aspirante = pago != null && pago.getIdAspirante() != null
+                    ? aspiranteService.findById(pago.getIdAspirante())
+                    : null;
             PersonaDTO persona = aspirante != null ? aspirante.getPersona() : null;
             String nombre = persona != null ? (persona.getNombres() + " " + persona.getApellidos()).trim() : null;
 
@@ -376,7 +405,8 @@ public class DirectorProgramaCase {
                 estadoName = pag.getEstado().getTipo();
             } else if (pag.getIdEstado() != null) {
                 var est = estadoService.findById(pag.getIdEstado());
-                if (est != null) estadoName = est.getTipo();
+                if (est != null)
+                    estadoName = est.getTipo();
             }
 
             PagoreciboDirectorOutput out = PagoreciboDirectorOutput.builder()
@@ -420,16 +450,23 @@ public class DirectorProgramaCase {
             Integer nuevoIdEstado = request != null ? request.idEstado() : null;
             if (nuevoIdEstado == null) {
                 var est = estadoService.findByTipoAndEntidad("RECHAZADO", "pagomatricula");
-                if (est == null) est = estadoService.findByTipoAndEntidad("RECHAZADO", "PAGOMATRICULA");
-                if (est == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                if (est == null)
+                    est = estadoService.findByTipoAndEntidad("RECHAZADO", "PAGOMATRICULA");
+                if (est == null)
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 nuevoIdEstado = est.getId();
             }
 
             var pag = pagoProcessor.updateEstadoReciboMatricula(idRecibo, nuevoIdEstado);
-            if (pag == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            if (pag == null)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-            PagoDTO pago = pag.getPago() != null && pag.getPago().getId() != null ? pagoService.findById(pag.getPago().getId()) : null;
-            AspiranteDTO aspirante = pago != null && pago.getIdAspirante() != null ? aspiranteService.findById(pago.getIdAspirante()) : null;
+            PagoDTO pago = pag.getPago() != null && pag.getPago().getId() != null
+                    ? pagoService.findById(pag.getPago().getId())
+                    : null;
+            AspiranteDTO aspirante = pago != null && pago.getIdAspirante() != null
+                    ? aspiranteService.findById(pago.getIdAspirante())
+                    : null;
             PersonaDTO persona = aspirante != null ? aspirante.getPersona() : null;
             String nombre = persona != null ? (persona.getNombres() + " " + persona.getApellidos()).trim() : null;
 
@@ -438,7 +475,8 @@ public class DirectorProgramaCase {
                 estadoName = pag.getEstado().getTipo();
             } else if (pag.getIdEstado() != null) {
                 var est = estadoService.findById(pag.getIdEstado());
-                if (est != null) estadoName = est.getTipo();
+                if (est != null)
+                    estadoName = est.getTipo();
             }
 
             PagoreciboDirectorOutput out = PagoreciboDirectorOutput.builder()
@@ -478,17 +516,20 @@ public class DirectorProgramaCase {
     @PatchMapping(value = "/documentos/{idDocumento}/aprobar", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AprobarDocumentoOutput> aprobarDocumento(@PathVariable Integer idDocumento) {
         try {
-            return ResponseEntity.ok(documentoProcessor.approveDocument(DOCUMENTO_FIND.builder().id(idDocumento).build()));
+            return ResponseEntity
+                    .ok(documentoProcessor.approveDocument(DOCUMENTO_FIND.builder().id(idDocumento).build()));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @PatchMapping(value = "/documentos/{idDocumento}/rechazar", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DocumentoEstadoOutput> rechazarDocumento(@PathVariable Integer idDocumento, @RequestBody String motivoRechazo){
-        try{
-            return ResponseEntity.ok(documentoProcessor.rejectDocument(DOCUMENTO_REJECT.builder().id(idDocumento).motivoRechazo(motivoRechazo).build()));
-        }catch(Exception e){
+    public ResponseEntity<DocumentoEstadoOutput> rechazarDocumento(@PathVariable Integer idDocumento,
+            @RequestBody String motivoRechazo) {
+        try {
+            return ResponseEntity.ok(documentoProcessor
+                    .rejectDocument(DOCUMENTO_REJECT.builder().id(idDocumento).motivoRechazo(motivoRechazo).build()));
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -845,14 +886,179 @@ public class DirectorProgramaCase {
                     ? admin.getPersona().getNombres() + " " + admin.getPersona().getApellidos()
                     : "Director de Programa";
 
-            // Generate PDF and update aspirantes to POR LEGALIZAR via processor
-            byte[] pdf = listaadmitidosProcessor.generarPdfAdmitidosYActualizarEstados(idCohorte, directorNombre);
+            // Generate PDF from the Admitido table (do NOT update aspirante states here)
+            List<ufps.edu.co.rest.dto.AdmitidoDTO> admitidos = listaadmitidosService.findByIdCohorte(idCohorte);
+            List<ufps.edu.co.records.output.entity.AspiranteOutput> aspirantesOutput = admitidos.stream()
+                    .map(a -> {
+                        ufps.edu.co.rest.dto.AspiranteDTO asp = a.getAspirante();
+                        return ufps.edu.co.records.output.entity.AspiranteOutput.builder()
+                                .id(asp != null ? asp.getId() : null)
+                                .puntuacion(asp != null ? asp.getPuntuacion() : null)
+                                .persona(asp != null && asp.getPersona() != null
+                                        ? ufps.edu.co.records.output.entity.PersonaOutput.builder()
+                                                .nombres(asp.getPersona().getNombres())
+                                                .apellidos(asp.getPersona().getApellidos())
+                                                .correo(asp.getPersona().getCorreo())
+                                                .build()
+                                        : null)
+                                .build();
+                    })
+                    .toList();
+
+            byte[] pdf = pdfGeneratorService.generarListaAdmitidos(
+                    cohorteService.findById(idCohorte).getNombre(), LocalDateTime.now(), aspirantesOutput,
+                    directorNombre);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                             "attachment; filename=\"admitidos_cohorte_" + idCohorte + ".pdf\"")
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdf);
+        } catch (DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping(value = "/cohorte/{cohorteId}/admitidos/finalize")
+    public ResponseEntity<List<ListaadmitidosOutput>> finalizeAdmitidos(@PathVariable Integer cohorteId) {
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            Integer idPersona = usuarioService.findIdPersonaByNombreusuario(username);
+            var admin = administrativoService.findByIdPersona(idPersona);
+
+            CohorteDTO cohorte = cohorteService.findById(cohorteId);
+            if (cohorte == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            if (admin == null || admin.getCargo() == null || cohorte.getIdPrograma() == null
+                    || admin.getCargo().getIdPrograma() == null
+                    || !cohorte.getIdPrograma().equals(admin.getCargo().getIdPrograma())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            List<AspiranteDTO> aspirantes = aspiranteService.findByCohorte(cohorteId);
+            // validation: require at least one aspirante with estado ADMITIDO
+            boolean anyAdmitido = aspirantes.stream()
+                    .anyMatch(a -> a.getEstado() != null && "ADMITIDO".equalsIgnoreCase(a.getEstado().getTipo()));
+            if (!anyAdmitido) {
+                throw new DomainException(ListaadmitidosErrorCode.NO_ADMITIDOS_EN_COHORTE, cohorteId);
+            }
+
+            List<ListaadmitidosOutput> created = new ArrayList<>();
+            LocalDate today = LocalDate.now();
+
+            EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "aspirante");
+            if (estadoPorLegalizar == null) {
+                estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "ASPIRANTE");
+            }
+
+            EstadoDTO estadoCancelado = estadoService.findByTipoAndEntidad("CANCELADO", "aspirante");
+            if (estadoCancelado == null) {
+                estadoCancelado = estadoService.findByTipoAndEntidad("CANCELADO", "ASPIRANTE");
+            }
+
+            Integer idEstadoPorLegalizar = estadoPorLegalizar != null ? estadoPorLegalizar.getId() : null;
+            Integer idEstadoCancelado = estadoCancelado != null ? estadoCancelado.getId() : null;
+
+            // Insert admitido rows for aspirantes currently marked ADMITIDO
+            for (AspiranteDTO a : aspirantes) {
+                String tipo = a.getEstado() != null ? a.getEstado().getTipo() : null;
+                if ("ADMITIDO".equalsIgnoreCase(tipo)) {
+                    if (!listaadmitidosService.existsByIdCohorteAndIdAspirante(cohorteId, a.getId())) {
+                        AdmitidoDTO dto = new AdmitidoDTO();
+                        dto.setIdCohorte(cohorteId);
+                        dto.setIdAspirante(a.getId());
+                        dto.setFechageneracion(today);
+                        AdmitidoDTO saved = listaadmitidosService.create(dto);
+                        saved.setAspirante(a);
+                        created.add(listaadmitidosMap.toOutput(saved));
+                    }
+                }
+            }
+
+            // Update states: ADMITIDO -> POR LEGALIZAR, VALIDADO_CALIFICADO -> CANCELADO
+            for (AspiranteDTO a : aspirantes) {
+                String tipo = a.getEstado() != null ? a.getEstado().getTipo() : null;
+                try {
+                    if ("ADMITIDO".equalsIgnoreCase(tipo) && idEstadoPorLegalizar != null) {
+                        aspiranteService.updateEstado(a.getId(), idEstadoPorLegalizar);
+                    } else if ("VALIDADO_CALIFICADO".equalsIgnoreCase(tipo) && idEstadoCancelado != null) {
+                        aspiranteService.updateEstado(a.getId(), idEstadoCancelado);
+                    }
+                } catch (Exception ex) {
+                    logger.warn("No se pudo actualizar estado de aspirante id={} : {}", a.getId(), ex.getMessage());
+                }
+            }
+
+            return ResponseEntity.ok(created);
+        } catch (DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/admitidos/exists")
+    public ResponseEntity<Boolean> existsAnyAdmitido() {
+        try {
+            boolean exists = !listaadmitidosService.findAll().isEmpty();
+            return ResponseEntity.ok(exists);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping(value = "/cohorte/{cohorteId}/admitir/todos")
+    public ResponseEntity<List<ListaadmitidosOutput>> admitAllValidated(@PathVariable Integer cohorteId) {
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            Integer idPersona = usuarioService.findIdPersonaByNombreusuario(username);
+            var admin = administrativoService.findByIdPersona(idPersona);
+
+            CohorteDTO cohorte = cohorteService.findById(cohorteId);
+            if (cohorte == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            if (admin == null || admin.getCargo() == null || cohorte.getIdPrograma() == null
+                    || admin.getCargo().getIdPrograma() == null
+                    || !cohorte.getIdPrograma().equals(admin.getCargo().getIdPrograma())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            List<AspiranteDTO> aspirantes = aspiranteService.findByCohorte(cohorteId);
+            List<ListaadmitidosOutput> created = new ArrayList<>();
+            LocalDate today = LocalDate.now();
+
+            EstadoDTO estadoAdmitido = estadoService.findByTipoAndEntidad("ADMITIDO", "aspirante");
+            if (estadoAdmitido == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+
+            for (AspiranteDTO a : aspirantes) {
+                String tipo = a.getEstado() != null ? a.getEstado().getTipo() : null;
+                if ("VALIDADO_CALIFICADO".equalsIgnoreCase(tipo)) {
+                    // set aspirante to ADMITIDO
+                    aspiranteService.updateEstado(a.getId(), estadoAdmitido.getId());
+
+                    // insert Admitido record if not exists
+                    if (!listaadmitidosService.existsByIdCohorteAndIdAspirante(cohorteId, a.getId())) {
+                        AdmitidoDTO dto = new AdmitidoDTO();
+                        dto.setIdCohorte(cohorteId);
+                        dto.setIdAspirante(a.getId());
+                        dto.setFechageneracion(today);
+                        AdmitidoDTO saved = listaadmitidosService.create(dto);
+                        saved.setAspirante(a);
+                        created.add(listaadmitidosMap.toOutput(saved));
+                    }
+                }
+            }
+
+            return ResponseEntity.ok(created);
         } catch (DomainException e) {
             throw e;
         } catch (Exception e) {
@@ -914,40 +1120,11 @@ public class DirectorProgramaCase {
 
             aspiranteService.updateEstado(aspiranteId, estadoAdmitido.getId());
 
-            if (listaadmitidosService.existsByIdCohorteAndIdAspirante(idCohorte, aspiranteId)) {
-                Map<String, Object> resp = Map.of(
-                        "success", true,
-                        "aspiranteId", aspiranteId.toString(),
-                        "admitido", true);
-                return ResponseEntity.ok(resp);
-            }
-
-            AdmitidoDTO dto = new AdmitidoDTO();
-            dto.setIdCohorte(idCohorte);
-            dto.setIdAspirante(aspiranteId);
-            dto.setFechageneracion(LocalDate.now());
-            listaadmitidosService.create(dto);
-
-            try {
-                AspiranteDTO aspiranteAdmitido = aspiranteService.findById(aspiranteId);
-                PersonaDTO personaAdmitida = aspiranteAdmitido != null ? aspiranteAdmitido.getPersona() : null;
-                if (personaAdmitida != null && personaAdmitida.getCorreo() != null) {
-                    CohorteDTO cohorteAdmitido = cohorteService.findById(idCohorte);
-                    String nombreCohorte = cohorteAdmitido != null ? cohorteAdmitido.getNombre() : "";
-                    sesService.enviarCorreoAsync(
-                            personaAdmitida.getCorreo(),
-                            EmailTemplates.ASUNTO_ADMITIDO,
-                            EmailTemplates.cuerpoAdmitido(personaAdmitida.getNombres(), personaAdmitida.getApellidos(), nombreCohorte));
-                }
-            } catch (Exception emailEx) {
-                logger.warn("No se pudo enviar correo de admisión al aspirante {}: {}", aspiranteId, emailEx.getMessage());
-            }
-
             Map<String, Object> resp = Map.of(
                     "success", true,
                     "aspiranteId", aspiranteId.toString(),
                     "admitido", true);
-            return ResponseEntity.status(HttpStatus.CREATED).body(resp);
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();

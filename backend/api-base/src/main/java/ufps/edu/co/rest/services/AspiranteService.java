@@ -180,7 +180,7 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
     }
 
     public long countAdmitidosByCohorte(Integer cohorteId) {
-        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, List.of("POR LEGALIZAR"));
+        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, List.of("POR LEGALIZAR", "LEGALIZADO", "ADMITIDO"));
     }
 
     @Transactional(readOnly = true)

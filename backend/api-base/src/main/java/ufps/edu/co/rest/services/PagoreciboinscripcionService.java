@@ -20,7 +20,8 @@ import ufps.edu.co.rest.services.commons.GenericService;
  */
 @Service
 @Transactional
-public class PagoreciboinscripcionService extends GenericService<PagoreciboinscripcionEntity, PagoreciboinscripcionDTO> {
+public class PagoreciboinscripcionService
+        extends GenericService<PagoreciboinscripcionEntity, PagoreciboinscripcionDTO> {
 
     @Autowired
     private PagoreciboinscripcionRepository repository;
@@ -42,8 +43,8 @@ public class PagoreciboinscripcionService extends GenericService<Pagoreciboinscr
     @Transactional(readOnly = true)
     public PagoreciboinscripcionDTO findCurrentByIdAspirante(Integer idAspirante) {
         var entity = repository
-            .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
-                idAspirante, "EN CURSO", "pagoinscripcion");
+                .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
+                        idAspirante, "EN CURSO", "pagoinscripcion");
         if (entity == null) {
             return null;
         }
@@ -53,8 +54,14 @@ public class PagoreciboinscripcionService extends GenericService<Pagoreciboinscr
     @Transactional(readOnly = true)
     public PagoreciboinscripcionDTO findLastRejectedByIdAspirante(Integer idAspirante) {
         var entity = repository
-            .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
-                idAspirante, "RECHAZADO", "pagoinscripcion");
+                .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
+                        idAspirante, "RECHAZADO", "pagoinscripcion");
+        return entityToDto(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public PagoreciboinscripcionDTO findLastByIdAspirante(Integer idAspirante) {
+        var entity = repository.findFirstByPago_IdAspiranteOrderByIdDesc(idAspirante).orElse(null);
         return entityToDto(entity);
     }
 
@@ -86,7 +93,8 @@ public class PagoreciboinscripcionService extends GenericService<Pagoreciboinscr
     }
 
     @Transactional(readOnly = true)
-    public org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByProgramaId(Integer programaId, org.springframework.data.domain.Pageable pageable) {
+    public org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByProgramaId(
+            Integer programaId, org.springframework.data.domain.Pageable pageable) {
         return repository.findDirectorByProgramaId(programaId, pageable);
     }
 

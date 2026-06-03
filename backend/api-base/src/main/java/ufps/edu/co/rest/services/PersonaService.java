@@ -50,6 +50,11 @@ public class PersonaService extends GenericService<PersonaEntity, PersonaDTO> {
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
 
+    @Transactional(readOnly = true)
+    public boolean existsByCorreo(String correo) {
+        return correo != null && repository.existsByCorreoIgnoreCase(correo);
+    }
+
     /**
      * Update only the correo field of a Persona entity to avoid touching other
      * relationships that can cause transient reference issues.

@@ -37,15 +37,5 @@ import ufps.edu.co.persistence.entities.PersonaEntity;
 @Repository
 public interface PersonaRepository extends JpaRepository<PersonaEntity, Integer> {
 
-	// Insert specific finders here 
-
-	//List<PersonaEntity> findByXxx(String xxx);
-
-	//List<PersonaEntity> findByXxxStartingWith(String xxx);
-
-	//List<PersonaEntity> findByXxxContaining(String xxx);
-
-	//List<PersonaEntity> findByYyy(BigDecimal yyy);
-
-	//List<PersonaEntity> findByXxxContainingAndYyy(String xxx, BigDecimal yyy);
+	boolean existsByCorreoIgnoreCase(String correo);
 }
