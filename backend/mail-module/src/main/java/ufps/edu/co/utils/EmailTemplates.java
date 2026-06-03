@@ -55,6 +55,8 @@ public class EmailTemplates {
 
   public static final String ASUNTO_RECHAZADO = "Resultado del proceso de admisión - Posgrados UFPS";
 
+  public static final String ASUNTO_CODIGO_ESTUDIANTIL = "Tu código estudiantil ha sido generado - Posgrados UFPS";
+
   // ─── Cuerpos HTML ────────────────────────────────────────────────────────────
 
   public static String cuerpoInscripcion(
@@ -590,5 +592,36 @@ public class EmailTemplates {
         </body>
         </html>
         """.formatted(encabezado(), nombres, apellidos, nombreCohorte);
+  }
+
+  public static String cuerpoCodigoEstudiantil(
+      String nombres,
+      String apellidos,
+      String codigoEstudiante,
+      String nombrePrograma) {
+    return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+          %s
+          <h2 style="color: #1a5276;">Tu código estudiantil ha sido generado</h2>
+          <p>Estimado/a <strong>%s %s</strong>,</p>
+          <p>Nos complace informarle que su código estudiantil ha sido generado exitosamente
+             como parte de su proceso de matrícula en el programa <strong>%s</strong>.</p>
+          <table style="border-collapse: collapse; width: 100%%; border: 1px solid #2e86c1; border-radius: 4px;">
+            <tr style="background-color: #eaf4fb;">
+              <td style="padding: 10px 14px; font-weight: bold; color: #1a5276;">Código estudiantil:</td>
+              <td style="padding: 10px 14px; font-size: 1.2em; font-weight: bold; letter-spacing: 2px;">%s</td>
+            </tr>
+          </table>
+          <p>Guarde este código, ya que lo necesitará para acceder a los servicios académicos
+             de la universidad.</p>
+          <br/>
+          <p style="color: #666; font-size: 0.9em;">
+            Universidad Francisco de Paula Santander &mdash; Oficina de Posgrados
+          </p>
+        </body>
+        </html>
+        """.formatted(encabezado(), nombres, apellidos, nombrePrograma, codigoEstudiante);
   }
 }

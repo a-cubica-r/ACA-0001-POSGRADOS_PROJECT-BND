@@ -163,7 +163,7 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
 
     public long countValidadosByCohorte(Integer cohorteId) {
         return repository.countByIdCohorteAndEstadoTipoIn(cohorteId,
-                List.of("VALIDADO_POR_CALIFICAR", "VALIDADO_EN_PROGRESO", "VALIDADO_CALIFICADO"));
+                List.of("VALIDADO_POR_CALIFICAR", "VALIDADO_EN_PROGRESO"));
     }
 
     public long countCalificadosByCohorte(Integer cohorteId) {
@@ -176,11 +176,11 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
     }
 
     public long countPazYSalvoByCohorte(Integer cohorteId) {
-        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, List.of("PAZ_Y_SALVO"));
+        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, List.of("PAZ Y SALVO"));
     }
 
     public long countAdmitidosByCohorte(Integer cohorteId) {
-        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, List.of("ADMITIDO"));
+        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, List.of("POR LEGALIZAR"));
     }
 
     @Transactional(readOnly = true)

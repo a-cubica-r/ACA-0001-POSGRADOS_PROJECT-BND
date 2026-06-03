@@ -71,4 +71,21 @@ public class DocumentosrequisitoconsejoProcessor implements
             throw new RuntimeException("Error deleting Documentosrequisitoconsejo by ID: " + e.getMessage(), e);
         }
     }
+
+    /**
+     * Update only the urlformato field for a Documentosrequisitoconsejo record.
+     * This is a small helper used by controllers that upload a formato to S3.
+     */
+    public void updateUrlFormato(Integer id, String urlformato) {
+        try {
+            DocumentosrequisitoconsejoDTO existing = service.findById(id);
+            if (existing == null) {
+                throw new RuntimeException("Documentosrequisitoconsejo no encontrado con id: " + id);
+            }
+            existing.setUrlformato(urlformato);
+            service.update(id, existing);
+        } catch (Exception e) {
+            throw new RuntimeException("Error updating urlformato: " + e.getMessage(), e);
+        }
+    }
 }

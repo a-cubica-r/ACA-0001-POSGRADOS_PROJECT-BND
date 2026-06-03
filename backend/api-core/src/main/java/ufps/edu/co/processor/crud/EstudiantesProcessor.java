@@ -12,6 +12,8 @@ import ufps.edu.co.records.input.entity.EstudiantesInput.*;
 import ufps.edu.co.records.output.entity.*;
 import ufps.edu.co.rest.dto.*;
 import ufps.edu.co.rest.services.*;
+import ufps.edu.co.services.*;
+import ufps.edu.co.utils.*;
 
 @Service
 public class EstudiantesProcessor {
@@ -35,6 +37,9 @@ public class EstudiantesProcessor {
 
     @Autowired
     private EstadoService estadoService;
+
+    @Autowired
+    private SESService sesService;
 
     public List<EstudiantesOutput> findAll() {
         return estudiantesService.findAll().stream()
@@ -255,5 +260,14 @@ public class EstudiantesProcessor {
         EstudiantesDTO creado = estudiantesService.create(dto);
         log.info("Aspirante {} registrado como estudiante con id {} y código {}",
                 idAspirante, creado.getId(), creado.getCodigo());
+
+        if (persona.getCorreo() != null) {
+            sesService.enviarCorreoAsync(
+                    persona.getCorreo(),
+                    EmailTemplates.ASUNTO_CODIGO_ESTUDIANTIL,
+                    EmailTemplates.cuerpoCodigoEstudiantil(
+                            persona.getNombres(), persona.getApellidos(),
+                            codigoEstudiante, programa.getNombre()));
+        }
     }
 }

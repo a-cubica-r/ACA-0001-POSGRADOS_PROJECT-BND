@@ -135,7 +135,7 @@ public class DocumentoProcessor implements
             return AprobarDocumentoOutput.builder()
                     .id(approve.getId())
                     .nombre(approve.getKeyfile())
-                    .estado(approve.getEstadodocumento().getEstado())
+                    .estado(estadodocumentoDTO.getEstado())
                     .build();
         } catch (Exception e) {
             throw new RuntimeException("Error approving Documento: " + e.getMessage(), e);
@@ -160,7 +160,7 @@ public class DocumentoProcessor implements
             return DocumentoEstadoOutput.builder()
                     .id(reject.getId())
                     .nombre(reject.getKeyfile())
-                    .estado(reject.getEstadodocumento().getEstado())
+                    .estado(estadodocumentoDTO.getEstado())
                     .motivoRechazo(reject.getObservaciones())
                     .build();
         } catch (Exception e) {

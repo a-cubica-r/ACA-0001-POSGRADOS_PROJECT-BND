@@ -96,19 +96,20 @@ import ufps.edu.co.records.input.entity.PruebaInput.PRUEBA_EDITAR_REQUEST;
 import ufps.edu.co.records.input.entity.PruebaInput.PRUEBA_REAGENDAR_REQUEST;
 import ufps.edu.co.records.output.entity.PruebaResumenOutput;
 import ufps.edu.co.records.output.entity.PruebaSimpleOutput;
-import ufps.edu.co.services.S3Service;
+import ufps.edu.co.services.*;
+import ufps.edu.co.utils.*;
 import ufps.edu.co.records.output.entity.PagoreciboDirectorOutput;
 import ufps.edu.co.records.input.entity.PagoEstadoInput;
 // import ufps.edu.co.rest.dto.PagoreciboinscripcionDTO;
 // import ufps.edu.co.rest.dto.PagorecibomatriculaDTO;
 import ufps.edu.co.rest.dto.PagoDTO;
 import ufps.edu.co.rest.dto.AspiranteDTO;
-// import ufps.edu.co.rest.dto.CohorteDTO;
+import ufps.edu.co.rest.dto.CohorteDTO;
 import ufps.edu.co.rest.dto.PersonaDTO;
 import ufps.edu.co.rest.services.PagoreciboinscripcionService;
 import ufps.edu.co.rest.services.PagorecibomatriculaService;
 import ufps.edu.co.rest.services.PagoService;
-// import ufps.edu.co.rest.services.CohorteService;
+import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.processor.crud.PagoProcessor;
 import ufps.edu.co.records.output.entity.PagoOutput;
 
@@ -172,8 +173,11 @@ public class DirectorProgramaCase {
     @Autowired
     private PagoService pagoService;
 
-    // @Autowired
-    // private CohorteService cohorteService;
+    @Autowired
+    private CohorteService cohorteService;
+
+    @Autowired
+    private SESService sesService;
 
     @Autowired
     private PagoProcessor pagoProcessor;
@@ -901,6 +905,21 @@ public class DirectorProgramaCase {
             dto.setIdAspirante(aspiranteId);
             dto.setFechageneracion(LocalDate.now());
             listaadmitidosService.create(dto);
+
+            try {
+                AspiranteDTO aspiranteAdmitido = aspiranteService.findById(aspiranteId);
+                PersonaDTO personaAdmitida = aspiranteAdmitido != null ? aspiranteAdmitido.getPersona() : null;
+                if (personaAdmitida != null && personaAdmitida.getCorreo() != null) {
+                    CohorteDTO cohorteAdmitido = cohorteService.findById(idCohorte);
+                    String nombreCohorte = cohorteAdmitido != null ? cohorteAdmitido.getNombre() : "";
+                    sesService.enviarCorreoAsync(
+                            personaAdmitida.getCorreo(),
+                            EmailTemplates.ASUNTO_ADMITIDO,
+                            EmailTemplates.cuerpoAdmitido(personaAdmitida.getNombres(), personaAdmitida.getApellidos(), nombreCohorte));
+                }
+            } catch (Exception emailEx) {
+                logger.warn("No se pudo enviar correo de admisión al aspirante {}: {}", aspiranteId, emailEx.getMessage());
+            }
 
             Map<String, Object> resp = Map.of(
                     "success", true,
