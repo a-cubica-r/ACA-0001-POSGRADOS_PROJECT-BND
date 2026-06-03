@@ -942,7 +942,11 @@ public class AspiranteProcessor implements
                             .nombre(nombre)
                             .correo(persona != null ? persona.getCorreo() : null)
                             .puntaje(a.getPuntuacion())
-                            .admitido(admitidosIds.contains(a.getId()))
+                            .admitido(
+                                ("ADMITIDO".equalsIgnoreCase(a.getEstado().getTipo()))
+                                || ("POR LEGALIZAR".equalsIgnoreCase(a.getEstado().getTipo()))
+                                || ("LEGALIZADO".equalsIgnoreCase(a.getEstado().getTipo()))
+                            )
                             .build();
                 })
                 .toList();
