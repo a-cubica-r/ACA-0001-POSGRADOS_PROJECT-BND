@@ -52,7 +52,7 @@ public class MunicipioService extends GenericService<MunicipioEntity, MunicipioD
 
     @Transactional(readOnly = true)
     public List<MunicipioDTO> findByIdDepartamento(Integer idDepartamento) {
-        // Build shallow DTOs to avoid ModelMapper cycles (departamento -> municipio -> departamento ...)
+        // Build shallow DTOs to avoid deep mapping of the relation graph (departamento -> municipio -> departamento ...)
         return repository.findByIdDepartamento(idDepartamento).stream().map(entity -> {
             MunicipioDTO dto = new MunicipioDTO();
             dto.setId(entity.getId());

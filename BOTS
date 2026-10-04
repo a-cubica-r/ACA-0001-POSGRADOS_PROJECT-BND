@@ -47,11 +47,11 @@ repo_root:
 modules:
   backend/api-base:
     role: Persistencia, DTOs y servicios CRUD basicos.
-    dependencies: [spring-boot-starter-data-jpa, mysql-connector-j, modelmapper]
+    dependencies: [spring-boot-starter-data-jpa, mysql-connector-j, mapstruct]
 
   backend/api-core:
     role: Casos de uso/procesadores, records input/output, mappers y excepciones de dominio.
-    dependencies: [api-base, spring-context, validation, spring-tx, modelmapper]
+    dependencies: [api-base, spring-context, validation, spring-tx]
 
   backend/api-auth:
     role: Autenticacion, JWT, hashing de claves y contratos de auth.
@@ -59,7 +59,7 @@ modules:
 
   backend/api-rest:
     role: Controladores HTTP REST, casos aplicacionales y comandos.
-    dependencies: [api-core, api-auth, mail-module, s3-storage, spring-boot-starter-webmvc, modelmapper]
+    dependencies: [api-core, api-auth, mail-module, s3-storage, spring-boot-starter-webmvc]
 
   backend/mail-module:
     role: Integracion con Resend para envio de correos.
@@ -271,12 +271,13 @@ api-base:
   repositories: Spring Data JpaRepository<Entity, Integer>
   dto: objetos serializables con Lombok, campos planos y relaciones DTO
   services: CRUD transaccional por entidad
-  config: ModelMapperConfig
+  mapping: mappers MapStruct XMapper extends EntityMapper<XEntity, XDTO> (config comun MapStructConfig)
 ```
 
 `GenericService<ENTITY, DTO>` centraliza:
 
 ```yaml
+mapper: EntityMapper<ENTITY, DTO> (MapStruct) inyectado segun los tipos genericos del service
 dtoToEntity(dto): DTO -> JPA entity
 entityToDto(entity): entity -> DTO
 entityToDto(optional): optional entity -> DTO o null
@@ -774,7 +775,7 @@ steps:
   1: Crear/actualizar XEntity en api-base.persistence.entities con @Entity y relaciones JPA.
   2: Crear XRepository extends JpaRepository<XEntity, Integer>.
   3: Crear XDTO con campos planos y DTOs relacionados.
-  4: Crear XService extends GenericService<XEntity, XDTO>.
+  4: Crear XMapper (MapStruct) en api-base.mapping extends EntityMapper<XEntity, XDTO> y XService extends GenericService<XEntity, XDTO>.
   5: Crear XInput como enum vacio con records X_CREATE, X_UPDATE, X_PATCH, X_DELETE, X_FIND.
   6: Crear XOutput como record implements OutputResponse, usualmente con @Builder.
   7: Crear XMap extends GlobalMapper.

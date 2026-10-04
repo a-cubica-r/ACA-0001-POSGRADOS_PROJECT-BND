@@ -28,10 +28,10 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- ModelMapper for DTO transformations -->
+		<!-- MapStruct for Entity <-> DTO transformations -->
         <dependency>
-            <groupId>org.modelmapper</groupId>
-            <artifactId>modelmapper</artifactId>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
         </dependency>
 	</dependencies>
 
