@@ -68,7 +68,7 @@ public class PersonaService extends GenericService<PersonaEntity, PersonaDTO> {
 
     /**
      * Returns only the correo (email) of a Persona by id without mapping the full
-     * entity to DTO to avoid ModelMapper cycles on deep object graphs.
+     * entity to DTO (avoids mapping the deep object graph).
      */
     @Transactional(readOnly = true)
     public String findCorreoById(Integer id) {
@@ -77,7 +77,7 @@ public class PersonaService extends GenericService<PersonaEntity, PersonaDTO> {
 
     /**
      * Returns only the nombres (full name) of a Persona by id without mapping the full
-     * entity to DTO to avoid ModelMapper cycles on deep object graphs.
+     * entity to DTO (avoids mapping the deep object graph).
      */
     @Transactional(readOnly = true)
     public String findNombreById(Integer id) {

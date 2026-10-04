@@ -36,12 +36,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- ModelMapper for DTO transformations -->
-        <dependency>
-            <groupId>org.modelmapper</groupId>
-            <artifactId>modelmapper</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>ufps.edu.co</groupId>
             <artifactId>mail-module</artifactId>

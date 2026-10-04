@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import ufps.edu.co.mapping.EntityMapper;
 
 /**
  * Abstract class for REST services <br>
@@ -22,22 +22,24 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public abstract class GenericService<ENTITY, DTO> {
 
+    /**
+     * MapStruct mapper for this ENTITY/DTO pair, resolved by Spring from the generic types of the subclass
+     */
     @Autowired
-    protected ModelMapper mapper;
-
-    private final Class<ENTITY> entityClass;
-    private final Class<DTO> dtoClass;
+    protected EntityMapper<ENTITY, DTO> mapper;
 
     protected GenericService(Class<ENTITY> entityClass, Class<DTO> dtoClass) {
-        this.entityClass  = entityClass;
-        this.dtoClass = dtoClass;
+        // Types are resolved through the injected EntityMapper; the parameters are kept so subclasses stay unchanged
     }
 
     /**
      * Converts DTO to JPA ENTITY
      */
     protected ENTITY dtoToEntity(DTO dto) {
-        return mapper.map(dto, entityClass);
+        if (dto == null) {
+            throw new IllegalArgumentException("source cannot be null");
+        }
+        return mapper.toEntity(dto);
     }
 
     /**
@@ -48,7 +50,7 @@ public abstract class GenericService<ENTITY, DTO> {
         if (entity == null) {
             return null;
         }
-        return mapper.map(entity, dtoClass);
+        return mapper.toDto(entity);
     }
 
     /**
