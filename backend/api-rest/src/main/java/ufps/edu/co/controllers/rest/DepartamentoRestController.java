@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.DepartamentoProcessor;
+import ufps.edu.co.services.core.crud.DepartamentoCoreService;
 import ufps.edu.co.records.input.entity.DepartamentoInput.DEPARTAMENTO_CREATE;
 import ufps.edu.co.records.input.entity.DepartamentoInput.DEPARTAMENTO_DELETE;
 import ufps.edu.co.records.input.entity.DepartamentoInput.DEPARTAMENTO_FIND;
@@ -30,7 +30,7 @@ import ufps.edu.co.records.output.entity.DepartamentoOutput;
 public class DepartamentoRestController {
 
     @Autowired
-    private DepartamentoProcessor processor;
+    private DepartamentoCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<DepartamentoOutput>> findAll() {

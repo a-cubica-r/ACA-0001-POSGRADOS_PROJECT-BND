@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.CalificacioncriterioProcessor;
+import ufps.edu.co.services.core.crud.CalificacioncriterioCoreService;
 import ufps.edu.co.records.input.entity.CalificacioncriterioInput.*;
 import ufps.edu.co.records.output.entity.CalificacioncriterioOutput;
 
@@ -23,7 +23,7 @@ import ufps.edu.co.records.output.entity.CalificacioncriterioOutput;
 public class CalificacioncriterioRestController {
 
     @Autowired
-    private CalificacioncriterioProcessor processor;
+    private CalificacioncriterioCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<CalificacioncriterioOutput>> findAll() {

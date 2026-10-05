@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import ufps.edu.co.DTO.ReciboInscripcionInputDTO;
-import ufps.edu.co.processor.receipt.ReciboInscripcionBuildInput;
-import ufps.edu.co.processor.receipt.ReciboInscripcionBuilderPort;
+import ufps.edu.co.services.core.receipt.ReciboInscripcionBuildInput;
+import ufps.edu.co.services.core.receipt.ReciboInscripcionBuilderPort;
 import ufps.edu.co.services.S3Service;
 
 @Service

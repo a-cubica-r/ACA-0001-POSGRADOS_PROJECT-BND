@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.EstadodocumentoProcessor;
+import ufps.edu.co.services.core.crud.EstadodocumentoCoreService;
 import ufps.edu.co.records.input.entity.EstadodocumentoInput.*;
 import ufps.edu.co.records.output.entity.EstadodocumentoOutput;
 
@@ -22,7 +22,7 @@ import ufps.edu.co.records.output.entity.EstadodocumentoOutput;
 public class EstadodocumentoRestController {
 
     @Autowired
-    private EstadodocumentoProcessor processor;
+    private EstadodocumentoCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<EstadodocumentoOutput>> findAll() {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.PlazoProcessor;
+import ufps.edu.co.services.core.crud.PlazoCoreService;
 import ufps.edu.co.records.input.entity.PlazoInput.*;
 import ufps.edu.co.records.output.entity.PlazoOutput;
 
@@ -22,7 +22,7 @@ import ufps.edu.co.records.output.entity.PlazoOutput;
 public class PlazoRestController {
 
     @Autowired
-    private PlazoProcessor processor;
+    private PlazoCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<PlazoOutput>> findAll() {

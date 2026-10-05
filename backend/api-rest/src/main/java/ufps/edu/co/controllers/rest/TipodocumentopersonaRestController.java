@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.TipodocumentopersonaProcessor;
+import ufps.edu.co.services.core.crud.TipodocumentopersonaCoreService;
 import ufps.edu.co.records.input.entity.TipodocumentopersonaInput.*;
 import ufps.edu.co.records.output.entity.TipodocumentopersonaOutput;
 
@@ -20,7 +20,7 @@ import ufps.edu.co.records.output.entity.TipodocumentopersonaOutput;
 public class TipodocumentopersonaRestController {
 
     @Autowired
-    private TipodocumentopersonaProcessor processor;
+    private TipodocumentopersonaCoreService processor;
 
     @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TipodocumentopersonaOutput> findById(@RequestBody TIPODOCUMENTOPERSONA_FIND request) {

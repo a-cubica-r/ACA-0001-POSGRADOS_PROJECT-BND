@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.FacultadProcessor;
+import ufps.edu.co.services.core.crud.FacultadCoreService;
 import ufps.edu.co.records.input.entity.FacultadInput.*;
 import ufps.edu.co.records.output.entity.FacultadOutput;
 
@@ -23,7 +23,7 @@ import ufps.edu.co.records.output.entity.FacultadOutput;
 public class FacultadRestController {
 
     @Autowired
-    private FacultadProcessor processor;
+    private FacultadCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<FacultadOutput>> findAll() {

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.GeneroProcessor;
+import ufps.edu.co.services.core.crud.GeneroCoreService;
 import ufps.edu.co.records.input.entity.GeneroInput.*;
 import ufps.edu.co.records.output.entity.GeneroOutput;
 
@@ -20,7 +20,7 @@ import ufps.edu.co.records.output.entity.GeneroOutput;
 public class GeneroRestController {
 
     @Autowired
-    private GeneroProcessor processor;
+    private GeneroCoreService processor;
 
     @PostMapping(value = "/list", consumes   = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GeneroOutput> findById(@RequestBody GENERO_FIND request) {

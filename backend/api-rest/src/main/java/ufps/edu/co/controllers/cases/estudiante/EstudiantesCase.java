@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import ufps.edu.co.processor.crud.EstudiantesProcessor;
+import ufps.edu.co.services.core.crud.EstudiantesCoreService;
 import ufps.edu.co.records.input.entity.EstudiantesInput.ESTUDIANTE_CREATE;
 import ufps.edu.co.records.input.entity.EstudiantesInput.ESTUDIANTE_UPDATE;
 import ufps.edu.co.records.output.entity.EstudiantesOutput;
@@ -30,7 +30,7 @@ public class EstudiantesCase {
     private static final Logger logger = LoggerFactory.getLogger(EstudiantesCase.class);
 
     @Autowired
-    private EstudiantesProcessor estudiantesProcessor;
+    private EstudiantesCoreService estudiantesProcessor;
 
     @GetMapping
     public ResponseEntity<List<EstudiantesOutput>> findAll() {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.UsuarioProcessor;
+import ufps.edu.co.services.core.crud.UsuarioCoreService;
 import ufps.edu.co.records.input.entity.UsuarioInput.*;
 import ufps.edu.co.records.output.entity.UsuarioOutput;
 
@@ -22,7 +22,7 @@ import ufps.edu.co.records.output.entity.UsuarioOutput;
 public class UsuarioRestController {
 
     @Autowired
-    private UsuarioProcessor processor;
+    private UsuarioCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<UsuarioOutput>> findAll() {

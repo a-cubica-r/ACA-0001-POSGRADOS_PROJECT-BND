@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.PaisProcessor;
+import ufps.edu.co.services.core.crud.PaisCoreService;
 import ufps.edu.co.records.input.entity.PaisInput.*;
 import ufps.edu.co.records.output.entity.PaisOutput;
 
@@ -20,7 +20,7 @@ import ufps.edu.co.records.output.entity.PaisOutput;
 public class PaisRestController {
 
     @Autowired
-    private PaisProcessor processor;
+    private PaisCoreService processor;
 
     /**
      * Get ALL

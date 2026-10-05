@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.OtrosvaloresProcessor;
+import ufps.edu.co.services.core.crud.OtrosvaloresCoreService;
 import ufps.edu.co.records.input.entity.OtrosvaloresInput.*;
 import ufps.edu.co.records.output.entity.OtrosvaloresOutput;
 
@@ -23,7 +23,7 @@ import ufps.edu.co.records.output.entity.OtrosvaloresOutput;
 public class OtrosvaloresRestController {
 
     @Autowired
-    private OtrosvaloresProcessor processor;
+    private OtrosvaloresCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<OtrosvaloresOutput>> findAll() {

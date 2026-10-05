@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ufps.edu.co.processor.crud.CohorteProcessor;
+import ufps.edu.co.services.core.crud.CohorteCoreService;
 import ufps.edu.co.records.input.entity.CohorteInput.*;
 import ufps.edu.co.records.output.entity.CohorteOutput;
 
@@ -22,7 +22,7 @@ import ufps.edu.co.records.output.entity.CohorteOutput;
 public class CohorteRestController {
 
     @Autowired
-    private CohorteProcessor processor;
+    private CohorteCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<CohorteOutput>> findAll() {

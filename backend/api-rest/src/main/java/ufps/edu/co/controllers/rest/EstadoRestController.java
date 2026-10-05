@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.EstadoProcessor;
+import ufps.edu.co.services.core.crud.EstadoCoreService;
 import ufps.edu.co.records.input.entity.EstadoInput.*;
 import ufps.edu.co.records.output.entity.EstadoOutput;
 
@@ -23,7 +23,7 @@ import ufps.edu.co.records.output.entity.EstadoOutput;
 public class EstadoRestController {
 
     @Autowired
-    private EstadoProcessor processor;
+    private EstadoCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<EstadoOutput>> findAll() {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.ClaveProcessor;
+import ufps.edu.co.services.core.crud.ClaveCoreService;
 import ufps.edu.co.records.input.entity.ClaveInput.*;
 import ufps.edu.co.records.output.entity.ClaveOutput;
 
@@ -22,7 +22,7 @@ import ufps.edu.co.records.output.entity.ClaveOutput;
 public class ClaveRestController {
 
     @Autowired
-    private ClaveProcessor processor;
+    private ClaveCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<ClaveOutput>> findAll() {

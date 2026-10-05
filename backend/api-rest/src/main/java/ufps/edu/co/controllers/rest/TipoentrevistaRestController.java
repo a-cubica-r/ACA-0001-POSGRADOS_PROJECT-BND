@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.TipoentrevistaProcessor;
+import ufps.edu.co.services.core.crud.TipoentrevistaCoreService;
 import ufps.edu.co.records.input.entity.TipoentrevistaInput.*;
 import ufps.edu.co.records.output.entity.TipoentrevistaOutput;
 
@@ -22,7 +22,7 @@ import ufps.edu.co.records.output.entity.TipoentrevistaOutput;
 public class TipoentrevistaRestController {
 
     @Autowired
-    private TipoentrevistaProcessor processor;
+    private TipoentrevistaCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<TipoentrevistaOutput>> findAll() {

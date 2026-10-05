@@ -35,16 +35,16 @@ import ufps.edu.co.persistence.repositories.*;
 import ufps.edu.co.domain.exceptions.DomainException;
 // import ufps.edu.co.domain.exceptions.errorcodes.ListaadmitidosErrorCode;
 import ufps.edu.co.domain.exceptions.DuplicateAdmisionException;
-import ufps.edu.co.processor.crud.AspiranteProcessor;
-import ufps.edu.co.processor.crud.CalificacioncriterioProcessor;
-import ufps.edu.co.processor.crud.CriterioevaluacionProcessor;
-import ufps.edu.co.processor.crud.CriteriocohorteProcessor;
-import ufps.edu.co.processor.crud.DocumentoProcessor;
-import ufps.edu.co.processor.crud.DocumentosrequisitoprogramacohorteProcessor;
-import ufps.edu.co.processor.crud.EntrevistaProcessor;
-import ufps.edu.co.processor.crud.ListaadmitidosProcessor;
+import ufps.edu.co.services.core.crud.AspiranteCoreService;
+import ufps.edu.co.services.core.crud.CalificacioncriterioCoreService;
+import ufps.edu.co.services.core.crud.CriterioevaluacionCoreService;
+import ufps.edu.co.services.core.crud.CriteriocohorteCoreService;
+import ufps.edu.co.services.core.crud.DocumentoCoreService;
+import ufps.edu.co.services.core.crud.DocumentosrequisitoprogramacohorteCoreService;
+import ufps.edu.co.services.core.crud.EntrevistaCoreService;
+import ufps.edu.co.services.core.crud.ListaadmitidosCoreService;
 import ufps.edu.co.maps.specific.ListaadmitidosMap;
-import ufps.edu.co.processor.crud.PruebaProcessor;
+import ufps.edu.co.services.core.crud.PruebaCoreService;
 import ufps.edu.co.records.output.entity.DocumentosrequisitoprogramacohorteOutput;
 import ufps.edu.co.records.input.entity.AspiranteInput.ASPIRANTE_FIND;
 import ufps.edu.co.records.input.entity.CalificacioncriterioInput.CALIFICACION_PUNTAJE_REQUEST;
@@ -121,7 +121,7 @@ import ufps.edu.co.rest.services.PagoreciboinscripcionService;
 import ufps.edu.co.rest.services.PagorecibomatriculaService;
 import ufps.edu.co.rest.services.PagoService;
 import ufps.edu.co.rest.services.CohorteService;
-import ufps.edu.co.processor.crud.PagoProcessor;
+import ufps.edu.co.services.core.crud.PagoCoreService;
 import ufps.edu.co.records.output.entity.PagoOutput;
 
 @RestController
@@ -134,16 +134,16 @@ public class DirectorProgramaCase {
     private S3Service s3Service;
 
     @Autowired
-    private DocumentoProcessor documentoProcessor;
+    private DocumentoCoreService documentoProcessor;
 
     @Autowired
-    private AspiranteProcessor aspiranteProcessor;
+    private AspiranteCoreService aspiranteProcessor;
 
     @Autowired
-    private EntrevistaProcessor entrevistaProcessor;
+    private EntrevistaCoreService entrevistaProcessor;
 
     @Autowired
-    private ListaadmitidosProcessor listaadmitidosProcessor;
+    private ListaadmitidosCoreService listaadmitidosProcessor;
 
     @Autowired
     private ListaadmitidosMap listaadmitidosMap;
@@ -161,19 +161,19 @@ public class DirectorProgramaCase {
     private EstadoService estadoService;
 
     @Autowired
-    private CalificacioncriterioProcessor calificacioncriterioProcessor;
+    private CalificacioncriterioCoreService calificacioncriterioProcessor;
 
     @Autowired
-    private PruebaProcessor pruebaProcessor;
+    private PruebaCoreService pruebaProcessor;
 
     @Autowired
-    private CriterioevaluacionProcessor criterioevaluacionProcessor;
+    private CriterioevaluacionCoreService criterioevaluacionProcessor;
 
     @Autowired
-    private CriteriocohorteProcessor criteriocohorteProcessor;
+    private CriteriocohorteCoreService criteriocohorteProcessor;
 
     @Autowired
-    private DocumentosrequisitoprogramacohorteProcessor documentosrequisitoprogramacohorteProcessor;
+    private DocumentosrequisitoprogramacohorteCoreService documentosrequisitoprogramacohorteProcessor;
 
     @Autowired
     private UsuarioService usuarioService;
@@ -200,7 +200,7 @@ public class DirectorProgramaCase {
     private PersonaRepository personaRepository;
 
     @Autowired
-    private PagoProcessor pagoProcessor;
+    private PagoCoreService pagoProcessor;
 
     @GetMapping(value = "/cohortes")
     public ResponseEntity<List<CohorteResumenOutput>> getCohortesByPrograma() {

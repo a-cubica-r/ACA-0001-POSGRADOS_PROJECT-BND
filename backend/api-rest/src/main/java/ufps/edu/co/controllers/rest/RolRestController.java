@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.RolProcessor;
+import ufps.edu.co.services.core.crud.RolCoreService;
 import ufps.edu.co.records.input.entity.RolInput.*;
 import ufps.edu.co.records.output.entity.RolOutput;
 
@@ -22,7 +22,7 @@ import ufps.edu.co.records.output.entity.RolOutput;
 public class RolRestController {
 
     @Autowired
-    private RolProcessor processor;
+    private RolCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<RolOutput>> findAll() {

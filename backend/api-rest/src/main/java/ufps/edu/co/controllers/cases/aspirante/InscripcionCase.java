@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import ufps.edu.co.processor.crud.*;
+import ufps.edu.co.services.core.crud.*;
 // import ufps.edu.co.rest.services.TipodocumentoService;
 import ufps.edu.co.domain.exceptions.DomainException;
 import ufps.edu.co.domain.exceptions.errorcodes.AspiranteErrorCode;
@@ -39,13 +39,13 @@ public class InscripcionCase {
         private EstadocivilService estadocivilService;
 
         @Autowired
-        private GeneroProcessor generoProcessor;
+        private GeneroCoreService generoProcessor;
 
         @Autowired
-        private TipodocumentopersonaProcessor tipodocumentopersonaProcessor;
+        private TipodocumentopersonaCoreService tipodocumentopersonaProcessor;
 
         @Autowired
-        private PaisProcessor paisProcessor;
+        private PaisCoreService paisProcessor;
 
         @Autowired
         private DepartamentoService departamentoService;
@@ -81,7 +81,7 @@ public class InscripcionCase {
         private AspiranteService aspiranteService;
 
         @Autowired
-        private PagoProcessor pagoProcessor;
+        private PagoCoreService pagoProcessor;
 
         @Autowired
         private EstadoService estadoService;
@@ -93,7 +93,7 @@ public class InscripcionCase {
         private UsuarioService usuarioService;
 
         @Autowired
-        RolProcessor rolProcessor = new RolProcessor();
+        RolCoreService rolProcessor = new RolCoreService();
 
         @Autowired
         private SESService sesService;
@@ -738,7 +738,7 @@ public class InscripcionCase {
         }
 
         @Autowired
-        private ProgramaProcessor programaProcessor;
+        private ProgramaCoreService programaProcessor;
 
         @GetMapping("/programas")
         public ResponseEntity<List<ProgramaListadoOutput>> getProgramas() {

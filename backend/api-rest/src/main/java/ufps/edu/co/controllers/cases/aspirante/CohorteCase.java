@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.AspiranteProcessor;
+import ufps.edu.co.services.core.crud.AspiranteCoreService;
 import ufps.edu.co.records.output.entity.AspiranteCohorteOutput;
 import ufps.edu.co.records.output.entity.CohorteResumenOutput;
 import ufps.edu.co.rest.services.AdministrativoService;
@@ -22,7 +22,7 @@ import ufps.edu.co.rest.services.UsuarioService;
 public class CohorteCase {
 
     @Autowired
-    private AspiranteProcessor aspiranteProcessor;
+    private AspiranteCoreService aspiranteProcessor;
 
     @Autowired
     private UsuarioService usuarioService;

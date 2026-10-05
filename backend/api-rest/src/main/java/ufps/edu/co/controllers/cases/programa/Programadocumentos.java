@@ -4,7 +4,7 @@ import ufps.edu.co.records.input.entity.DocumentosrequisitoprogramaInput.*;
 import ufps.edu.co.records.output.cases.Listdocumentosprogramaconsejo;
 import ufps.edu.co.records.output.entity.DocumentosrequisitoprogramaOutput;
 import ufps.edu.co.services.S3Service;
-import ufps.edu.co.processor.cases.DocumentosrequisitoprogramaPE;
+import ufps.edu.co.services.core.cases.DocumentosrequisitoprogramaPE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

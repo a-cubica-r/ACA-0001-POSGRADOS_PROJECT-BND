@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.SedeProcessor;
+import ufps.edu.co.services.core.crud.SedeCoreService;
 import ufps.edu.co.records.input.entity.SedeInput.*;
 import ufps.edu.co.records.output.entity.SedeOutput;
 
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class SedeController {
 
     @Autowired
-    private SedeProcessor processor;
+    private SedeCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<SedeOutput>> findAll() {

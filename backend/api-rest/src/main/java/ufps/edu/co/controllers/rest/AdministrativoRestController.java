@@ -15,7 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.AdministrativoProcessor;
+import ufps.edu.co.services.core.crud.AdministrativoCoreService;
 import ufps.edu.co.records.input.entity.AdministrativoInput.*;
 import ufps.edu.co.records.output.entity.AdministrativoOutput;
 
@@ -24,7 +24,7 @@ import ufps.edu.co.records.output.entity.AdministrativoOutput;
 public class AdministrativoRestController {
 
     @Autowired
-    private AdministrativoProcessor processor;
+    private AdministrativoCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<AdministrativoOutput>> findAll() {
