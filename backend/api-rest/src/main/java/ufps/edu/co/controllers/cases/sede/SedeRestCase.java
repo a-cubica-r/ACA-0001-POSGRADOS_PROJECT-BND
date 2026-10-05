@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.SedeProcessor;
+import ufps.edu.co.services.core.crud.SedeCoreService;
 import ufps.edu.co.records.input.entity.SedeInput.SEDE_CREATE_WITH_UBICACION;
 import ufps.edu.co.records.output.entity.SedeOutput;
 
@@ -19,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 public class SedeRestCase {
 
     @Autowired
-    private SedeProcessor processor;
+    private SedeCoreService processor;
 
     @PostMapping("/createWithUbicacion")
     public ResponseEntity<SedeOutput> createWithUbicacion(@RequestBody SEDE_CREATE_WITH_UBICACION request) {

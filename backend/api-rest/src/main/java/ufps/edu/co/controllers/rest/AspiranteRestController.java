@@ -14,7 +14,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.AspiranteProcessor;
+import ufps.edu.co.services.core.crud.AspiranteCoreService;
 import ufps.edu.co.records.input.entity.AspiranteInput.*;
 import ufps.edu.co.records.output.entity.AspiranteOutput;
 import ufps.edu.co.records.output.entity.EstadoOutput;
@@ -24,7 +24,7 @@ import ufps.edu.co.records.output.entity.EstadoOutput;
 public class AspiranteRestController {
 
     @Autowired
-    private AspiranteProcessor processor;
+    private AspiranteCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<AspiranteOutput>> findAll() {

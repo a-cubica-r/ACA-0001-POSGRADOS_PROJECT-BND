@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.CriteriocohorteProcessor;
+import ufps.edu.co.services.core.crud.CriteriocohorteCoreService;
 import ufps.edu.co.records.input.entity.CriteriocohorteInput.CRITERIOCOHORTE_CREATE;
 import ufps.edu.co.records.input.entity.CriteriocohorteInput.CRITERIOCOHORTE_DELETE;
 import ufps.edu.co.records.input.entity.CriteriocohorteInput.CRITERIOCOHORTE_FIND;
@@ -31,7 +31,7 @@ import ufps.edu.co.records.output.entity.CriteriocohorteOutput;
 public class CriteriocohorteRestController {
 
     @Autowired
-    private CriteriocohorteProcessor processor;
+    private CriteriocohorteCoreService processor;
 
     /**
      * Get ALL

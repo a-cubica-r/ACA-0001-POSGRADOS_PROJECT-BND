@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.ModalidadProcessor;
+import ufps.edu.co.services.core.crud.ModalidadCoreService;
 import ufps.edu.co.records.input.entity.ModalidadInput.*;
 import ufps.edu.co.records.output.entity.ModalidadOutput;
 
@@ -23,7 +23,7 @@ import ufps.edu.co.records.output.entity.ModalidadOutput;
 public class ModalidadRestController {
 
     @Autowired
-    private ModalidadProcessor processor;
+    private ModalidadCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<ModalidadOutput>> findAll() {

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ufps.edu.co.processor.crud.PagoProcessor;
+import ufps.edu.co.services.core.crud.PagoCoreService;
 import ufps.edu.co.records.output.entity.PagoOutput;
 import ufps.edu.co.wompi.model.WompiWebhookRequest;
 
@@ -19,11 +19,11 @@ import ufps.edu.co.wompi.model.WompiWebhookRequest;
 @RequestMapping(value = "/wompi", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PagoWompiWebhookCase {
 
-    private final PagoProcessor pagoProcessor;
+    private final PagoCoreService pagoProcessor;
     private final ObjectMapper objectMapper;
     private static final Logger log = LoggerFactory.getLogger(PagoWompiWebhookCase.class);
 
-    public PagoWompiWebhookCase(PagoProcessor pagoProcessor, ObjectMapper objectMapper) {
+    public PagoWompiWebhookCase(PagoCoreService pagoProcessor, ObjectMapper objectMapper) {
         this.pagoProcessor = pagoProcessor;
         this.objectMapper = objectMapper;
     }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.MunicipioProcessor;
+import ufps.edu.co.services.core.crud.MunicipioCoreService;
 import ufps.edu.co.records.input.entity.MunicipioInput.*;
 import ufps.edu.co.records.output.entity.MunicipioOutput;
 
@@ -24,7 +24,7 @@ import org.springframework.http.ResponseEntity;
 public class MunicipioRestController {
 
     @Autowired
-    private MunicipioProcessor processor;
+    private MunicipioCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<MunicipioOutput>> findAll() {

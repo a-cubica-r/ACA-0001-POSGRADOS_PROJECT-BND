@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.DocumentoProcessor;
+import ufps.edu.co.services.core.crud.DocumentoCoreService;
 import ufps.edu.co.records.input.entity.DocumentoInput.DOCUMENTO_ESTADO_UPDATE;
 import ufps.edu.co.records.output.entity.DocumentoEstadoOutput;
 
@@ -18,7 +18,7 @@ import ufps.edu.co.records.output.entity.DocumentoEstadoOutput;
 public class DocumentoCase {
 
     @Autowired
-    private DocumentoProcessor documentoProcessor;
+    private DocumentoCoreService documentoProcessor;
 
     @PatchMapping(value = "/{idDoc}/estado", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DocumentoEstadoOutput> updateEstadoDocumento(

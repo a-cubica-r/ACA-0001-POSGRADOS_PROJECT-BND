@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ufps.edu.co.domain.exceptions.DomainException;
-import ufps.edu.co.processor.crud.ProgramaProcessor;
+import ufps.edu.co.services.core.crud.ProgramaCoreService;
 import ufps.edu.co.records.input.entity.CohorteInput.COHORTE_FIND;
 import ufps.edu.co.records.input.entity.FacultadInput.FACULTAD_FIND;
 import ufps.edu.co.records.input.entity.ProgramaInput.*;
@@ -26,7 +26,7 @@ import ufps.edu.co.records.output.entity.ProgramaOutput;
 public class ProgramaRestController {
 
     @Autowired
-    private ProgramaProcessor processor;
+    private ProgramaCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<ProgramaOutput>> findAll() {

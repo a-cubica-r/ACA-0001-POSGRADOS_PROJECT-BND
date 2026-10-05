@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import ufps.edu.co.processor.crud.DocumentoProcessor;
+import ufps.edu.co.services.core.crud.DocumentoCoreService;
 import ufps.edu.co.records.input.entity.AspiranteInput.ASPIRANTE_FIND;
 import ufps.edu.co.records.input.entity.DocumentoInput.DOCUMENTO_FIND;
 import ufps.edu.co.records.output.entity.DocumentoOutput;
@@ -36,7 +36,7 @@ public class S3Service {
     private String region;
 
     @Autowired
-    private DocumentoProcessor documentoProcessor;
+    private DocumentoCoreService documentoProcessor;
 
     public record UploadResult(String keyfile, String enlaceurl) {
     }

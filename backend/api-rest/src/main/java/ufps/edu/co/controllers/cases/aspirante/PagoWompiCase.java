@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ufps.edu.co.auth.model.AuthPrincipal;
-import ufps.edu.co.processor.crud.PagoProcessor;
+import ufps.edu.co.services.core.crud.PagoCoreService;
 import ufps.edu.co.records.output.entity.PagoListadoOutput;
 import ufps.edu.co.rest.dto.PagoCheckoutPreviewDTO;
 import ufps.edu.co.wompi.model.WompiCheckoutResponse;
@@ -25,7 +25,7 @@ import ufps.edu.co.wompi.model.WompiReceiptData;
 @RequestMapping(value = "/aspirantes/{idAspirante}/pagos", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PagoWompiCase {
 
-    private final PagoProcessor pagoProcessor;
+    private final PagoCoreService pagoProcessor;
 
     @Autowired
     private ufps.edu.co.services.S3Service s3Service;
@@ -36,7 +36,7 @@ public class PagoWompiCase {
     @Autowired
     private ufps.edu.co.rest.services.PagorecibomatriculaService pagorecibomatriculaService;
 
-    public PagoWompiCase(PagoProcessor pagoProcessor) {
+    public PagoWompiCase(PagoCoreService pagoProcessor) {
         this.pagoProcessor = pagoProcessor;
     }
 

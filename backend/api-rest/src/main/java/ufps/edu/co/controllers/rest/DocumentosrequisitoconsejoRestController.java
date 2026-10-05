@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.DocumentosrequisitoconsejoProcessor;
+import ufps.edu.co.services.core.crud.DocumentosrequisitoconsejoCoreService;
 import ufps.edu.co.records.input.entity.DocumentosrequisitoconsejoInput.*;
 import ufps.edu.co.records.output.entity.DocumentosrequisitoconsejoOutput;
 
@@ -27,7 +27,7 @@ import ufps.edu.co.records.output.entity.DocumentosrequisitoconsejoOutput;
 public class DocumentosrequisitoconsejoRestController {
 
     @Autowired
-    private DocumentosrequisitoconsejoProcessor processor;
+    private DocumentosrequisitoconsejoCoreService processor;
 
     @Autowired
     private ufps.edu.co.services.S3Service s3Service;

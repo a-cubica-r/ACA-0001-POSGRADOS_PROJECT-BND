@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
-import ufps.edu.co.processor.crud.ProgramaProcessor;
+import ufps.edu.co.services.core.crud.ProgramaCoreService;
 import ufps.edu.co.records.output.entity.ModalidadOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class CohorteModalidad {
 
 	@Autowired
-	private ProgramaProcessor programaProcessor;
+	private ProgramaCoreService programaProcessor;
 
 	@GetMapping(value = "/{programaId}/modalidades")
 	public ResponseEntity<List<ModalidadOutput>> findModalidadesByPrograma(@PathVariable Integer programaId) {

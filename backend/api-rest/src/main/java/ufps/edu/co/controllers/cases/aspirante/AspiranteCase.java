@@ -13,8 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ufps.edu.co.domain.exceptions.*;
 import ufps.edu.co.domain.exceptions.errorcodes.*;
-import ufps.edu.co.processor.cases.*;
-import ufps.edu.co.processor.crud.*;
+import ufps.edu.co.services.core.cases.*;
+import ufps.edu.co.services.core.crud.*;
 import ufps.edu.co.records.input.entity.AspiranteInput.*;
 import ufps.edu.co.records.input.entity.EntrevistaInput.*;
 import ufps.edu.co.records.input.entity.PruebaInput.*;
@@ -31,10 +31,10 @@ public class AspiranteCase {
     private static final Logger log = LoggerFactory.getLogger(AspiranteCase.class);
 
     @Autowired
-    private AspiranteProcessor processor;
+    private AspiranteCoreService processor;
 
     @Autowired
-    private DocumentoProcessor documentoProcessor;
+    private DocumentoCoreService documentoProcessor;
 
     @Autowired
     private AspiranteService aspiranteService;
@@ -64,10 +64,10 @@ public class AspiranteCase {
     private ufps.edu.co.rest.services.PagorecibomatriculaService pagorecibomatriculaService;
 
     @Autowired
-    private EntrevistaProcessor entrevistaProcessor;
+    private EntrevistaCoreService entrevistaProcessor;
 
     @Autowired
-    private PruebaProcessor pruebaProcessor;
+    private PruebaCoreService pruebaProcessor;
 
     @Autowired
     private SESService sesService;

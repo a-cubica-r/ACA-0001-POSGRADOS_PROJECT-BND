@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.DocumentosrequisitoprogramacohorteProcessor;
+import ufps.edu.co.services.core.crud.DocumentosrequisitoprogramacohorteCoreService;
 import ufps.edu.co.records.input.entity.DocumentosrequisitoprogramacohorteInput.*;
 import ufps.edu.co.records.output.entity.DocumentosrequisitoprogramacohorteOutput;
 
@@ -23,7 +23,7 @@ import ufps.edu.co.records.output.entity.DocumentosrequisitoprogramacohorteOutpu
 public class DocumentosrequisitoprogramacohorteRestController {
 
     @Autowired
-    private DocumentosrequisitoprogramacohorteProcessor processor;
+    private DocumentosrequisitoprogramacohorteCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<DocumentosrequisitoprogramacohorteOutput>> findAll() {

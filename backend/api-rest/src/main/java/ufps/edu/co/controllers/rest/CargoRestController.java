@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.CargoProcessor;
+import ufps.edu.co.services.core.crud.CargoCoreService;
 import ufps.edu.co.records.input.entity.CargoInput.*;
 import ufps.edu.co.records.output.entity.CargoOutput;
 
@@ -23,7 +23,7 @@ import ufps.edu.co.records.output.entity.CargoOutput;
 public class CargoRestController {
 
     @Autowired
-    private CargoProcessor processor;
+    private CargoCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<CargoOutput>> findAll() {

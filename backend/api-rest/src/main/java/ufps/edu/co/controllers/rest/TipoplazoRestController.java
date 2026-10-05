@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.TipoplazoProcessor;
+import ufps.edu.co.services.core.crud.TipoplazoCoreService;
 import ufps.edu.co.records.input.entity.TipoplazoInput.*;
 import ufps.edu.co.records.output.entity.TipoplazoOutput;
 
@@ -22,7 +22,7 @@ import ufps.edu.co.records.output.entity.TipoplazoOutput;
 public class TipoplazoRestController {
 
     @Autowired
-    private TipoplazoProcessor processor;
+    private TipoplazoCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<TipoplazoOutput>> findAll() {

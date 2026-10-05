@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ufps.edu.co.processor.crud.SemestreProcessor;
+import ufps.edu.co.services.core.crud.SemestreCoreService;
 import ufps.edu.co.records.input.entity.SemestreInput.*;
 import ufps.edu.co.records.output.entity.SemestreOutput;
 
@@ -22,7 +22,7 @@ import ufps.edu.co.records.output.entity.SemestreOutput;
 public class SemestreRestController {
 
     @Autowired
-    private SemestreProcessor processor;
+    private SemestreCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<SemestreOutput>> findAll() {

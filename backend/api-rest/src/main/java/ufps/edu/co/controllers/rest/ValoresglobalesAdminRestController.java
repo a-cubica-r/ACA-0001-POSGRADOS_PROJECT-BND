@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import ufps.edu.co.processor.crud.ValoresglobalesProcessor;
+import ufps.edu.co.services.core.crud.ValoresglobalesCoreService;
 import ufps.edu.co.rest.dto.ValoresglobalesDTO;
 
 @RestController
@@ -23,7 +23,7 @@ import ufps.edu.co.rest.dto.ValoresglobalesDTO;
 public class ValoresglobalesAdminRestController {
 
     @Autowired
-    private ValoresglobalesProcessor valoresglobalesProcessor;
+    private ValoresglobalesCoreService valoresglobalesProcessor;
 
     @PostMapping(value = "/tamano-maximo-archivos", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ValoresglobalesDTO> createTamanoMaximoArchivos(@RequestBody ValoresglobalesDTO dto) {

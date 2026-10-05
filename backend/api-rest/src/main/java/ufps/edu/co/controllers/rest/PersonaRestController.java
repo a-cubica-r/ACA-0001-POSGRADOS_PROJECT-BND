@@ -15,7 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.processor.crud.PersonaProcessor;
+import ufps.edu.co.services.core.crud.PersonaCoreService;
 import ufps.edu.co.records.input.entity.PersonaInput.*;
 import ufps.edu.co.records.output.entity.PersonaOutput;
 
@@ -24,7 +24,7 @@ import ufps.edu.co.records.output.entity.PersonaOutput;
 public class PersonaRestController {
 
     @Autowired
-    private PersonaProcessor processor;
+    private PersonaCoreService processor;
 
     @GetMapping("/listall")
     public ResponseEntity<List<PersonaOutput>> findAll() {
