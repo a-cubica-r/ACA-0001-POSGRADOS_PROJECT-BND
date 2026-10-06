@@ -17,6 +17,7 @@ import ufps.edu.co.rest.dto.PersonaDTO;
 import ufps.edu.co.rest.services.*;
 import ufps.edu.co.services.PdfGeneratorService;
 import ufps.edu.co.services.SESService;
+import ufps.edu.co.services.core.crud.ListaadmitidosCoreService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,7 +43,7 @@ class ListaadmitidosProcessorTest {
     @Mock private PdfGeneratorService pdfGeneratorService;
 
     @InjectMocks
-    private ListaadmitidosProcessor processor;
+    private ListaadmitidosCoreService processor;
 
     // ─── generateAdmittedList: cohorte no encontrada ──────────────────────────
 

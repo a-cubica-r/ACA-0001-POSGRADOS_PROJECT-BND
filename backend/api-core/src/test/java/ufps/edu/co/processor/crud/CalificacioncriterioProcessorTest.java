@@ -16,6 +16,7 @@ import ufps.edu.co.rest.services.CalificacioncriterioService;
 import ufps.edu.co.rest.services.CriteriocohorteService;
 import ufps.edu.co.rest.services.EstadoService;
 import ufps.edu.co.services.SESService;
+import ufps.edu.co.services.core.crud.CalificacioncriterioCoreService;
 
 import java.math.BigDecimal;
 
@@ -39,7 +40,7 @@ class CalificacioncriterioProcessorTest {
     @Mock private SESService sesService;
 
     @InjectMocks
-    private CalificacioncriterioProcessor processor;
+    private CalificacioncriterioCoreService processor;
 
     // ─── Criterio no encontrado ───────────────────────────────────────────────
 

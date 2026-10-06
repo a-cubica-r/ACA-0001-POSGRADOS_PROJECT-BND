@@ -15,6 +15,8 @@ import ufps.edu.co.rest.dto.CohorteDTO;
 import ufps.edu.co.rest.dto.CriterioevaluacionDTO;
 import ufps.edu.co.rest.dto.CriteriocohorteDTO;
 import ufps.edu.co.rest.services.*;
+import ufps.edu.co.services.core.crud.CalificacioncriterioCoreService;
+import ufps.edu.co.services.core.crud.CriterioevaluacionCoreService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -37,13 +39,13 @@ class CriterioevaluacionProcessorTest {
     @Mock private CriterioevaluacionMap map;
     @Mock private CohorteService cohorteService;
     @Mock private CalificacioncriterioService calificacioncriterioService;
-    @Mock private CalificacioncriterioProcessor calificacioncriterioProcessor;
+    @Mock private CalificacioncriterioCoreService calificacioncriterioProcessor;
     @Mock private AspiranteService aspiranteService;
     @Mock private CriteriocohorteService criteriocohorteService;
     @Mock private EstadoService estadoService;
 
     @InjectMocks
-    private CriterioevaluacionProcessor processor;
+    private CriterioevaluacionCoreService processor;
 
     // ─── updateForPrograma: criterio no pertenece al programa ─────────────────
 
