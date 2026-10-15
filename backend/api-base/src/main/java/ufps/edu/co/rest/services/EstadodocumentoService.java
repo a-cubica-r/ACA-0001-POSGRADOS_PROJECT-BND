@@ -12,6 +12,7 @@ import ufps.edu.co.persistence.entities.EstadodocumentoEntity;
 import ufps.edu.co.persistence.repositories.EstadodocumentoRepository;
 import ufps.edu.co.rest.dto.EstadodocumentoDTO;
 import ufps.edu.co.rest.services.commons.GenericService;
+import ufps.edu.co.enums.EstadoDocumento;
 
 /**
  * REST service for entity "Estadodocumento" <br>
@@ -52,6 +53,11 @@ public class EstadodocumentoService extends GenericService<EstadodocumentoEntity
         return repository.findByEstado(estado)
                 .map(this::entityToDto)
                 .orElseThrow(() -> new RuntimeException("Estado de documento no encontrado: " + estado));
+    }
+
+    @Transactional(readOnly = true)
+    public EstadodocumentoDTO findByEstado(EstadoDocumento estado) {
+        return findByEstado(estado.getValor());
     }
 
     public EstadodocumentoDTO create(EstadodocumentoDTO dto) {

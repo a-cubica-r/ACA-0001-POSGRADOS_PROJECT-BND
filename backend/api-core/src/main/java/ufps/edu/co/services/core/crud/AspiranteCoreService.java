@@ -62,6 +62,12 @@ import ufps.edu.co.rest.services.PlazoService;
 import ufps.edu.co.rest.services.SemestreService;
 import ufps.edu.co.rest.services.TipoplazoService;
 import ufps.edu.co.usecase.GlobalUseCase;
+import ufps.edu.co.enums.EstadoCohorte;
+import ufps.edu.co.enums.EstadoAspirante;
+import ufps.edu.co.enums.EstadoDocumento;
+import ufps.edu.co.enums.EstadoSemestre;
+import ufps.edu.co.enums.EstadoPaso;
+import ufps.edu.co.enums.ValorCatalogo;
 
 @Service
 public class AspiranteCoreService implements
@@ -268,7 +274,7 @@ public class AspiranteCoreService implements
             throw new RuntimeException("Cohorte no encontrada: " + cohorteId);
         }
         boolean activa = cohorte.getEstado() != null
-                && "ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo());
+                && EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo());
         List<CriteriosCohorteOutput.CriterioInfo> criterios = criteriocohorteService
                 .findByIdCohorte(cohorteId).stream()
                 .map(cc -> {
@@ -294,7 +300,7 @@ public class AspiranteCoreService implements
     public List<CohorteListadoOutput> getCohortesByPrograma(Integer programaId) {
         return cohorteService.findByIdPrograma(programaId).stream().map(cohorte -> {
             boolean activa = cohorte.getEstado() != null
-                    && "ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo());
+                    && EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo());
             long inscritos = service.countByCohorte(cohorte.getId());
             long admitidos = admitidoService.countByCohorte(cohorte.getId());
             return CohorteListadoOutput.builder()
@@ -344,7 +350,7 @@ public class AspiranteCoreService implements
         try {
             return cohorteService.findResumenDataByIdPrograma(programaId).stream()
                     .filter(cohorte -> cohorte.getEstado() != null
-                            && "ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo()))
+                            && EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo()))
                     .map(cohorte -> {
                         Integer cohorteId = cohorte.getId();
                         String nombre = cohorte.getNombre();
@@ -401,7 +407,7 @@ public class AspiranteCoreService implements
             throw new DomainException(CohorteErrorCode.COHORTE_NOT_FOUND, cohorteId);
         }
         boolean activa = cohorte.getEstado() != null
-                && "ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo());
+                && EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo());
 
         List<CohorteDetalleOutput.CriterioInfo> criterios = criteriocohorteService
                 .findByIdCohorte(cohorteId).stream()
@@ -536,7 +542,7 @@ public class AspiranteCoreService implements
         try {
             return service.findByCohorte(cohorteId).stream()
                     .filter(a -> a.getEstado() != null
-                            && "PAZ Y SALVO".equalsIgnoreCase(a.getEstado().getTipo()))
+                            && EstadoAspirante.PAZ_Y_SALVO.matches(a.getEstado().getTipo()))
                     .map(map::toOutput)
                     .toList();
         } catch (Exception e) {
@@ -546,7 +552,7 @@ public class AspiranteCoreService implements
 
     public List<PasoProcesoOutput> getPasosProceso(Integer idAspirante) {
         String estadoTipo = service.findEstadoTipoById(idAspirante);
-        String estado = estadoTipo != null ? estadoTipo.toUpperCase() : "";
+        EstadoAspirante estado = ValorCatalogo.fromValor(EstadoAspirante.class, estadoTipo).orElse(null);
 
         /**
          * Lógica de asignación de estados a cada paso del proceso según el estado del
@@ -558,97 +564,97 @@ public class AspiranteCoreService implements
          * s5 = estado del paso 5 (Resultado)
          * s6 = estado del paso 6 (Legalización)
          */
-        String s1, s2, s3, s4, s5, s6;
+        EstadoPaso s1, s2, s3, s4, s5, s6;
         switch (estado) {
-            case "NO CONFIRMADO" -> {
-                s1 = "en progreso";
-                s2 = "pendiente";
-                s3 = "pendiente";
-                s4 = "pendiente";
-                s5 = "pendiente";
-                s6 = "pendiente";
+            case NO_CONFIRMADO -> {
+                s1 = EstadoPaso.EN_PROGRESO;
+                s2 = EstadoPaso.PENDIENTE;
+                s3 = EstadoPaso.PENDIENTE;
+                s4 = EstadoPaso.PENDIENTE;
+                s5 = EstadoPaso.PENDIENTE;
+                s6 = EstadoPaso.PENDIENTE;
             }
-            case "INSCRITO" -> {
-                s1 = "completado";
-                s2 = "en progreso";
-                s3 = "pendiente";
-                s4 = "pendiente";
-                s5 = "pendiente";
-                s6 = "pendiente";
+            case INSCRITO -> {
+                s1 = EstadoPaso.COMPLETADO;
+                s2 = EstadoPaso.EN_PROGRESO;
+                s3 = EstadoPaso.PENDIENTE;
+                s4 = EstadoPaso.PENDIENTE;
+                s5 = EstadoPaso.PENDIENTE;
+                s6 = EstadoPaso.PENDIENTE;
             }
-            case "PAZ Y SALVO" -> {
-                s1 = "completado";
-                s2 = "completado";
-                s3 = "en progreso";
-                s4 = "pendiente";
-                s5 = "pendiente";
-                s6 = "pendiente";
+            case PAZ_Y_SALVO -> {
+                s1 = EstadoPaso.COMPLETADO;
+                s2 = EstadoPaso.COMPLETADO;
+                s3 = EstadoPaso.EN_PROGRESO;
+                s4 = EstadoPaso.PENDIENTE;
+                s5 = EstadoPaso.PENDIENTE;
+                s6 = EstadoPaso.PENDIENTE;
             }
-            case "VALIDADO_POR_CALIFICAR" -> {
-                s1 = "completado";
-                s2 = "completado";
-                s3 = "completado";
-                s4 = "pendiente";
-                s5 = "pendiente";
-                s6 = "pendiente";
+            case VALIDADO_POR_CALIFICAR -> {
+                s1 = EstadoPaso.COMPLETADO;
+                s2 = EstadoPaso.COMPLETADO;
+                s3 = EstadoPaso.COMPLETADO;
+                s4 = EstadoPaso.PENDIENTE;
+                s5 = EstadoPaso.PENDIENTE;
+                s6 = EstadoPaso.PENDIENTE;
             }
-            case "VALIDADO_EN_PROGRESO" -> {
-                s1 = "completado";
-                s2 = "completado";
-                s3 = "completado";
-                s4 = "en progreso";
-                s5 = "pendiente";
-                s6 = "pendiente";
+            case VALIDADO_EN_PROGRESO -> {
+                s1 = EstadoPaso.COMPLETADO;
+                s2 = EstadoPaso.COMPLETADO;
+                s3 = EstadoPaso.COMPLETADO;
+                s4 = EstadoPaso.EN_PROGRESO;
+                s5 = EstadoPaso.PENDIENTE;
+                s6 = EstadoPaso.PENDIENTE;
             }
-            case "VALIDADO_CALIFICADO" -> {
-                s1 = "completado";
-                s2 = "completado";
-                s3 = "completado";
-                s4 = "completado";
-                s5 = "en progreso";
-                s6 = "pendiente";
+            case VALIDADO_CALIFICADO -> {
+                s1 = EstadoPaso.COMPLETADO;
+                s2 = EstadoPaso.COMPLETADO;
+                s3 = EstadoPaso.COMPLETADO;
+                s4 = EstadoPaso.COMPLETADO;
+                s5 = EstadoPaso.EN_PROGRESO;
+                s6 = EstadoPaso.PENDIENTE;
             }
-            case "ADMITIDO" -> {
-                s1 = "completado";
-                s2 = "completado";
-                s3 = "completado";
-                s4 = "completado";
-                s5 = "en progreso";
-                s6 = "pendiente";
+            case ADMITIDO -> {
+                s1 = EstadoPaso.COMPLETADO;
+                s2 = EstadoPaso.COMPLETADO;
+                s3 = EstadoPaso.COMPLETADO;
+                s4 = EstadoPaso.COMPLETADO;
+                s5 = EstadoPaso.EN_PROGRESO;
+                s6 = EstadoPaso.PENDIENTE;
             }
-            case "POR LEGALIZAR" -> {
-                s1 = "completado";
-                s2 = "completado";
-                s3 = "completado";
-                s4 = "completado";
-                s5 = "completado";
-                s6 = "en progreso";
+            case POR_LEGALIZAR -> {
+                s1 = EstadoPaso.COMPLETADO;
+                s2 = EstadoPaso.COMPLETADO;
+                s3 = EstadoPaso.COMPLETADO;
+                s4 = EstadoPaso.COMPLETADO;
+                s5 = EstadoPaso.COMPLETADO;
+                s6 = EstadoPaso.EN_PROGRESO;
             }
-            case "LEGALIZADO" -> {
-                s1 = "completado";
-                s2 = "completado";
-                s3 = "completado";
-                s4 = "completado";
-                s5 = "completado";
-                s6 = "completado";
+            case LEGALIZADO -> {
+                s1 = EstadoPaso.COMPLETADO;
+                s2 = EstadoPaso.COMPLETADO;
+                s3 = EstadoPaso.COMPLETADO;
+                s4 = EstadoPaso.COMPLETADO;
+                s5 = EstadoPaso.COMPLETADO;
+                s6 = EstadoPaso.COMPLETADO;
             }
-            default -> {
-                s1 = "completado";
-                s2 = "pendiente";
-                s3 = "pendiente";
-                s4 = "pendiente";
-                s5 = "pendiente";
-                s6 = "pendiente";
+            case null, default -> {
+                s1 = EstadoPaso.COMPLETADO;
+                s2 = EstadoPaso.PENDIENTE;
+                s3 = EstadoPaso.PENDIENTE;
+                s4 = EstadoPaso.PENDIENTE;
+                s5 = EstadoPaso.PENDIENTE;
+                s6 = EstadoPaso.PENDIENTE;
             }
         }
 
         return List.of(
-                PasoProcesoOutput.builder().id(1).name("Inscripción").status(s1).build(),
-                PasoProcesoOutput.builder().id(2).name("Pago").status(s2).build(),
-                PasoProcesoOutput.builder().id(3).name("Documentos").status(s3).build(),
-                PasoProcesoOutput.builder().id(4).name("Calificación").status(s4).build(),
-                PasoProcesoOutput.builder().id(5).name("Resultado").status(s5).build(),
-                PasoProcesoOutput.builder().id(6).name("Legalización").status(s6).build());
+                PasoProcesoOutput.builder().id(1).name("Inscripción").status(s1.getValor()).build(),
+                PasoProcesoOutput.builder().id(2).name("Pago").status(s2.getValor()).build(),
+                PasoProcesoOutput.builder().id(3).name("Documentos").status(s3.getValor()).build(),
+                PasoProcesoOutput.builder().id(4).name("Calificación").status(s4.getValor()).build(),
+                PasoProcesoOutput.builder().id(5).name("Resultado").status(s5.getValor()).build(),
+                PasoProcesoOutput.builder().id(6).name("Legalización").status(s6.getValor()).build());
     }
 
     public List<AspiranteCalificacionOutput> findAllValidadosCalificacion(Integer cohorteId) {
@@ -711,7 +717,7 @@ public class AspiranteCoreService implements
 
         SemestreDTO semestre = resolverSemestreHabilitado(body.idSemestre(), fechaInicio);
 
-        EstadoDTO estadoCohorte = estadoService.findByTipoAndEntidad("CERRADA", "cohorte");
+        EstadoDTO estadoCohorte = estadoService.findByTipoAndEntidad(EstadoCohorte.CERRADA);
         if (estadoCohorte == null) {
             throw new RuntimeException("No hay estado CERRADA configurado para cohorte");
         }
@@ -785,7 +791,7 @@ public class AspiranteCoreService implements
         }
 
         String tipoEstado = semestre.getEstado() != null ? semestre.getEstado().getTipo() : null;
-        boolean estadoPermitido = "EN CURSO".equalsIgnoreCase(tipoEstado) || "PROGRAMADO".equalsIgnoreCase(tipoEstado);
+        boolean estadoPermitido = EstadoSemestre.EN_CURSO.matches(tipoEstado) || EstadoSemestre.PROGRAMADO.matches(tipoEstado);
         if (!estadoPermitido) {
             throw new DomainException(CohorteErrorCode.COHORTE_SEMESTRE_NO_VALIDO_CONFLICT,
                     idSemestre + " / " + tipoEstado);
@@ -817,7 +823,7 @@ public class AspiranteCoreService implements
             LocalDate plazoInsFin = row.getPlazo2() != null ? row.getPlazo2().getFechafin() : null;
             LocalDate plazoPagoFin = row.getPlazo3() != null ? row.getPlazo3().getFechafin() : null;
 
-            boolean activa = "ABIERTA".equalsIgnoreCase(estadoTipo);
+            boolean activa = EstadoCohorte.ABIERTA.matches(estadoTipo);
             int cupos = cuposRaw != null ? cuposRaw : 0;
             long inscritos = service.countByCohorte(id);
             long pazYSalvo = service.countPazYSalvoByCohorte(id);
@@ -859,7 +865,7 @@ public class AspiranteCoreService implements
             long total = docs.size();
             long validados = docs.stream()
                     .filter(d -> d.getEstadodocumento() != null
-                            && "APROBADO".equalsIgnoreCase(d.getEstadodocumento().getEstado()))
+                            && EstadoDocumento.APROBADO.matches(d.getEstadodocumento().getEstado()))
                     .count();
 
             return AspiranteCohorteOutput.builder()
@@ -890,7 +896,7 @@ public class AspiranteCoreService implements
             long total = docs.size();
             long validados = docs.stream()
                     .filter(d -> d.getEstadodocumento() != null
-                            && "APROBADO".equalsIgnoreCase(d.getEstadodocumento().getEstado()))
+                            && EstadoDocumento.APROBADO.matches(d.getEstadodocumento().getEstado()))
                     .count();
 
             return AspiranteCohorteOutput.builder()
@@ -911,7 +917,7 @@ public class AspiranteCoreService implements
             throw new RuntimeException("Cohorte no encontrada: " + cohorteId);
         }
         boolean activa = cohorte.getEstado() != null
-                && "ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo());
+                && EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo());
 
         var admitidosList = admitidoService.findByCohorte(cohorte.getId());
         @SuppressWarnings("unused") Set<Integer> admitidosIds = admitidosList.stream()
@@ -924,11 +930,11 @@ public class AspiranteCoreService implements
         List<RankingAdmitidosOutput.AspiranteResumen> aspirantesResumen = service.findByCohorte(cohorte.getId())
                 .stream()
                 .filter(a -> a.getEstado() != null
-                        && ("VALIDADO_CALIFICADO".equalsIgnoreCase(a.getEstado().getTipo())
-                                || "CANCELADO".equalsIgnoreCase(a.getEstado().getTipo())
-                                || "POR LEGALIZAR".equalsIgnoreCase(a.getEstado().getTipo())
-                                || "LEGALIZADO".equalsIgnoreCase(a.getEstado().getTipo())
-                                || "ADMITIDO".equalsIgnoreCase(a.getEstado().getTipo())))
+                        && (EstadoAspirante.VALIDADO_CALIFICADO.matches(a.getEstado().getTipo())
+                                || EstadoAspirante.CANCELADO.matches(a.getEstado().getTipo())
+                                || EstadoAspirante.POR_LEGALIZAR.matches(a.getEstado().getTipo())
+                                || EstadoAspirante.LEGALIZADO.matches(a.getEstado().getTipo())
+                                || EstadoAspirante.ADMITIDO.matches(a.getEstado().getTipo())))
                 .sorted(Comparator.comparing(AspiranteDTO::getPuntuacion,
                         Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(a -> {
@@ -943,9 +949,9 @@ public class AspiranteCoreService implements
                             .correo(persona != null ? persona.getCorreo() : null)
                             .puntaje(a.getPuntuacion())
                             .admitido(
-                                ("ADMITIDO".equalsIgnoreCase(a.getEstado().getTipo()))
-                                || ("POR LEGALIZAR".equalsIgnoreCase(a.getEstado().getTipo()))
-                                || ("LEGALIZADO".equalsIgnoreCase(a.getEstado().getTipo()))
+                                (EstadoAspirante.ADMITIDO.matches(a.getEstado().getTipo()))
+                                || (EstadoAspirante.POR_LEGALIZAR.matches(a.getEstado().getTipo()))
+                                || (EstadoAspirante.LEGALIZADO.matches(a.getEstado().getTipo()))
                             )
                             .build();
                 })
@@ -964,26 +970,26 @@ public class AspiranteCoreService implements
     }
 
     public CohorteListadoOutput abrirCohorte(Integer cohorteId) {
-        return cambiarEstadoCohorte(cohorteId, "ABIERTA");
+        return cambiarEstadoCohorte(cohorteId, EstadoCohorte.ABIERTA);
     }
 
     public CohorteListadoOutput cerrarCohorte(Integer cohorteId) {
-        return cambiarEstadoCohorte(cohorteId, "CERRADA");
+        return cambiarEstadoCohorte(cohorteId, EstadoCohorte.CERRADA);
     }
 
-    private CohorteListadoOutput cambiarEstadoCohorte(Integer cohorteId, String nuevoEstado) {
+    private CohorteListadoOutput cambiarEstadoCohorte(Integer cohorteId, EstadoCohorte nuevoEstado) {
         CohorteDTO cohorte = cohorteService.findById(cohorteId);
         if (cohorte == null) {
             throw new RuntimeException("Cohorte no encontrada: " + cohorteId);
         }
-        EstadoDTO estado = estadoService.findByTipoAndEntidad(nuevoEstado, "cohorte");
+        EstadoDTO estado = estadoService.findByTipoAndEntidad(nuevoEstado);
         if (estado == null) {
-            throw new RuntimeException("Estado '" + nuevoEstado + "' no configurado para cohorte");
+            throw new RuntimeException("Estado '" + nuevoEstado.getValor() + "' no configurado para cohorte");
         }
         cohorte.setIdEstado(estado.getId());
         cohorteService.update(cohorteId, cohorte);
 
-        boolean activa = "ABIERTA".equalsIgnoreCase(nuevoEstado);
+        boolean activa = nuevoEstado == EstadoCohorte.ABIERTA;
         return CohorteListadoOutput.builder()
                 .id(cohorteId)
                 .nombre(cohorte.getNombre())
@@ -1265,7 +1271,7 @@ public class AspiranteCoreService implements
                     });
         }
 
-        boolean activa = cohorte.getEstado() != null && "ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo());
+        boolean activa = cohorte.getEstado() != null && EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo());
 
         return CohorteListadoOutput.builder()
                 .id(targetCohorteId)

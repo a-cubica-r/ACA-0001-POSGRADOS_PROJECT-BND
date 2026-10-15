@@ -23,6 +23,11 @@ import ufps.edu.co.rest.dto.*;
 import ufps.edu.co.rest.services.*;
 import ufps.edu.co.services.*;
 import ufps.edu.co.utils.*;
+import ufps.edu.co.enums.EstadoAspirante;
+import ufps.edu.co.enums.EstadoPagoInscripcion;
+import ufps.edu.co.enums.EstadoPagoMatricula;
+import ufps.edu.co.enums.ActorCancelacion;
+import ufps.edu.co.enums.EstadoDocumento;
 
 @RestController
 @RequestMapping(value = "/aspirantes", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -249,11 +254,8 @@ public class AspiranteCase {
                 var upload = s3Service.uploadFile(file);
                 recibo.setUrlfactura(upload.enlaceurl());
 
-                if ("RECHAZADO".equalsIgnoreCase(tipoEstado)) {
-                    EstadoDTO estadoEnCurso = estadoService.findByTipoAndEntidad("EN CURSO", "pagoinscripcion");
-                    if (estadoEnCurso == null) {
-                        estadoEnCurso = estadoService.findByTipoAndEntidad("EN CURSO", "PAGOINSCRIPCION");
-                    }
+                if (EstadoPagoInscripcion.RECHAZADO.matches(tipoEstado)) {
+                    EstadoDTO estadoEnCurso = estadoService.findByTipoAndEntidad(EstadoPagoInscripcion.EN_CURSO);
                     if (estadoEnCurso != null) {
                         recibo.setIdEstado(estadoEnCurso.getId());
                     }
@@ -294,11 +296,8 @@ public class AspiranteCase {
             var upload = s3Service.uploadFile(file);
             recibo.setUrlfactura(upload.enlaceurl());
 
-            if ("RECHAZADO".equalsIgnoreCase(tipoEstado)) {
-                EstadoDTO estadoEnCurso = estadoService.findByTipoAndEntidad("EN CURSO", "pagomatricula");
-                if (estadoEnCurso == null) {
-                    estadoEnCurso = estadoService.findByTipoAndEntidad("EN CURSO", "PAGOMATRICULA");
-                }
+            if (EstadoPagoMatricula.RECHAZADO.matches(tipoEstado)) {
+                EstadoDTO estadoEnCurso = estadoService.findByTipoAndEntidad(EstadoPagoMatricula.EN_CURSO);
                 if (estadoEnCurso != null) {
                     recibo.setIdEstado(estadoEnCurso.getId());
                 }
@@ -329,7 +328,7 @@ public class AspiranteCase {
             Integer idDocumentosrequisitoconsejocohorte,
             Integer idDocumentosrequisitoprogramacohorte,
             S3Service.UploadResult upload) {
-        Integer idEstadoPendiente = estadodocumentoService.findByEstado("PENDIENTE").getId();
+        Integer idEstadoPendiente = estadodocumentoService.findByEstado(EstadoDocumento.PENDIENTE).getId();
         return DocumentoDTO.builder()
                 .enlaceurl(upload.enlaceurl())
                 .keyfile(upload.keyfile())
@@ -384,7 +383,8 @@ public class AspiranteCase {
     public ResponseEntity<EntrevistaSimpleOutput> cancelarEntrevista(
             @PathVariable Integer idEntrevista,
             @RequestBody ENTREVISTA_CANCELAR_REQUEST body) {
-        EntrevistaOutput o = entrevistaProcessor.cancelInterview(idEntrevista, body.motivocambio(), "ASPIRANTE");
+        EntrevistaOutput o = entrevistaProcessor.cancelInterview(idEntrevista, body.motivocambio(),
+                ActorCancelacion.ASPIRANTE.getValor());
         return ResponseEntity.ok(EntrevistaSimpleOutput.builder()
                 .idEntrevista(o.id())
                 .idAspirante(o.idAspirante())
@@ -424,7 +424,8 @@ public class AspiranteCase {
     public ResponseEntity<PruebaSimpleOutput> cancelarPrueba(
             @PathVariable Integer idPrueba,
             @RequestBody PRUEBA_CANCELAR_REQUEST body) {
-        return ResponseEntity.ok(pruebaProcessor.cancelarPrueba(idPrueba, body.motivocambio(), "ASPIRANTE"));
+        return ResponseEntity.ok(pruebaProcessor.cancelarPrueba(idPrueba, body.motivocambio(),
+                ActorCancelacion.ASPIRANTE.getValor()));
     }
 
     @PatchMapping("/{idAspirante}/confirmar-correo")
@@ -434,10 +435,10 @@ public class AspiranteCase {
             throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
         }
         String estadoActual = aspirante.getEstado() != null ? aspirante.getEstado().getTipo() : null;
-        if (!"NO CONFIRMADO".equalsIgnoreCase(estadoActual)) {
+        if (!EstadoAspirante.NO_CONFIRMADO.matches(estadoActual)) {
             throw new DomainException(AspiranteErrorCode.ESTADO_TRANSICION_INVALIDA_CONFLICT, estadoActual);
         }
-        EstadoDTO estadoNuevo = estadoService.findByTipoAndEntidad("INSCRITO", "aspirante");
+        EstadoDTO estadoNuevo = estadoService.findByTipoAndEntidad(EstadoAspirante.INSCRITO);
         if (estadoNuevo == null) {
             throw new RuntimeException("Estado 'INSCRITO' para aspirante no encontrado en la base de datos");
         }
@@ -452,7 +453,7 @@ public class AspiranteCase {
             throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
         }
         String estadoActual = aspirante.getEstado() != null ? aspirante.getEstado().getTipo() : null;
-        if (!"NO CONFIRMADO".equalsIgnoreCase(estadoActual)) {
+        if (!EstadoAspirante.NO_CONFIRMADO.matches(estadoActual)) {
             throw new DomainException(AspiranteErrorCode.ESTADO_TRANSICION_INVALIDA_CONFLICT, estadoActual);
         }
         String token = confirmationTokenService.generateToken(idAspirante);
@@ -513,12 +514,12 @@ public class AspiranteCase {
                     .body(java.util.Map.of("error", "Aspirante no encontrado"));
         }
         String estadoActual = aspirante.getEstado() != null ? aspirante.getEstado().getTipo() : null;
-        if (!"NO CONFIRMADO".equalsIgnoreCase(estadoActual)) {
+        if (!EstadoAspirante.NO_CONFIRMADO.matches(estadoActual)) {
             return ResponseEntity.badRequest()
                     .body(java.util.Map.of("error",
                             "El correo ya fue confirmado o el aspirante no está en estado NO CONFIRMADO"));
         }
-        EstadoDTO estadoNuevo = estadoService.findByTipoAndEntidad("INSCRITO", "aspirante");
+        EstadoDTO estadoNuevo = estadoService.findByTipoAndEntidad(EstadoAspirante.INSCRITO);
         if (estadoNuevo == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(java.util.Map.of("error", "Estado 'INSCRITO' no configurado en la base de datos"));

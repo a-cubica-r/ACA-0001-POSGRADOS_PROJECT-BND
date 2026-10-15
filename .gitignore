@@ -40,3 +40,4 @@ TelosysTools/
 
 # Any SQL files (e.g., database dumps, migration scripts) that should not be committed
 .sql/
+.mcp.json

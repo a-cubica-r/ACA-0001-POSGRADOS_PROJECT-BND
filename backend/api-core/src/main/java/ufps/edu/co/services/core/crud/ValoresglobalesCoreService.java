@@ -18,6 +18,8 @@ import ufps.edu.co.domain.exceptions.errorcodes.VariablesglobalesErrorCode;
 import ufps.edu.co.maps.specific.ValoresglobalesMap;
 import ufps.edu.co.rest.dto.ValoresglobalesDTO;
 import ufps.edu.co.rest.services.ValoresglobalesService;
+import ufps.edu.co.enums.PrefijoValorGlobal;
+import ufps.edu.co.enums.UnidadValorGlobal;
 
 @Service
 public class ValoresglobalesCoreService {
@@ -29,6 +31,14 @@ public class ValoresglobalesCoreService {
 
     @Autowired
     private ValoresglobalesMap valoresglobalesMap;
+
+    public ValoresglobalesDTO findCurrentByPrefix(PrefijoValorGlobal prefix) {
+        return findCurrentByPrefix(prefix.getValor());
+    }
+
+    public List<ValoresglobalesDTO> findAllByPrefix(PrefijoValorGlobal prefix) {
+        return findAllByPrefix(prefix.getValor());
+    }
 
     public ValoresglobalesDTO findCurrentByPrefix(String prefix) {
         String normalizedPrefix = normalizePrefix(prefix);
@@ -53,7 +63,7 @@ public class ValoresglobalesCoreService {
     }
 
     public Long getCurrentSalaryMinimumPesos() {
-        ValoresglobalesDTO dto = findCurrentByPrefix("SALARIO_MINIMO");
+        ValoresglobalesDTO dto = findCurrentByPrefix(PrefijoValorGlobal.SALARIO_MINIMO);
         Long salarioMinimo = valoresglobalesMap.parsePesos(dto.getValor());
         if (salarioMinimo == null) {
             throw new DomainException(PagoErrorCode.VALOR_GLOBAL_FORMATO_INVALIDO, dto.getClave());
@@ -62,7 +72,7 @@ public class ValoresglobalesCoreService {
     }
 
     public BigDecimal getCurrentValorInscripcionMultiplier() {
-        ValoresglobalesDTO dto = findCurrentByPrefix("VALOR_INSCRIPCION");
+        ValoresglobalesDTO dto = findCurrentByPrefix(PrefijoValorGlobal.VALOR_INSCRIPCION);
         BigDecimal multiplier = valoresglobalesMap.parseSmmlvMultiplier(dto.getValor());
         if (multiplier == null) {
             throw new DomainException(PagoErrorCode.VALOR_GLOBAL_FORMATO_INVALIDO, dto.getClave());
@@ -129,22 +139,24 @@ public class ValoresglobalesCoreService {
 
     private List<String> resolvePrefixAliases(String prefix) {
         String normalizedPrefix = normalizePrefix(prefix);
-        if ("TAMANO_MAXIMO".equals(normalizedPrefix) || "TAMANO_MAXIMO_ARCHIVOS".equals(normalizedPrefix)) {
-            return List.of("TAMANO_MAXIMO", "TAMANO_MAXIMO_ARCHIVOS");
+        if (PrefijoValorGlobal.aliasesTamanoMaximo().contains(normalizedPrefix)) {
+            return PrefijoValorGlobal.aliasesTamanoMaximo();
         }
         return List.of(normalizedPrefix);
     }
 
     public ValoresglobalesDTO createTamanoMaximoArchivos(ValoresglobalesDTO dto) {
-        return createForPrefix("TAMANO_MAXIMO_ARCHIVOS", dto, "MB");
+        return createForPrefix(PrefijoValorGlobal.TAMANO_MAXIMO_ARCHIVOS.getValor(), dto,
+                UnidadValorGlobal.MB.getValor());
     }
 
     public ValoresglobalesDTO createSalarioMinimo(ValoresglobalesDTO dto) {
-        return createForPrefix("SALARIO_MINIMO", dto);
+        return createForPrefix(PrefijoValorGlobal.SALARIO_MINIMO.getValor(), dto);
     }
 
     public ValoresglobalesDTO createValorInscripcion(ValoresglobalesDTO dto) {
-        return createForPrefix("VALOR_INSCRIPCION", dto, "SMMLV");
+        return createForPrefix(PrefijoValorGlobal.VALOR_INSCRIPCION.getValor(), dto,
+                UnidadValorGlobal.SMMLV.getValor());
     }
 
     private ValoresglobalesDTO createForPrefix(String prefix, ValoresglobalesDTO dto) {
@@ -200,12 +212,12 @@ public class ValoresglobalesCoreService {
             return trimmedValue;
         }
 
-        if (upperSuffix.equals("MB") && upperValue.matches("\\d+(\\.\\d+)?")) {
-            return trimmedValue + "MB";
+        if (upperSuffix.equals(UnidadValorGlobal.MB.getValor()) && upperValue.matches("\\d+(\\.\\d+)?")) {
+            return trimmedValue + UnidadValorGlobal.MB.getValor();
         }
 
-        if (upperSuffix.equals("SMMLV") && upperValue.matches("\\d+(\\.\\d+)?")) {
-            return trimmedValue + "SMMLV";
+        if (upperSuffix.equals(UnidadValorGlobal.SMMLV.getValor()) && upperValue.matches("\\d+(\\.\\d+)?")) {
+            return trimmedValue + UnidadValorGlobal.SMMLV.getValor();
         }
 
         return trimmedValue;

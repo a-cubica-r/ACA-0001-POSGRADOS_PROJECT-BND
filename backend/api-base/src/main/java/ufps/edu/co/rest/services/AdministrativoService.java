@@ -19,6 +19,7 @@ import ufps.edu.co.rest.dto.DocumentoDTO;
 import ufps.edu.co.rest.dto.EstadoDTO;
 import ufps.edu.co.rest.dto.PersonaDTO;
 import ufps.edu.co.rest.services.commons.GenericService;
+import ufps.edu.co.enums.EstadoAdministrativo;
 
 /**
  * REST service for entity "Administrativo" <br>
@@ -161,8 +162,8 @@ public class AdministrativoService extends GenericService<AdministrativoEntity, 
     }
 
     public AdministrativoDTO createDirectorPrograma(Integer idPersona, Integer idCargo) {
-        EstadoDTO estadoActivo = requireEstado("ACTIVO", "administrativo");
-        EstadoDTO estadoInactivo = requireEstado("INACTIVO", "administrativo");
+        EstadoDTO estadoActivo = requireEstado(EstadoAdministrativo.ACTIVO);
+        EstadoDTO estadoInactivo = requireEstado(EstadoAdministrativo.INACTIVO);
         LocalDate fechaActual = LocalDate.now();
 
         deactivateExistingAdministrativos(idPersona, idCargo, estadoInactivo.getId(), fechaActual);
@@ -194,10 +195,11 @@ public class AdministrativoService extends GenericService<AdministrativoEntity, 
                 }));
     }
 
-    private EstadoDTO requireEstado(String tipo, String entidad) {
-        EstadoDTO estado = estadoService.findByTipoAndEntidad(tipo, entidad);
+    private EstadoDTO requireEstado(EstadoAdministrativo tipo) {
+        EstadoDTO estado = estadoService.findByTipoAndEntidad(tipo);
         return Optional.ofNullable(estado)
-                .orElseThrow(() -> new RuntimeException("Estado no encontrado: " + tipo + " / " + entidad));
+                .orElseThrow(() -> new RuntimeException(
+                        "Estado no encontrado: " + tipo.getValor() + " / " + tipo.getEntidad().getValor()));
     }
 
     @Transactional(readOnly = true)

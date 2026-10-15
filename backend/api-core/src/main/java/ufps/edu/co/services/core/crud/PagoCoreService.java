@@ -47,6 +47,12 @@ import ufps.edu.co.services.core.events.AspiranteLegalizadoEvent;
 import ufps.edu.co.wompi.WompiGateway;
 import ufps.edu.co.wompi.config.WompiProperties;
 import ufps.edu.co.wompi.model.*;
+import ufps.edu.co.enums.EstadoAspirante;
+import ufps.edu.co.enums.EstadoPagoInscripcion;
+import ufps.edu.co.enums.EstadoPagoMatricula;
+import ufps.edu.co.enums.ConceptoPago;
+import ufps.edu.co.enums.EstadoPago;
+import ufps.edu.co.enums.EstadoAprobacionWompi;
 
 @Service
 @Transactional
@@ -124,7 +130,7 @@ public class PagoCoreService {
                 BigDecimal valor = null;
                 String tipo = dto.pagoconceptoTipo();
                 String tipoNorm = tipo != null ? tipo.trim().toUpperCase(Locale.ROOT) : null;
-                if ("INSCRIPCION".equals(tipoNorm)) {
+                if (ConceptoPago.INSCRIPCION.getValor().equals(tipoNorm)) {
                 PagoreciboinscripcionDTO recibo = recibosInscripcion.stream()
                     .filter(r -> Objects.equals(r.getIdPago(), dto.id()))
                     .filter(r -> !isReciboInscripcionVencido(r))
@@ -135,7 +141,7 @@ public class PagoCoreService {
                 } else {
                     valor = valorInscripcion;
                 }
-                } else if ("MATRICULA".equals(tipoNorm)) {
+                } else if (ConceptoPago.MATRICULA.getValor().equals(tipoNorm)) {
                 PagorecibomatriculaDTO recibo = recibosMatricula.stream()
                     .filter(r -> Objects.equals(r.getIdPago(), dto.id()))
                     .filter(r -> !isReciboMatriculaVencido(r))
@@ -173,7 +179,7 @@ public class PagoCoreService {
             throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, idAspirante);
         }
 
-        EstadoDTO estadoPendiente = resolveEstadoPago("PENDIENTE");
+        EstadoDTO estadoPendiente = resolveEstadoPago(EstadoPago.PENDIENTE);
         Map<String, PagoconceptoDTO> conceptos = pagoconceptoService.findAll().stream()
                 .filter(concepto -> concepto.getTipo() != null)
                 .collect(Collectors.toMap(concepto -> concepto.getTipo().toUpperCase(Locale.ROOT), concepto -> concepto,
@@ -184,20 +190,22 @@ public class PagoCoreService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        crearPagoPendienteSiFalta(idAspirante, estadoPendiente, conceptosExistentes, conceptos.get("INSCRIPCION"));
-        crearPagoPendienteSiFalta(idAspirante, estadoPendiente, conceptosExistentes, conceptos.get("MATRICULA"));
+        crearPagoPendienteSiFalta(idAspirante, estadoPendiente, conceptosExistentes,
+                conceptos.get(ConceptoPago.INSCRIPCION.getValor()));
+        crearPagoPendienteSiFalta(idAspirante, estadoPendiente, conceptosExistentes,
+                conceptos.get(ConceptoPago.MATRICULA.getValor()));
     }
 
     @SuppressWarnings("null")
     public WompiCheckoutResponse iniciarCheckoutInscripcion(Integer idAspirante, Integer authenticatedUserId,
             boolean validarTitular) {
-        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, "INSCRIPCION");
+        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, ConceptoPago.INSCRIPCION);
         validarPagoPerteneceAspirante(pago, idAspirante);
 
         AspiranteCheckoutDTO aspirante = aspiranteService.findCheckoutById(idAspirante);
         validarAspiranteAutenticado(aspirante, authenticatedUserId, validarTitular);
 
-        EstadoDTO estadoRealizado = resolveEstadoPagoOpcional("REALIZADO");
+        EstadoDTO estadoRealizado = resolveEstadoPagoOpcional(EstadoPago.REALIZADO);
         if (estadoRealizado != null && Objects.equals(pago.idEstado(), estadoRealizado.getId())) {
             throw new DomainException(PagoErrorCode.PAGO_YA_REALIZADO_CONFLICT, pago.id());
         }
@@ -233,7 +241,7 @@ public class PagoCoreService {
                 .paymentId(pago.id())
                 .aspiranteId(idAspirante)
                 .pagoconceptoId(pago.idPagoconcepto())
-                .concepto("INSCRIPCION")
+                .concepto(ConceptoPago.INSCRIPCION.getValor())
                 .reference(referencia)
                 .amount(monto)
                 .amountInCents(montoEnCents)
@@ -255,7 +263,7 @@ public class PagoCoreService {
                 .metadata(Map.of(
                         "paymentId", String.valueOf(pago.id()),
                         "aspiranteId", String.valueOf(idAspirante),
-                        "concepto", "INSCRIPCION"))
+                        "concepto", ConceptoPago.INSCRIPCION.getValor()))
                 .build();
 
         WompiCheckoutResponse checkoutResponse = wompiGateway.createCheckout(request);
@@ -324,7 +332,7 @@ public class PagoCoreService {
     @SuppressWarnings("null")
     public WompiCheckoutResponse iniciarCheckoutMatricula(Integer idAspirante, Integer authenticatedUserId,
             BigDecimal montoElegido, boolean validarTitular) {
-        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, "MATRICULA");
+        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, ConceptoPago.MATRICULA);
         validarPagoPerteneceAspirante(pago, idAspirante);
 
         AspiranteCheckoutDTO aspirante = aspiranteService.findCheckoutById(idAspirante);
@@ -349,7 +357,7 @@ public class PagoCoreService {
         long montoEnCents = calcularCentavosDesdePesos(monto);
         String signatureIntegrity = generarSignatureIntegrity(referencia, montoEnCents, currency);
         WompiReceiptData receiptData = construirReceiptData(pago, aspirante, referencia, monto, montoEnCents, currency,
-                "MATRICULA");
+                ConceptoPago.MATRICULA.getValor());
 
         PagorecibomatriculaDTO pagoreciboShallow = construirPagoreciboMatriculaShallow(pagorecibomatricula,
                 pago.id());
@@ -358,7 +366,7 @@ public class PagoCoreService {
                 .paymentId(pago.id())
                 .aspiranteId(idAspirante)
                 .pagoconceptoId(pago.idPagoconcepto())
-                .concepto("MATRICULA")
+                .concepto(ConceptoPago.MATRICULA.getValor())
                 .reference(referencia)
                 .amount(monto)
                 .amountInCents(montoEnCents)
@@ -379,7 +387,7 @@ public class PagoCoreService {
                 .metadata(Map.of(
                         "paymentId", String.valueOf(pago.id()),
                         "aspiranteId", String.valueOf(idAspirante),
-                        "concepto", "MATRICULA"))
+                        "concepto", ConceptoPago.MATRICULA.getValor()))
                 .build();
 
         WompiCheckoutResponse checkoutResponse = wompiGateway.createCheckout(request);
@@ -444,7 +452,7 @@ public class PagoCoreService {
 
     public WompiReceiptData prepararReciboInscripcion(Integer idAspirante, Integer authenticatedUserId,
             boolean validarTitular) {
-        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, "INSCRIPCION");
+        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, ConceptoPago.INSCRIPCION);
         validarPagoPerteneceAspirante(pago, idAspirante);
 
         AspiranteCheckoutDTO aspirante = aspiranteService.findCheckoutById(idAspirante);
@@ -473,12 +481,12 @@ public class PagoCoreService {
 
         long montoEnCents = calcularCentavosDesdePesos(monto);
         return construirReceiptData(pago, aspirante, referencia, monto, montoEnCents, resolverCurrency(),
-                "INSCRIPCION");
+                ConceptoPago.INSCRIPCION.getValor());
     }
 
     public WompiReceiptData prepararReciboMatricula(Integer idAspirante, Integer authenticatedUserId,
             BigDecimal montoElegido, boolean validarTitular) {
-        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, "MATRICULA");
+        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, ConceptoPago.MATRICULA);
         validarPagoPerteneceAspirante(pago, idAspirante);
 
         AspiranteCheckoutDTO aspirante = aspiranteService.findCheckoutById(idAspirante);
@@ -504,7 +512,7 @@ public class PagoCoreService {
 
         long montoEnCents = calcularCentavosDesdePesos(monto);
         return construirReceiptData(pago, aspirante, referencia, monto, montoEnCents, resolverCurrency(),
-                "MATRICULA");
+                ConceptoPago.MATRICULA.getValor());
     }
 
     @Transactional(readOnly = true)
@@ -517,7 +525,7 @@ public class PagoCoreService {
 
         validarAspiranteAutenticado(data.idPersona(), authenticatedUserId, validarTitular);
 
-        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, "INSCRIPCION");
+        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, ConceptoPago.INSCRIPCION);
         validarPagoPerteneceAspirante(pago, idAspirante);
 
         PagoreciboinscripcionDTO pagoreciboinscripcion = pagoreciboinscripcionService
@@ -583,7 +591,7 @@ public class PagoCoreService {
 
         validarAspiranteAutenticado(data.idPersona(), authenticatedUserId, validarTitular);
 
-        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, "MATRICULA");
+        PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, ConceptoPago.MATRICULA);
         validarPagoPerteneceAspirante(pago, idAspirante);
 
         PagorecibomatriculaDTO recibo = pagorecibomatriculaService.findCurrentByIdAspirante(idAspirante);
@@ -688,7 +696,7 @@ public class PagoCoreService {
             return pagoMap.toOutput(pago);
         }
 
-        EstadoDTO estadoRealizado = resolveEstadoPago("REALIZADO");
+        EstadoDTO estadoRealizado = resolveEstadoPago(EstadoPago.REALIZADO);
         log.info("Webhook aprobado. Actualizando estados para pago id={}", pago.getId());
         actualizarEstadosPagoYRecibo(pago, estadoRealizado);
         PagoDTO updated = pagoService.findById(pago.getId());
@@ -779,12 +787,12 @@ public class PagoCoreService {
             throw new DomainException(PagoErrorCode.PAGO_CONCEPTO_NOT_FOUND, pago.getIdPagoconcepto());
         }
 
-        if ("INSCRIPCION".equalsIgnoreCase(tipoConcepto)) {
+        if (ConceptoPago.INSCRIPCION.matches(tipoConcepto)) {
             actualizarReciboInscripcionYPago(pago, estadoRealizado);
             return;
         }
 
-        if ("MATRICULA".equalsIgnoreCase(tipoConcepto)) {
+        if (ConceptoPago.MATRICULA.matches(tipoConcepto)) {
             actualizarReciboMatriculaYPago(pago, estadoRealizado);
             return;
         }
@@ -858,40 +866,28 @@ public class PagoCoreService {
     }
 
     private EstadoDTO resolveEstadoReciboCompletado() {
-        EstadoDTO estado = estadoService.findByTipoAndEntidad("COMPLETADO", "pagoinscripcion");
+        EstadoDTO estado = estadoService.findByTipoAndEntidad(EstadoPagoInscripcion.COMPLETADO);
         if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "PAGOINSCRIPCION");
+            estado = estadoService.findByTipoAndEntidad(EstadoPagoMatricula.COMPLETADO);
         }
         if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "pagomatricula");
-        }
-        if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad("COMPLETADO", "PAGOMATRICULA");
-        }
-        if (estado == null) {
-            throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, "COMPLETADO");
+            throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, EstadoPagoInscripcion.COMPLETADO.getValor());
         }
         return estado;
     }
 
     private EstadoDTO resolveEstadoAspirantePazYSalvo() {
-        EstadoDTO estado = estadoService.findByTipoAndEntidad("PAZ Y SALVO", "aspirante");
+        EstadoDTO estado = estadoService.findByTipoAndEntidad(EstadoAspirante.PAZ_Y_SALVO);
         if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad("PAZ Y SALVO", "ASPIRANTE");
-        }
-        if (estado == null) {
-            throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, "PAZ Y SALVO");
+            throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, EstadoAspirante.PAZ_Y_SALVO.getValor());
         }
         return estado;
     }
 
     private EstadoDTO resolveEstadoAspiranteLegalizado() {
-        EstadoDTO estado = estadoService.findByTipoAndEntidad("LEGALIZADO", "aspirante");
+        EstadoDTO estado = estadoService.findByTipoAndEntidad(EstadoAspirante.LEGALIZADO);
         if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad("LEGALIZADO", "ASPIRANTE");
-        }
-        if (estado == null) {
-            throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, "LEGALIZADO");
+            throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, EstadoAspirante.LEGALIZADO.getValor());
         }
         return estado;
     }
@@ -908,11 +904,12 @@ public class PagoCoreService {
                 .build());
     }
 
-    private PagoResumenDTO encontrarPagoConceptoResumen(Integer idAspirante, String tipoConcepto) {
+    private PagoResumenDTO encontrarPagoConceptoResumen(Integer idAspirante, ConceptoPago tipoConcepto) {
         PagoconceptoDTO concepto = pagoconceptoService.findAll().stream()
-                .filter(item -> item.getTipo() != null && item.getTipo().equalsIgnoreCase(tipoConcepto))
+                .filter(item -> item.getTipo() != null && tipoConcepto.matches(item.getTipo()))
                 .findFirst()
-                .orElseThrow(() -> new DomainException(PagoErrorCode.PAGO_CONCEPTO_NOT_FOUND, tipoConcepto));
+                .orElseThrow(() -> new DomainException(PagoErrorCode.PAGO_CONCEPTO_NOT_FOUND,
+                        tipoConcepto.getValor()));
 
         return pagoService.findResumenByIdAspirante(idAspirante).stream()
                 .filter(pago -> Objects.equals(pago.idPagoconcepto(), concepto.getId()))
@@ -929,23 +926,16 @@ public class PagoCoreService {
         }
     }
 
-    private EstadoDTO resolveEstadoPago(String tipo) {
-        EstadoDTO estado = estadoService.findByTipoAndEntidad(tipo, "pago");
+    private EstadoDTO resolveEstadoPago(EstadoPago tipo) {
+        EstadoDTO estado = estadoService.findByTipoAndEntidad(tipo);
         if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad(tipo, "PAGO");
-        }
-        if (estado == null) {
-            throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, tipo);
+            throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, tipo.getValor());
         }
         return estado;
     }
 
-    private EstadoDTO resolveEstadoPagoOpcional(String tipo) {
-        EstadoDTO estado = estadoService.findByTipoAndEntidad(tipo, "pago");
-        if (estado != null) {
-            return estado;
-        }
-        return estadoService.findByTipoAndEntidad(tipo, "PAGO");
+    private EstadoDTO resolveEstadoPagoOpcional(EstadoPago tipo) {
+        return estadoService.findByTipoAndEntidad(tipo);
     }
 
     private BigDecimal calcularMontoInscripcionEnPesos() {
@@ -1118,10 +1108,7 @@ public class PagoCoreService {
     }
 
     private EstadoDTO resolveEstadoPagoInscripcionEnCurso() {
-        EstadoDTO estado = estadoService.findByTipoAndEntidad("EN CURSO", "pagoinscripcion");
-        if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad("EN CURSO", "PAGOINSCRIPCION");
-        }
+        EstadoDTO estado = estadoService.findByTipoAndEntidad(EstadoPagoInscripcion.EN_CURSO);
         if (estado == null) {
             throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, "EN CURSO/pagoinscripcion");
         }
@@ -1129,10 +1116,7 @@ public class PagoCoreService {
     }
 
     private EstadoDTO resolveEstadoPagoMatriculaEnCurso() {
-        EstadoDTO estado = estadoService.findByTipoAndEntidad("EN CURSO", "pagomatricula");
-        if (estado == null) {
-            estado = estadoService.findByTipoAndEntidad("EN CURSO", "PAGOMATRICULA");
-        }
+        EstadoDTO estado = estadoService.findByTipoAndEntidad(EstadoPagoMatricula.EN_CURSO);
         if (estado == null) {
             throw new DomainException(PagoErrorCode.PAGO_ESTADO_NOT_FOUND, "EN CURSO/pagomatricula");
         }
@@ -1162,12 +1146,12 @@ public class PagoCoreService {
             return true;
         }
         if (recibo.getEstado() != null && recibo.getEstado().getTipo() != null) {
-            return "VENCIDO".equalsIgnoreCase(recibo.getEstado().getTipo());
+            return EstadoPagoInscripcion.VENCIDO.matches(recibo.getEstado().getTipo());
         }
         if (recibo.getIdEstado() != null) {
             EstadoDTO est = estadoService.findById(recibo.getIdEstado());
             if (est != null && est.getTipo() != null) {
-                return "VENCIDO".equalsIgnoreCase(est.getTipo());
+                return EstadoPagoInscripcion.VENCIDO.matches(est.getTipo());
             }
         }
         return false;
@@ -1178,12 +1162,12 @@ public class PagoCoreService {
             return true;
         }
         if (recibo.getEstado() != null && recibo.getEstado().getTipo() != null) {
-            return "VENCIDO".equalsIgnoreCase(recibo.getEstado().getTipo());
+            return EstadoPagoMatricula.VENCIDO.matches(recibo.getEstado().getTipo());
         }
         if (recibo.getIdEstado() != null) {
             EstadoDTO est = estadoService.findById(recibo.getIdEstado());
             if (est != null && est.getTipo() != null) {
-                return "VENCIDO".equalsIgnoreCase(est.getTipo());
+                return EstadoPagoMatricula.VENCIDO.matches(est.getTipo());
             }
         }
         return false;
@@ -1196,10 +1180,10 @@ public class PagoCoreService {
         }
 
         String tipoNormalizado = tipoConcepto.trim().toUpperCase(Locale.ROOT);
-        if ("INSCRIPCION".equals(tipoNormalizado)) {
+        if (ConceptoPago.INSCRIPCION.getValor().equals(tipoNormalizado)) {
             return valorInscripcion;
         }
-        if ("MATRICULA".equals(tipoNormalizado)) {
+        if (ConceptoPago.MATRICULA.getValor().equals(tipoNormalizado)) {
             return valorMatricula;
         }
         return null;
@@ -1311,7 +1295,8 @@ public class PagoCoreService {
     private WompiReceiptData construirReceiptData(PagoResumenDTO pago, AspiranteCheckoutDTO aspirante,
             String referencia,
             BigDecimal monto, long montoEnCents, String currency) {
-        return construirReceiptData(pago, aspirante, referencia, monto, montoEnCents, currency, "INSCRIPCION");
+        return construirReceiptData(pago, aspirante, referencia, monto, montoEnCents, currency,
+                ConceptoPago.INSCRIPCION.getValor());
     }
 
     private WompiReceiptData construirReceiptData(PagoResumenDTO pago, AspiranteCheckoutDTO aspirante,
@@ -1363,7 +1348,8 @@ public class PagoCoreService {
 
     private BigDecimal validarMontoElegidoMatricula(BigDecimal montoElegido, BigDecimal montoTotal) {
         if (montoTotal == null) {
-            throw new DomainException(PagoErrorCode.VALOR_GLOBAL_NO_CONFIGURADO_NOT_FOUND, "MATRICULA");
+            throw new DomainException(PagoErrorCode.VALOR_GLOBAL_NO_CONFIGURADO_NOT_FOUND,
+                    ConceptoPago.MATRICULA.getValor());
         }
         if (montoElegido == null || montoElegido.compareTo(BigDecimal.ZERO) <= 0) {
             throw new DomainException(PagoErrorCode.MATRICULA_MONTO_ELEGIDO_INVALIDO, montoElegido);
@@ -1427,9 +1413,7 @@ public class PagoCoreService {
     }
 
     private Boolean esEstadoAprobado(String status) {
-        String normalized = status.trim().toUpperCase(Locale.ROOT);
-        return normalized.equals("APPROVED") || normalized.equals("APPROVAL") || normalized.equals("APPROVAL_SUCCESS")
-                || normalized.equals("SUCCESS") || normalized.equals("PAID") || normalized.equals("PAYED");
+        return EstadoAprobacionWompi.esAprobado(status);
     }
 
     private Integer tryParseInt(String value) {
@@ -1455,10 +1439,10 @@ public class PagoCoreService {
 
         // If the new estado is RECHAZADO, cascade changes to pago and aspirante
         EstadoDTO estadoDto = estadoService.findById(idEstado);
-        if (estadoDto != null && "RECHAZADO".equalsIgnoreCase(estadoDto.getTipo())) {
+        if (estadoDto != null && EstadoPagoInscripcion.RECHAZADO.matches(estadoDto.getTipo())) {
             try {
                 // Set pago to PENDIENTE
-                EstadoDTO estadoPendiente = resolveEstadoPago("PENDIENTE");
+                EstadoDTO estadoPendiente = resolveEstadoPago(EstadoPago.PENDIENTE);
                 if (updated.getIdPago() != null) {
                     PagoDTO pago = pagoService.findById(updated.getIdPago());
                     if (pago != null) {
@@ -1466,10 +1450,7 @@ public class PagoCoreService {
                         pagoService.update(pago.getId(), pago);
 
                         // Set aspirante to INSCRITO
-                        EstadoDTO estadoInscrito = estadoService.findByTipoAndEntidad("INSCRITO", "aspirante");
-                        if (estadoInscrito == null) {
-                            estadoInscrito = estadoService.findByTipoAndEntidad("INSCRITO", "ASPIRANTE");
-                        }
+                        EstadoDTO estadoInscrito = estadoService.findByTipoAndEntidad(EstadoAspirante.INSCRITO);
                         if (estadoInscrito != null && pago.getIdAspirante() != null) {
                             aspiranteService.updateEstado(pago.getIdAspirante(), estadoInscrito.getId());
                         }
@@ -1497,10 +1478,10 @@ public class PagoCoreService {
 
         // If the new estado is RECHAZADO, cascade changes to pago and aspirante
         EstadoDTO estadoDto = estadoService.findById(idEstado);
-        if (estadoDto != null && "RECHAZADO".equalsIgnoreCase(estadoDto.getTipo())) {
+        if (estadoDto != null && EstadoPagoMatricula.RECHAZADO.matches(estadoDto.getTipo())) {
             try {
                 // Set pago to PENDIENTE
-                EstadoDTO estadoPendiente = resolveEstadoPago("PENDIENTE");
+                EstadoDTO estadoPendiente = resolveEstadoPago(EstadoPago.PENDIENTE);
                 if (updated.getIdPago() != null) {
                     PagoDTO pago = pagoService.findById(updated.getIdPago());
                     if (pago != null) {
@@ -1508,10 +1489,7 @@ public class PagoCoreService {
                         pagoService.update(pago.getId(), pago);
 
                         // Set aspirante to POR LEGALIZAR
-                        EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "aspirante");
-                        if (estadoPorLegalizar == null) {
-                            estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "ASPIRANTE");
-                        }
+                        EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad(EstadoAspirante.POR_LEGALIZAR);
                         if (estadoPorLegalizar != null && pago.getIdAspirante() != null) {
                             aspiranteService.updateEstado(pago.getIdAspirante(), estadoPorLegalizar.getId());
                         }
@@ -1539,7 +1517,7 @@ public class PagoCoreService {
             throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, recibo.getIdPago());
         }
 
-        EstadoDTO estadoRealizado = resolveEstadoPago("REALIZADO");
+        EstadoDTO estadoRealizado = resolveEstadoPago(EstadoPago.REALIZADO);
 
         Integer nuevoEstadoRecibo = resolveEstadoReciboCompletado().getId();
         recibo.setIdEstado(nuevoEstadoRecibo);
@@ -1572,7 +1550,7 @@ public class PagoCoreService {
             throw new DomainException(PagoErrorCode.PAGO_NOT_FOUND, recibo.getIdPago());
         }
 
-        EstadoDTO estadoRealizado = resolveEstadoPago("REALIZADO");
+        EstadoDTO estadoRealizado = resolveEstadoPago(EstadoPago.REALIZADO);
 
         Integer nuevoEstadoRecibo = resolveEstadoReciboCompletado().getId();
         recibo.setIdEstado(nuevoEstadoRecibo);

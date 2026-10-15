@@ -7,6 +7,7 @@ import ufps.edu.co.wompi.config.WompiProperties;
 import ufps.edu.co.wompi.model.WompiCheckoutRequest;
 import ufps.edu.co.wompi.model.WompiCheckoutResponse;
 import ufps.edu.co.wompi.model.WompiWebhookRequest;
+import ufps.edu.co.enums.EstadoAprobacionWompi;
 
 @Component
 @ConditionalOnProperty(prefix = "wompi", name = "simulated", havingValue = "true", matchIfMissing = true)
@@ -49,7 +50,7 @@ public class SimulatedWompiGateway implements WompiGateway {
 
     @Override
     public WompiCheckoutResponse confirmPayment(WompiWebhookRequest request) {
-        String status = request.status() != null ? request.status().toUpperCase() : "APPROVED";
+        String status = request.status() != null ? request.status().toUpperCase() : EstadoAprobacionWompi.APPROVED.getValor();
         return WompiCheckoutResponse.builder()
                 .paymentId(request.paymentId())
                 .reference(request.reference())

@@ -19,6 +19,9 @@ import ufps.edu.co.rest.dto.DocumentopersonaDTO;
 import ufps.edu.co.rest.dto.EstadoDTO;
 import ufps.edu.co.rest.dto.PersonaDTO;
 import ufps.edu.co.rest.services.commons.GenericService;
+import ufps.edu.co.enums.EstadoAspirante;
+import ufps.edu.co.enums.EstadoDocumento;
+import static ufps.edu.co.enums.ValorCatalogo.valores;
 
 /**
  * REST service for entity "Aspirante" <br>
@@ -114,17 +117,17 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
 
     @Transactional(readOnly = true)
     public List<AspiranteDTO> findWithDocuments() {
-        return entityListToDtoList(repository.findValidados());
+        return entityListToDtoList(repository.findValidados(EstadoDocumento.APROBADO.getValor()));
     }
 
     @Transactional(readOnly = true)
     public List<AspiranteDTO> findCalificados() {
-        return entityListToDtoList(repository.findCalificados());
+        return entityListToDtoList(repository.findCalificados(EstadoDocumento.APROBADO.getValor()));
     }
 
     @Transactional(readOnly = true)
     public List<AspiranteDTO> findPorCalificar() {
-        return entityListToDtoList(repository.findPorCalificar());
+        return entityListToDtoList(repository.findPorCalificar(EstadoDocumento.APROBADO.getValor()));
     }
 
     @Transactional(readOnly = true)
@@ -134,27 +137,29 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
 
     @Transactional(readOnly = true)
     public List<AspiranteDTO> findValidadosByCohorte(int cohorteId) {
-        List<String> tipos = List.of("VALIDADO_POR_CALIFICAR", "VALIDADO_EN_PROGRESO", "VALIDADO_CALIFICADO");
+        List<String> tipos = valores(EstadoAspirante.VALIDADO_POR_CALIFICAR, EstadoAspirante.VALIDADO_EN_PROGRESO,
+                EstadoAspirante.VALIDADO_CALIFICADO);
         return entityListToDtoList(repository.findByIdCohorteAndEstadoTipoIn(cohorteId, tipos));
     }
 
     @Transactional(readOnly = true)
     public List<AspiranteDTO> findAdmitidosByCohorte(int cohorteId) {
-        return entityListToDtoList(repository.findByIdCohorteAndEstadoTipoIn(cohorteId, List.of("ADMITIDO")));
+        return entityListToDtoList(repository.findByIdCohorteAndEstadoTipoIn(cohorteId,
+                valores(EstadoAspirante.ADMITIDO)));
     }
 
     public long countValidados() {
-        return repository.countByEstadoTipoIn(
-                List.of("VALIDADO_POR_CALIFICAR", "VALIDADO_EN_PROGRESO", "VALIDADO_CALIFICADO"));
+        return repository.countByEstadoTipoIn(valores(EstadoAspirante.VALIDADO_POR_CALIFICAR,
+                EstadoAspirante.VALIDADO_EN_PROGRESO, EstadoAspirante.VALIDADO_CALIFICADO));
     }
 
     public long countPorCalificar() {
         return repository.countByEstadoTipoIn(
-                List.of("VALIDADO_POR_CALIFICAR", "VALIDADO_EN_PROGRESO"));
+                valores(EstadoAspirante.VALIDADO_POR_CALIFICAR, EstadoAspirante.VALIDADO_EN_PROGRESO));
     }
 
     public long countCalificados() {
-        return repository.countByEstadoTipoIn(List.of("VALIDADO_CALIFICADO"));
+        return repository.countByEstadoTipoIn(valores(EstadoAspirante.VALIDADO_CALIFICADO));
     }
 
     public long countByCohorte(Integer cohorteId) {
@@ -163,30 +168,31 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
 
     public long countValidadosByCohorte(Integer cohorteId) {
         return repository.countByIdCohorteAndEstadoTipoIn(cohorteId,
-                List.of("VALIDADO_POR_CALIFICAR", "VALIDADO_EN_PROGRESO"));
+                valores(EstadoAspirante.VALIDADO_POR_CALIFICAR, EstadoAspirante.VALIDADO_EN_PROGRESO));
     }
 
     public long countCalificadosByCohorte(Integer cohorteId) {
-        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, List.of("VALIDADO_CALIFICADO"));
+        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, valores(EstadoAspirante.VALIDADO_CALIFICADO));
     }
 
     public long countPorCalificarByCohorte(Integer cohorteId) {
         return repository.countByIdCohorteAndEstadoTipoIn(cohorteId,
-                List.of("VALIDADO_POR_CALIFICAR", "VALIDADO_EN_PROGRESO"));
+                valores(EstadoAspirante.VALIDADO_POR_CALIFICAR, EstadoAspirante.VALIDADO_EN_PROGRESO));
     }
 
     public long countPazYSalvoByCohorte(Integer cohorteId) {
-        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, List.of("PAZ Y SALVO"));
+        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, valores(EstadoAspirante.PAZ_Y_SALVO));
     }
 
     public long countAdmitidosByCohorte(Integer cohorteId) {
-        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, List.of("POR LEGALIZAR", "LEGALIZADO", "ADMITIDO"));
+        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId,
+                valores(EstadoAspirante.POR_LEGALIZAR, EstadoAspirante.LEGALIZADO, EstadoAspirante.ADMITIDO));
     }
 
     @Transactional(readOnly = true)
     public List<AspiranteDTO> findAValidarByCohorte(int cohorteId) {
         return entityListToDtoList(repository.findByIdCohorteAndEstadoTipoIn(
-                cohorteId, List.of("PAZ Y SALVO", "VALIDADO_POR_CALIFICAR")));
+                cohorteId, valores(EstadoAspirante.PAZ_Y_SALVO, EstadoAspirante.VALIDADO_POR_CALIFICAR)));
     }
 
     @Transactional(readOnly = true)

@@ -12,6 +12,7 @@ import ufps.edu.co.persistence.entities.EstadoEntity;
 import ufps.edu.co.persistence.repositories.EstadoRepository;
 import ufps.edu.co.rest.dto.EstadoDTO;
 import ufps.edu.co.rest.services.commons.GenericService;
+import ufps.edu.co.enums.EstadoCatalogo;
 
 /**
  * REST service for entity "Estado" <br>
@@ -59,5 +60,10 @@ public class EstadoService extends GenericService<EstadoEntity, EstadoDTO> {
     @Transactional(readOnly = true)
     public EstadoDTO findByTipoAndEntidad(String tipo, String entidad) {
         return entityToDto(repository.findByTipoIgnoreCaseAndEntidadIgnoreCase(tipo, entidad));
+    }
+
+    @Transactional(readOnly = true)
+    public EstadoDTO findByTipoAndEntidad(EstadoCatalogo estado) {
+        return findByTipoAndEntidad(estado.getValor(), estado.getEntidad().getValor());
     }
 }

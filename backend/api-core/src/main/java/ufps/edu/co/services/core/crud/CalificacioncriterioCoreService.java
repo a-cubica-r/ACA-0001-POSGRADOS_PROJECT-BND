@@ -25,6 +25,7 @@ import ufps.edu.co.rest.services.EstadoService;
 import ufps.edu.co.services.*;
 import ufps.edu.co.utils.*;
 import ufps.edu.co.usecase.GlobalUseCase;
+import ufps.edu.co.enums.EstadoAspirante;
 
 @Service
 public class CalificacioncriterioCoreService implements
@@ -196,10 +197,10 @@ public class CalificacioncriterioCoreService implements
                     .allMatch(calificadosIds::contains);
 
             if (todosCalificados) {
-                EstadoDTO estado = estadoService.findByTipoAndEntidad("VALIDADO_CALIFICADO", "aspirante");
+                EstadoDTO estado = estadoService.findByTipoAndEntidad(EstadoAspirante.VALIDADO_CALIFICADO);
                 if (estado != null) aspiranteService.updateEstado(idAspirante, estado.getId());
             } else if (!calificadosIds.isEmpty()) {
-                EstadoDTO estado = estadoService.findByTipoAndEntidad("VALIDADO_EN_PROGRESO", "aspirante");
+                EstadoDTO estado = estadoService.findByTipoAndEntidad(EstadoAspirante.VALIDADO_EN_PROGRESO);
                 if (estado != null) aspiranteService.updateEstado(idAspirante, estado.getId());
             }
         } catch (Exception e) {

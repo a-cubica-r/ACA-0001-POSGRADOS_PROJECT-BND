@@ -16,6 +16,8 @@ import ufps.edu.co.rest.dto.*;
 import ufps.edu.co.rest.services.*;
 import ufps.edu.co.services.*;
 import ufps.edu.co.utils.*;
+import ufps.edu.co.enums.EstadoAspirante;
+import ufps.edu.co.enums.EstadoCohorte;
 
 @Service
 public class ListaadmitidosCoreService {
@@ -61,7 +63,7 @@ public class ListaadmitidosCoreService {
                 long totalAdmitidos = admitidos.size();
                 int cuposDisponibles = Math.max(0, cupos - (int) totalAdmitidos);
                 boolean activa = cohorte.getEstado() != null
-                                && "ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo());
+                                && EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo());
 
                 List<ListaAdmitidosResumenOutput.AspiranteResumen> aspirantes = admitidos.stream()
                                 .map(a -> {
@@ -107,10 +109,7 @@ public class ListaadmitidosCoreService {
                 List<AspiranteDTO> admitidos = getTopCandidates(input.idCohorte(), null, cohorte.getCupos());
                 LocalDate today = LocalDate.now();
 
-                EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "aspirante");
-                if (estadoPorLegalizar == null) {
-                        estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "ASPIRANTE");
-                }
+                EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad(EstadoAspirante.POR_LEGALIZAR);
                 if (estadoPorLegalizar == null) {
                         throw new DomainException(ListaadmitidosErrorCode.ESTADO_POR_LEGALIZAR_NOT_FOUND, null);
                 }
@@ -238,10 +237,7 @@ public class ListaadmitidosCoreService {
                 byte[] pdf = generarPdfAdmitidos(idCohorte, directorNombre);
 
                 // Resolve 'POR LEGALIZAR' estado
-                EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "aspirante");
-                if (estadoPorLegalizar == null) {
-                        estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "ASPIRANTE");
-                }
+                EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad(EstadoAspirante.POR_LEGALIZAR);
                 if (estadoPorLegalizar == null) {
                         throw new DomainException(ListaadmitidosErrorCode.ESTADO_POR_LEGALIZAR_NOT_FOUND, null);
                 }

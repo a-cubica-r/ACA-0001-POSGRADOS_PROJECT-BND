@@ -26,6 +26,7 @@ import ufps.edu.co.rest.services.CriterioevaluacionService;
 import ufps.edu.co.rest.services.CriteriocohorteService;
 import ufps.edu.co.rest.services.EstadoService;
 import ufps.edu.co.usecase.GlobalUseCase;
+import ufps.edu.co.enums.EstadoAspirante;
 
 @Service
 public class CriterioevaluacionCoreService implements
@@ -254,7 +255,7 @@ public class CriterioevaluacionCoreService implements
     }
 
     private void recalcularEstadosTrasBorrado(Integer programaId) {
-        EstadoDTO estadoCalificado = estadoService.findByTipoAndEntidad("VALIDADO_CALIFICADO", "aspirante");
+        EstadoDTO estadoCalificado = estadoService.findByTipoAndEntidad(EstadoAspirante.VALIDADO_CALIFICADO);
         if (estadoCalificado == null) return;
 
         cohorteService.findByIdPrograma(programaId).forEach(cohorte -> {
@@ -264,7 +265,7 @@ public class CriterioevaluacionCoreService implements
 
             aspiranteService.findByCohorte(cohorte.getId()).stream()
                     .filter(a -> a.getEstado() != null
-                            && "VALIDADO_EN_PROGRESO".equalsIgnoreCase(a.getEstado().getTipo()))
+                            && EstadoAspirante.VALIDADO_EN_PROGRESO.matches(a.getEstado().getTipo()))
                     .forEach(aspirante -> {
                         Set<Integer> calificadosIds = calificacioncriterioService
                                 .findByIdAspirante(aspirante.getId()).stream()
@@ -281,12 +282,12 @@ public class CriterioevaluacionCoreService implements
     }
 
     private void marcarAspirantesEnProgreso(Integer programaId) {
-        EstadoDTO estadoEnProgreso = estadoService.findByTipoAndEntidad("VALIDADO_EN_PROGRESO", "aspirante");
+        EstadoDTO estadoEnProgreso = estadoService.findByTipoAndEntidad(EstadoAspirante.VALIDADO_EN_PROGRESO);
         if (estadoEnProgreso == null) return;
         cohorteService.findByIdPrograma(programaId).forEach(cohorte ->
             aspiranteService.findByCohorte(cohorte.getId()).stream()
                     .filter(a -> a.getEstado() != null
-                            && "VALIDADO_CALIFICADO".equalsIgnoreCase(a.getEstado().getTipo()))
+                            && EstadoAspirante.VALIDADO_CALIFICADO.matches(a.getEstado().getTipo()))
                     .forEach(a -> aspiranteService.updateEstado(a.getId(), estadoEnProgreso.getId()))
         );
     }

@@ -30,6 +30,8 @@ import ufps.edu.co.rest.services.UbicacionService;
 import ufps.edu.co.services.*;
 import ufps.edu.co.utils.*;
 import ufps.edu.co.usecase.GlobalUseCase;
+import ufps.edu.co.enums.EstadoPrueba;
+import ufps.edu.co.enums.ActorCancelacion;
 
 @Service
 public class PruebaCoreService implements
@@ -137,7 +139,7 @@ public class PruebaCoreService implements
             if (tipoprueba == null) {
                 throw new RuntimeException("Tipo de prueba no encontrado: " + request.idTipoprueba());
             }
-            EstadoDTO estadoInicial = estadoService.findByTipoAndEntidad("PENDIENTE DE CONFIRMACION", "prueba");
+            EstadoDTO estadoInicial = estadoService.findByTipoAndEntidad(EstadoPrueba.PENDIENTE_DE_CONFIRMACION);
             if (estadoInicial == null) {
                 throw new RuntimeException("Estado 'PENDIENTE DE CONFIRMACION' no encontrado para entidad 'prueba'");
             }
@@ -212,11 +214,11 @@ public class PruebaCoreService implements
 
     public PruebaSimpleOutput completarPrueba(Integer idPrueba) {
         try {
-            EstadoDTO estadoCompletada = estadoService.findByTipoAndEntidad("COMPLETADA", "prueba");
+            EstadoDTO estadoCompletada = estadoService.findByTipoAndEntidad(EstadoPrueba.COMPLETADA);
             if (estadoCompletada == null) {
                 throw new RuntimeException("Estado 'COMPLETADA' no encontrado para entidad 'prueba'");
             }
-            PruebaDTO updated = service.changeEstado(idPrueba, estadoCompletada.getId(), "CONFIRMADA");
+            PruebaDTO updated = service.changeEstado(idPrueba, estadoCompletada.getId(), EstadoPrueba.CONFIRMADA.getValor());
             PruebaDTO full = service.findById(updated.getId());
             notifyPruebaCompletada(full);
             return toPruebaSimple(full);
@@ -227,11 +229,12 @@ public class PruebaCoreService implements
 
     public PruebaSimpleOutput confirmarPrueba(Integer idPrueba) {
         try {
-            EstadoDTO estadoConfirmada = estadoService.findByTipoAndEntidad("CONFIRMADA", "prueba");
+            EstadoDTO estadoConfirmada = estadoService.findByTipoAndEntidad(EstadoPrueba.CONFIRMADA);
             if (estadoConfirmada == null) {
                 throw new RuntimeException("Estado 'CONFIRMADA' no encontrado para entidad 'prueba'");
             }
-            PruebaDTO updated = service.changeEstado(idPrueba, estadoConfirmada.getId(), "PENDIENTE DE CONFIRMACION");
+            PruebaDTO updated = service.changeEstado(idPrueba, estadoConfirmada.getId(),
+                    EstadoPrueba.PENDIENTE_DE_CONFIRMACION.getValor());
             PruebaDTO full = service.findById(updated.getId());
             notifyConfirmacionPruebaAlDirector(full);
             return toPruebaSimple(full);
@@ -242,11 +245,12 @@ public class PruebaCoreService implements
 
     public PruebaSimpleOutput solicitarCambioPrueba(Integer idPrueba, String motivocambio) {
         try {
-            EstadoDTO estadoSolicitud = estadoService.findByTipoAndEntidad("SOLICITUD DE CAMBIO", "prueba");
+            EstadoDTO estadoSolicitud = estadoService.findByTipoAndEntidad(EstadoPrueba.SOLICITUD_DE_CAMBIO);
             if (estadoSolicitud == null) {
                 throw new RuntimeException("Estado 'SOLICITUD DE CAMBIO' no encontrado para entidad 'prueba'");
             }
-            PruebaDTO updated = service.changeEstadoWithMotivo(idPrueba, estadoSolicitud.getId(), "PENDIENTE DE CONFIRMACION", motivocambio);
+            PruebaDTO updated = service.changeEstadoWithMotivo(idPrueba, estadoSolicitud.getId(),
+                    EstadoPrueba.PENDIENTE_DE_CONFIRMACION.getValor(), motivocambio);
             PruebaDTO full = service.findById(updated.getId());
             notifyCambioPruebaAlDirector(full, motivocambio);
             return toPruebaSimple(full);
@@ -257,11 +261,12 @@ public class PruebaCoreService implements
 
     public PruebaSimpleOutput cancelarPrueba(Integer idPrueba, String motivocambio, String canceladoPor) {
         try {
-            EstadoDTO estadoCancelada = estadoService.findByTipoAndEntidad("CANCELADA", "prueba");
+            EstadoDTO estadoCancelada = estadoService.findByTipoAndEntidad(EstadoPrueba.CANCELADA);
             if (estadoCancelada == null) {
                 throw new RuntimeException("Estado 'CANCELADA' no encontrado para entidad 'prueba'");
             }
-            PruebaDTO updated = service.changeEstadoWithMotivo(idPrueba, estadoCancelada.getId(), "CONFIRMADA", motivocambio);
+            PruebaDTO updated = service.changeEstadoWithMotivo(idPrueba, estadoCancelada.getId(),
+                    EstadoPrueba.CONFIRMADA.getValor(), motivocambio);
             PruebaDTO full = service.findById(updated.getId());
             notifyCancelacionPrueba(full, canceladoPor, motivocambio);
             return toPruebaSimple(full);
@@ -321,7 +326,7 @@ public class PruebaCoreService implements
     }
 
     private void notifyPruebaEliminada(PruebaDTO prueba) {
-        notifyCancelacionPrueba(prueba, "DIRECTOR", null);
+        notifyCancelacionPrueba(prueba, ActorCancelacion.DIRECTOR.getValor(), null);
     }
 
     private void notifyConfirmacionPruebaAlDirector(PruebaDTO prueba) {
@@ -381,7 +386,7 @@ public class PruebaCoreService implements
             // String lugar = prueba.getUbicacion() != null ? prueba.getUbicacion().getDireccion() : "No definido";
             String motivoTexto = motivo != null ? motivo : "Sin motivo especificado";
 
-            if ("ASPIRANTE".equalsIgnoreCase(canceladoPor)) {
+            if (ActorCancelacion.ASPIRANTE.matches(canceladoPor)) {
                 ufps.edu.co.rest.dto.AdministrativoDTO director = findDirectorForAspirante(aspirante);
                 if (director == null || director.getPersona() == null) return;
                 sesService.enviarCorreo(director.getPersona().getCorreo(), EmailTemplates.ASUNTO_CANCELACION_POR_ASPIRANTE,

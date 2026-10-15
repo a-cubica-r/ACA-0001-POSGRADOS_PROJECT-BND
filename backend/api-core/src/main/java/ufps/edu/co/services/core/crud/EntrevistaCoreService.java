@@ -30,6 +30,8 @@ import ufps.edu.co.rest.services.UbicacionService;
 import ufps.edu.co.services.*;
 import ufps.edu.co.utils.*;
 import ufps.edu.co.usecase.GlobalUseCase;
+import ufps.edu.co.enums.EstadoEntrevista;
+import ufps.edu.co.enums.ActorCancelacion;
 
 @Service
 public class EntrevistaCoreService implements
@@ -77,7 +79,7 @@ public class EntrevistaCoreService implements
             if (tipoentrevista == null) {
                 throw new RuntimeException("Modalidad no encontrada: " + input.idTipoentrevista());
             }
-            EstadoDTO estadoInicial = estadoService.findByTipoAndEntidad("PENDIENTE DE CONFIRMACION", "entrevista");
+            EstadoDTO estadoInicial = estadoService.findByTipoAndEntidad(EstadoEntrevista.PENDIENTE_DE_CONFIRMACION);
             if (estadoInicial == null) {
                 throw new RuntimeException(
                         "Estado inicial 'PENDIENTE DE CONFIRMACION' no encontrado para entidad 'entrevista'");
@@ -150,11 +152,12 @@ public class EntrevistaCoreService implements
 
     public EntrevistaOutput completeInterview(ENTREVISTA_FIND input) {
         try {
-            EstadoDTO estadoCompletada = estadoService.findByTipoAndEntidad("COMPLETADA", "entrevista");
+            EstadoDTO estadoCompletada = estadoService.findByTipoAndEntidad(EstadoEntrevista.COMPLETADA);
             if (estadoCompletada == null) {
                 throw new RuntimeException("Estado 'COMPLETADA' no encontrado para entidad 'entrevista'");
             }
-            EntrevistaDTO updated = service.changeEstado(input.id(), estadoCompletada.getId(), "CONFIRMADA");
+            EntrevistaDTO updated = service.changeEstado(input.id(), estadoCompletada.getId(),
+                    EstadoEntrevista.CONFIRMADA.getValor());
             notifyActividadCompletada(updated);
             return map.toOutput(updated);
         } catch (Exception e) {
@@ -163,16 +166,17 @@ public class EntrevistaCoreService implements
     }
 
     public EntrevistaOutput cancelInterview(ENTREVISTA_FIND input) {
-        return cancelInterview(input.id(), null, "DIRECTOR");
+        return cancelInterview(input.id(), null, ActorCancelacion.DIRECTOR.getValor());
     }
 
     public EntrevistaOutput cancelInterview(Integer id, String motivocambio, String canceladoPor) {
         try {
-            EstadoDTO estadoCancelada = estadoService.findByTipoAndEntidad("CANCELADA", "entrevista");
+            EstadoDTO estadoCancelada = estadoService.findByTipoAndEntidad(EstadoEntrevista.CANCELADA);
             if (estadoCancelada == null) {
                 throw new RuntimeException("Estado 'CANCELADA' no encontrado para entidad 'entrevista'");
             }
-            EntrevistaDTO updated = service.changeEstadoWithMotivo(id, estadoCancelada.getId(), "CONFIRMADA",
+            EntrevistaDTO updated = service.changeEstadoWithMotivo(id, estadoCancelada.getId(),
+                    EstadoEntrevista.CONFIRMADA.getValor(),
                     motivocambio);
             notifyCancelacion(updated, canceladoPor, motivocambio);
             return map.toOutput(updated);
@@ -183,12 +187,12 @@ public class EntrevistaCoreService implements
 
     public EntrevistaOutput confirmInterview(ENTREVISTA_FIND input) {
         try {
-            EstadoDTO estadoConfirmada = estadoService.findByTipoAndEntidad("CONFIRMADA", "entrevista");
+            EstadoDTO estadoConfirmada = estadoService.findByTipoAndEntidad(EstadoEntrevista.CONFIRMADA);
             if (estadoConfirmada == null) {
                 throw new RuntimeException("Estado 'CONFIRMADA' no encontrado para entidad 'entrevista'");
             }
             EntrevistaDTO updated = service.changeEstado(input.id(), estadoConfirmada.getId(),
-                    "PENDIENTE DE CONFIRMACION");
+                    EstadoEntrevista.PENDIENTE_DE_CONFIRMACION.getValor());
             notifyConfirmacionAlDirector(updated);
             return map.toOutput(updated);
         } catch (Exception e) {
@@ -306,7 +310,7 @@ public class EntrevistaCoreService implements
     }
 
     private void notifyEntrevistaEliminada(EntrevistaDTO entrevista) {
-        notifyCancelacion(entrevista, "DIRECTOR", null);
+        notifyCancelacion(entrevista, ActorCancelacion.DIRECTOR.getValor(), null);
     }
 
     private void notifyConfirmacionAlDirector(EntrevistaDTO entrevista) {
@@ -366,7 +370,7 @@ public class EntrevistaCoreService implements
             // String lugar = entrevista.getUbicacion() != null ? entrevista.getUbicacion().getDireccion() : "No definido";
             String motivoTexto = motivo != null ? motivo : "Sin motivo especificado";
 
-            if ("ASPIRANTE".equalsIgnoreCase(canceladoPor)) {
+            if (ActorCancelacion.ASPIRANTE.matches(canceladoPor)) {
                 ufps.edu.co.rest.dto.AdministrativoDTO director = findDirectorForAspirante(aspirante);
                 if (director == null || director.getPersona() == null) return;
                 sesService.enviarCorreo(director.getPersona().getCorreo(), EmailTemplates.ASUNTO_CANCELACION_POR_ASPIRANTE,

@@ -14,6 +14,7 @@ import ufps.edu.co.rest.dto.*;
 import ufps.edu.co.rest.services.*;
 import ufps.edu.co.services.*;
 import ufps.edu.co.utils.*;
+import ufps.edu.co.enums.EstadoEstudiante;
 
 @Service
 public class EstudiantesCoreService {
@@ -228,10 +229,7 @@ public class EstudiantesCoreService {
         String apellido = partesApellido.length > 0 ? partesApellido[0] : null;
         String apellido2 = partesApellido.length > 1 ? partesApellido[1] : null;
 
-        EstadoDTO estadoActivo = estadoService.findByTipoAndEntidad("ACTIVO", "estudiante");
-        if (estadoActivo == null) {
-            estadoActivo = estadoService.findByTipoAndEntidad("ACTIVO", "ESTUDIANTE");
-        }
+        EstadoDTO estadoActivo = estadoService.findByTipoAndEntidad(EstadoEstudiante.ACTIVO);
         if (estadoActivo == null) {
             log.warn("No se encontró estado ACTIVO para entidad estudiante, el campo quedará en null");
         }

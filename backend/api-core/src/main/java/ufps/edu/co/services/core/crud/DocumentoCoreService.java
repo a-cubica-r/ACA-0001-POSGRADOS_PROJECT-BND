@@ -19,6 +19,9 @@ import ufps.edu.co.rest.services.*;
 import ufps.edu.co.services.*;
 import ufps.edu.co.usecase.*;
 import ufps.edu.co.utils.*;
+import ufps.edu.co.enums.EstadoAspirante;
+import ufps.edu.co.enums.EstadoDocumento;
+import ufps.edu.co.enums.EstadoGeneralDocumentos;
 
 @Service
 public class DocumentoCoreService implements
@@ -120,7 +123,7 @@ public class DocumentoCoreService implements
     public AprobarDocumentoOutput approveDocument(DOCUMENTO_FIND input) {
         try {
             DocumentoDTO dto = service.findById(input.id());
-            EstadodocumentoDTO estadodocumentoDTO = estadodocumentoService.findByEstado("APROBADO");
+            EstadodocumentoDTO estadodocumentoDTO = estadodocumentoService.findByEstado(EstadoDocumento.APROBADO);
             dto.setEstadodocumento(estadodocumentoDTO);
             dto.setIdEstadodocumento(estadodocumentoDTO.getId());
             DocumentoDTO approve = service.update(input.id(), dto);
@@ -144,7 +147,7 @@ public class DocumentoCoreService implements
     public DocumentoEstadoOutput rejectDocument(DOCUMENTO_REJECT input) {
         try {
             DocumentoDTO dto = service.findById(input.id());
-            EstadodocumentoDTO estadodocumentoDTO = estadodocumentoService.findByEstado("RECHAZADO");
+            EstadodocumentoDTO estadodocumentoDTO = estadodocumentoService.findByEstado(EstadoDocumento.RECHAZADO);
             dto.setEstadodocumento(estadodocumentoDTO);
             dto.setObservaciones(input.motivoRechazo());
             dto.setIdEstadodocumento(estadodocumentoDTO.getId());
@@ -201,14 +204,14 @@ public class DocumentoCoreService implements
             java.util.Set<Integer> aprobadosConsejo = todosLosDocs.stream()
                     .filter(d -> d.getIdDocumentosrequisitoconsejocohorte() != null
                             && d.getEstadodocumento() != null
-                            && "APROBADO".equalsIgnoreCase(d.getEstadodocumento().getEstado()))
+                            && EstadoDocumento.APROBADO.matches(d.getEstadodocumento().getEstado()))
                     .map(DocumentoDTO::getIdDocumentosrequisitoconsejocohorte)
                     .collect(Collectors.toSet());
 
             java.util.Set<Integer> aprobadosPrograma = todosLosDocs.stream()
                     .filter(d -> d.getIdDocumentosrequisitoprogramacohorte() != null
                             && d.getEstadodocumento() != null
-                            && "APROBADO".equalsIgnoreCase(d.getEstadodocumento().getEstado()))
+                            && EstadoDocumento.APROBADO.matches(d.getEstadodocumento().getEstado()))
                     .map(DocumentoDTO::getIdDocumentosrequisitoprogramacohorte)
                     .collect(Collectors.toSet());
 
@@ -219,7 +222,7 @@ public class DocumentoCoreService implements
                 if (!aprobadosPrograma.contains(requisito.getId())) return;
             }
 
-            EstadoDTO estadoValidado = estadoService.findByTipoAndEntidad("VALIDADO_POR_CALIFICAR", "aspirante");
+            EstadoDTO estadoValidado = estadoService.findByTipoAndEntidad(EstadoAspirante.VALIDADO_POR_CALIFICAR);
             if (estadoValidado != null) {
                 aspiranteService.updateEstado(idAspirante, estadoValidado.getId());
             }
@@ -251,16 +254,16 @@ public class DocumentoCoreService implements
             long total = docs.size();
             long validados = docs.stream()
                     .filter(d -> d.getEstadodocumento() != null
-                            && "APROBADO".equalsIgnoreCase(d.getEstadodocumento().getEstado()))
+                            && EstadoDocumento.APROBADO.matches(d.getEstadodocumento().getEstado()))
                     .count();
 
             String estadoGeneral;
             if (total > 0 && validados == total) {
-                estadoGeneral = "validados";
+                estadoGeneral = EstadoGeneralDocumentos.VALIDADOS.getValor();
             } else if (validados > 0) {
-                estadoGeneral = "en progreso";
+                estadoGeneral = EstadoGeneralDocumentos.EN_PROGRESO.getValor();
             } else {
-                estadoGeneral = "pendiente";
+                estadoGeneral = EstadoGeneralDocumentos.PENDIENTE.getValor();
             }
 
             Integer idCohorte = aspirante != null ? aspirante.getIdCohorte() : null;
@@ -274,7 +277,7 @@ public class DocumentoCoreService implements
                             .idDocumentosrequisitoprogramacohorte(doc.getIdDocumentosrequisitoprogramacohorte())
                             .nombreTitulo(resolverNombreTituloDesdeMap(doc, nombresPorConsejoCohorte, nombresPorProgramaCohorte))
                             .estado(doc.getEstadodocumento() != null ? doc.getEstadodocumento().getEstado()
-                                    : "PENDIENTE")
+                                    : EstadoDocumento.PENDIENTE.getValor())
                             .motivoRechazo(doc.getObservaciones())
                             .linkArchivo(doc.getEnlaceurl())
                             .build())
@@ -355,16 +358,16 @@ public class DocumentoCoreService implements
         long total = docs.size();
         long validados = docs.stream()
             .filter(d -> d.getEstadodocumento() != null
-                && "APROBADO".equalsIgnoreCase(d.getEstadodocumento().getEstado()))
+                && EstadoDocumento.APROBADO.matches(d.getEstadodocumento().getEstado()))
             .count();
 
         String estadoGeneral;
         if (total > 0 && validados == total) {
-            estadoGeneral = "validados";
+            estadoGeneral = EstadoGeneralDocumentos.VALIDADOS.getValor();
         } else if (validados > 0) {
-            estadoGeneral = "en progreso";
+            estadoGeneral = EstadoGeneralDocumentos.EN_PROGRESO.getValor();
         } else {
-            estadoGeneral = "pendiente";
+            estadoGeneral = EstadoGeneralDocumentos.PENDIENTE.getValor();
         }
 
         Map<Integer, String> nombresPorConsejoCohorte = buildNombreMapConsejo(aspirante.idCohorte());
@@ -377,7 +380,7 @@ public class DocumentoCoreService implements
                 .idDocumentosrequisitoprogramacohorte(doc.getIdDocumentosrequisitoprogramacohorte())
                 .nombreTitulo(resolverNombreTituloDesdeMap(doc, nombresPorConsejoCohorte, nombresPorProgramaCohorte))
                 .estado(doc.getEstadodocumento() != null ? doc.getEstadodocumento().getEstado()
-                    : "PENDIENTE")
+                    : EstadoDocumento.PENDIENTE.getValor())
                 .motivoRechazo(doc.getObservaciones())
                 .linkArchivo(doc.getEnlaceurl())
                 .build())
@@ -412,16 +415,16 @@ public class DocumentoCoreService implements
         long total = docs.size();
         long validados = docs.stream()
                 .filter(d -> d.getEstadodocumento() != null
-                        && "APROBADO".equalsIgnoreCase(d.getEstadodocumento().getEstado()))
+                        && EstadoDocumento.APROBADO.matches(d.getEstadodocumento().getEstado()))
                 .count();
 
         String estadoGeneral;
         if (total > 0 && validados == total) {
-            estadoGeneral = "validados";
+            estadoGeneral = EstadoGeneralDocumentos.VALIDADOS.getValor();
         } else if (validados > 0) {
-            estadoGeneral = "en progreso";
+            estadoGeneral = EstadoGeneralDocumentos.EN_PROGRESO.getValor();
         } else {
-            estadoGeneral = "pendiente";
+            estadoGeneral = EstadoGeneralDocumentos.PENDIENTE.getValor();
         }
 
         List<DocumentoResumenOutput> documentosResumen = docs.stream()
@@ -431,7 +434,7 @@ public class DocumentoCoreService implements
                         .idDocumentosrequisitoprogramacohorte(doc.getIdDocumentosrequisitoprogramacohorte())
                         .nombreTitulo(resolverNombreTitulo(doc))
                         .estado(doc.getEstadodocumento() != null ? doc.getEstadodocumento().getEstado()
-                                : "PENDIENTE")
+                                : EstadoDocumento.PENDIENTE.getValor())
                         .motivoRechazo(doc.getObservaciones())
                         .linkArchivo(doc.getEnlaceurl())
                         .build())
@@ -454,7 +457,7 @@ public class DocumentoCoreService implements
             dto.setIdEstadodocumento(estadodocumentoDTO.getId());
             dto.setObservaciones(input.motivoRechazo());
             service.update(docId, dto);
-            if ("APROBADO".equalsIgnoreCase(input.estado())) {
+            if (EstadoDocumento.APROBADO.matches(input.estado())) {
                 checkAndUpdateEstadoValidacion(dto.getIdAspirante());
             }
 
