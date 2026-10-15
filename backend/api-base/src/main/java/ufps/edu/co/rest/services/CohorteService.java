@@ -16,6 +16,8 @@ import ufps.edu.co.rest.dto.ModalidadDTO;
 import ufps.edu.co.rest.dto.PlazoDTO;
 import ufps.edu.co.rest.dto.SemestreDTO;
 import ufps.edu.co.rest.services.commons.GenericService;
+import ufps.edu.co.enums.EstadoAspirante;
+import ufps.edu.co.enums.EstadoCohorte;
 
 /**
  * REST service for entity "Cohorte" <br>
@@ -127,7 +129,9 @@ public class CohorteService extends GenericService<CohorteEntity, CohorteDTO> {
 
     @Transactional(readOnly = true)
     public long countAspirantesEnProcesoEnCohorteAbierta(Integer cohorteId) {
-        return repository.countAspirantesEnProcesoEnCohorteAbierta(cohorteId);
+        return repository.countAspirantesEnProcesoEnCohorteAbierta(cohorteId,
+                EstadoAspirante.EN_PROCESO.getEntidad().getValor(), EstadoAspirante.EN_PROCESO.getValor(),
+                EstadoCohorte.ABIERTA.getEntidad().getValor(), EstadoCohorte.ABIERTA.getValor());
     }
 
     @Transactional(readOnly = true)
@@ -137,11 +141,13 @@ public class CohorteService extends GenericService<CohorteEntity, CohorteDTO> {
 
     @Transactional(readOnly = true)
     public List<CohorteDTO> findActivasByIdPrograma(Integer idPrograma) {
-        return entityListToDtoList(repository.findActivasByIdPrograma(idPrograma));
+        return entityListToDtoList(repository.findActivasByIdPrograma(idPrograma,
+                EstadoCohorte.ABIERTA.getEntidad().getValor(), EstadoCohorte.ABIERTA.getValor()));
     }
 
     @Transactional(readOnly = true)
     public long countAspirantesEnProcesoByCohorteId(Integer cohorteId) {
-        return repository.countAspirantesEnProcesoByCohorteId(cohorteId);
+        return repository.countAspirantesEnProcesoByCohorteId(cohorteId,
+                EstadoAspirante.EN_PROCESO.getEntidad().getValor(), EstadoAspirante.EN_PROCESO.getValor());
     }
 }

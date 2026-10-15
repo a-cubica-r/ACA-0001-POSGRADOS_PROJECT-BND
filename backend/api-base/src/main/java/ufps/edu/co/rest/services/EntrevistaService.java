@@ -19,6 +19,7 @@ import ufps.edu.co.rest.dto.EstadoDTO;
 import ufps.edu.co.rest.dto.TipoentrevistaDTO;
 import ufps.edu.co.rest.dto.UbicacionDTO;
 import ufps.edu.co.rest.services.commons.GenericService;
+import ufps.edu.co.enums.EstadoEntrevista;
 
 /**
  * REST service for entity "Entrevista" <br>
@@ -136,12 +137,13 @@ public class EntrevistaService extends GenericService<EntrevistaEntity, Entrevis
         EntrevistaEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Entrevista no encontrada con id: " + id));
         String estadoActual = entity.getEstado() != null ? entity.getEstado().getTipo() : "";
-        if (!"SOLICITUD DE CAMBIO".equalsIgnoreCase(estadoActual)) {
+        if (!EstadoEntrevista.SOLICITUD_DE_CAMBIO.matches(estadoActual)) {
             throw new IllegalStateException(
                     "La entrevista no está en estado 'SOLICITUD DE CAMBIO'. Estado actual: " + estadoActual);
         }
         Integer idEstadoPendiente = estadoRepository
-                .findByTipoIgnoreCaseAndEntidadIgnoreCase("PENDIENTE DE CONFIRMACION", "entrevista")
+                .findByTipoIgnoreCaseAndEntidadIgnoreCase(EstadoEntrevista.PENDIENTE_DE_CONFIRMACION.getValor(),
+                        EstadoEntrevista.PENDIENTE_DE_CONFIRMACION.getEntidad().getValor())
                 .orElseThrow(() -> new RuntimeException("Estado 'PENDIENTE DE CONFIRMACION' no encontrado para entidad 'entrevista'"))
                 .getId();
         entity.setFecha(fecha);
@@ -181,12 +183,13 @@ public class EntrevistaService extends GenericService<EntrevistaEntity, Entrevis
         EntrevistaEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Entrevista no encontrada con id: " + id));
         String estadoActual = entity.getEstado() != null ? entity.getEstado().getTipo() : "";
-        if (!"PENDIENTE DE CONFIRMACION".equalsIgnoreCase(estadoActual)) {
+        if (!EstadoEntrevista.PENDIENTE_DE_CONFIRMACION.matches(estadoActual)) {
             throw new RuntimeException(
                     "La entrevista no está en estado 'PENDIENTE DE CONFIRMACION'. Estado actual: " + estadoActual);
         }
         Integer idEstadoSolicitud = estadoRepository
-                .findByTipoIgnoreCaseAndEntidadIgnoreCase("SOLICITUD DE CAMBIO", "entrevista")
+                .findByTipoIgnoreCaseAndEntidadIgnoreCase(EstadoEntrevista.SOLICITUD_DE_CAMBIO.getValor(),
+                        EstadoEntrevista.SOLICITUD_DE_CAMBIO.getEntidad().getValor())
                 .orElseThrow(() -> new RuntimeException(
                         "Estado 'SOLICITUD DE CAMBIO' no encontrado para entidad 'entrevista'"))
                 .getId();

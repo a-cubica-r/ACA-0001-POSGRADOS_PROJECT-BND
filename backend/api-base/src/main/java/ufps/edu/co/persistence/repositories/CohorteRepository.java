@@ -56,30 +56,34 @@ public interface CohorteRepository extends JpaRepository<CohorteEntity, Integer>
 		INNER JOIN cohorte c ON a.id_cohorte = c.id
 		INNER JOIN estado ec ON c.id_estado = ec.id
 		WHERE a.id_cohorte = :cohorteId
-		AND ea.entidad = 'aspirante'
-		AND ea.tipo = 'EN PROCESO'
-		AND ec.entidad = 'cohorte'
-		AND ec.tipo = 'ABIERTA'
+		AND ea.entidad = :entidadAspirante
+		AND ea.tipo = :estadoAspirante
+		AND ec.entidad = :entidadCohorte
+		AND ec.tipo = :estadoCohorte
 		""", nativeQuery = true)
-	long countAspirantesEnProcesoEnCohorteAbierta(@Param("cohorteId") Integer cohorteId);
+	long countAspirantesEnProcesoEnCohorteAbierta(@Param("cohorteId") Integer cohorteId,
+			@Param("entidadAspirante") String entidadAspirante, @Param("estadoAspirante") String estadoAspirante,
+			@Param("entidadCohorte") String entidadCohorte, @Param("estadoCohorte") String estadoCohorte);
 
 	List<CohorteEntity> findByIdPrograma(Integer idPrograma);
 
 	@Query("SELECT DISTINCT c FROM CohorteEntity c LEFT JOIN FETCH c.estado LEFT JOIN FETCH c.semestre LEFT JOIN FETCH c.plazo LEFT JOIN FETCH c.plazo2 LEFT JOIN FETCH c.plazo3 WHERE c.idPrograma = :idPrograma")
 	List<CohorteEntity> findResumenDataByIdPrograma(@Param("idPrograma") Integer idPrograma);
 
-	@Query("SELECT c FROM CohorteEntity c WHERE c.idPrograma = :idPrograma AND c.estado.entidad = 'cohorte' AND c.estado.tipo = 'ABIERTA'")
-	List<CohorteEntity> findActivasByIdPrograma(@Param("idPrograma") Integer idPrograma);
+	@Query("SELECT c FROM CohorteEntity c WHERE c.idPrograma = :idPrograma AND c.estado.entidad = :entidad AND c.estado.tipo = :tipo")
+	List<CohorteEntity> findActivasByIdPrograma(@Param("idPrograma") Integer idPrograma,
+			@Param("entidad") String entidad, @Param("tipo") String tipo);
 
 	@Query(value = """
 		SELECT COUNT(a.id)
 		FROM aspirante a
 		INNER JOIN estado ea ON a.id_estado = ea.id
 		WHERE a.id_cohorte = :cohorteId
-		AND ea.entidad = 'aspirante'
-		AND ea.tipo = 'EN PROCESO'
+		AND ea.entidad = :entidad
+		AND ea.tipo = :tipo
 		""", nativeQuery = true)
-	long countAspirantesEnProcesoByCohorteId(@Param("cohorteId") Integer cohorteId);
+	long countAspirantesEnProcesoByCohorteId(@Param("cohorteId") Integer cohorteId,
+			@Param("entidad") String entidad, @Param("tipo") String tipo);
 
 	// Insert specific finders here
 

@@ -121,7 +121,7 @@ public interface AspiranteRepository extends JpaRepository<AspiranteEntity, Inte
 		   "      SELECT d FROM DocumentoEntity d " +
 		   "      WHERE d.aspirante = a " +
 		   "        AND d.documentosrequisitoconsejocohorte = drcc " +
-		   "        AND d.estadodocumento.estado = 'APROBADO'" +
+		   "        AND d.estadodocumento.estado = :estadoAprobado" +
 		   "    )" +
 		   ") " +
 		   "AND NOT EXISTS (" +
@@ -131,10 +131,10 @@ public interface AspiranteRepository extends JpaRepository<AspiranteEntity, Inte
 		   "      SELECT d FROM DocumentoEntity d " +
 		   "      WHERE d.aspirante = a " +
 		   "        AND d.documentosrequisitoprogramacohorte = drpc " +
-		   "        AND d.estadodocumento.estado = 'APROBADO'" +
+		   "        AND d.estadodocumento.estado = :estadoAprobado" +
 		   "    )" +
 		   ")")
-	List<AspiranteEntity> findValidados();
+	List<AspiranteEntity> findValidados(@Param("estadoAprobado") String estadoAprobado);
 
 	@Query("SELECT COUNT(a) FROM AspiranteEntity a WHERE a.estado.tipo IN :tipos")
 	long countByEstadoTipoIn(@Param("tipos") List<String> tipos);
@@ -148,7 +148,7 @@ public interface AspiranteRepository extends JpaRepository<AspiranteEntity, Inte
 		   "      SELECT d FROM DocumentoEntity d " +
 		   "      WHERE d.aspirante = a " +
 		   "        AND d.documentosrequisitoconsejocohorte = drcc " +
-		   "        AND d.estadodocumento.estado = 'APROBADO'" +
+		   "        AND d.estadodocumento.estado = :estadoAprobado" +
 		   "    )" +
 		   ") " +
 		   "AND NOT EXISTS (" +
@@ -158,7 +158,7 @@ public interface AspiranteRepository extends JpaRepository<AspiranteEntity, Inte
 		   "      SELECT d FROM DocumentoEntity d " +
 		   "      WHERE d.aspirante = a " +
 		   "        AND d.documentosrequisitoprogramacohorte = drpc " +
-		   "        AND d.estadodocumento.estado = 'APROBADO'" +
+		   "        AND d.estadodocumento.estado = :estadoAprobado" +
 		   "    )" +
 		   ") " +
 		   "AND EXISTS (" +
@@ -171,7 +171,7 @@ public interface AspiranteRepository extends JpaRepository<AspiranteEntity, Inte
 		   "        AND cal.puntuacion IS NOT NULL" +
 		   "    )" +
 		   ")")
-	List<AspiranteEntity> findPorCalificar();
+	List<AspiranteEntity> findPorCalificar(@Param("estadoAprobado") String estadoAprobado);
 
 	// Validados con todos los criteriocohorte de su cohorte calificados (puntuacion no nula)
 	@Query("SELECT a FROM AspiranteEntity a " +
@@ -182,7 +182,7 @@ public interface AspiranteRepository extends JpaRepository<AspiranteEntity, Inte
 		   "      SELECT d FROM DocumentoEntity d " +
 		   "      WHERE d.aspirante = a " +
 		   "        AND d.documentosrequisitoconsejocohorte = drcc " +
-		   "        AND d.estadodocumento.estado = 'APROBADO'" +
+		   "        AND d.estadodocumento.estado = :estadoAprobado" +
 		   "    )" +
 		   ") " +
 		   "AND NOT EXISTS (" +
@@ -192,7 +192,7 @@ public interface AspiranteRepository extends JpaRepository<AspiranteEntity, Inte
 		   "      SELECT d FROM DocumentoEntity d " +
 		   "      WHERE d.aspirante = a " +
 		   "        AND d.documentosrequisitoprogramacohorte = drpc " +
-		   "        AND d.estadodocumento.estado = 'APROBADO'" +
+		   "        AND d.estadodocumento.estado = :estadoAprobado" +
 		   "    )" +
 		   ") " +
 		   "AND NOT EXISTS (" +
@@ -205,5 +205,5 @@ public interface AspiranteRepository extends JpaRepository<AspiranteEntity, Inte
 		   "        AND cal.puntuacion IS NOT NULL" +
 		   "    )" +
 		   ")")
-	List<AspiranteEntity> findCalificados();
+	List<AspiranteEntity> findCalificados(@Param("estadoAprobado") String estadoAprobado);
 }

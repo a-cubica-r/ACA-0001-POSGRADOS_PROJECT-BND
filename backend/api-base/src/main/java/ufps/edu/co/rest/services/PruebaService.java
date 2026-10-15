@@ -18,6 +18,7 @@ import ufps.edu.co.rest.dto.PruebaDTO;
 import ufps.edu.co.rest.dto.TipopruebaDTO;
 import ufps.edu.co.rest.dto.UbicacionDTO;
 import ufps.edu.co.rest.services.commons.GenericService;
+import ufps.edu.co.enums.EstadoPrueba;
 
 /**
  * REST service for entity "Prueba" <br>
@@ -151,12 +152,13 @@ public class PruebaService extends GenericService<PruebaEntity, PruebaDTO> {
         PruebaEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Prueba no encontrada con id: " + id));
         String estadoActual = entity.getEstado() != null ? entity.getEstado().getTipo() : "";
-        if (!"SOLICITUD DE CAMBIO".equalsIgnoreCase(estadoActual)) {
+        if (!EstadoPrueba.SOLICITUD_DE_CAMBIO.matches(estadoActual)) {
             throw new IllegalStateException(
                     "La prueba no está en estado 'SOLICITUD DE CAMBIO'. Estado actual: " + estadoActual);
         }
         Integer idEstadoPendiente = estadoRepository
-                .findByTipoIgnoreCaseAndEntidadIgnoreCase("PENDIENTE DE CONFIRMACION", "prueba")
+                .findByTipoIgnoreCaseAndEntidadIgnoreCase(EstadoPrueba.PENDIENTE_DE_CONFIRMACION.getValor(),
+                        EstadoPrueba.PENDIENTE_DE_CONFIRMACION.getEntidad().getValor())
                 .orElseThrow(() -> new RuntimeException("Estado 'PENDIENTE DE CONFIRMACION' no encontrado para entidad 'prueba'"))
                 .getId();
         entity.setFecha(fecha);

@@ -36,6 +36,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import ufps.edu.co.enums.Rol;
 
 @RestController
 @RequestMapping(value = "/super-admin/endpoints", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -77,7 +78,7 @@ public class SuperAdminEndpointCatalogCase {
                     .toList();
 
             return new EndpointCatalogResponse(
-                    "SUPER_ADMINISTRADOR",
+                    Rol.SUPER_ADMINISTRADOR.getCodigo(),
                     "Catálogo de endpoints autorizados para Super Administrador. El token Bearer se envía desde el frontend y no se incluye en las plantillas.",
                     endpoints.size(),
                     endpoints);

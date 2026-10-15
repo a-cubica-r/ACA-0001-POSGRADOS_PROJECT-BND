@@ -3,6 +3,7 @@ package ufps.edu.co.maps.specific;
 import java.math.BigDecimal;
 
 import org.springframework.stereotype.Component;
+import ufps.edu.co.enums.UnidadValorGlobal;
 
 @Component
 public class ValoresglobalesMap {
@@ -34,7 +35,8 @@ public class ValoresglobalesMap {
             return null;
         }
 
-        normalized = normalized.replace("SMMLV", "").replace("SMLMV", "").trim();
+        // "SMLMV" es una variante mal escrita que se sigue aceptando al leer valores ya guardados.
+        normalized = normalized.replace(UnidadValorGlobal.SMMLV.getValor(), "").replace("SMLMV", "").trim();
         normalized = normalized.replace(",", ".");
 
         if (normalized.isEmpty()) {

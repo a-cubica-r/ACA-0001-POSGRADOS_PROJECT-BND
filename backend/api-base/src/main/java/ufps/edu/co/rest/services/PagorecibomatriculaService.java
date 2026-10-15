@@ -12,6 +12,7 @@ import ufps.edu.co.persistence.entities.PagorecibomatriculaEntity;
 import ufps.edu.co.persistence.repositories.PagorecibomatriculaRepository;
 import ufps.edu.co.rest.dto.PagorecibomatriculaDTO;
 import ufps.edu.co.rest.services.commons.GenericService;
+import ufps.edu.co.enums.EstadoPagoMatricula;
 
 /**
  * REST service for entity "Pagorecibomatricula" <br>
@@ -43,7 +44,8 @@ public class PagorecibomatriculaService extends GenericService<Pagorecibomatricu
     public PagorecibomatriculaDTO findCurrentByIdAspirante(Integer idAspirante) {
         var entity = repository
             .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
-                idAspirante, "EN CURSO", "pagomatricula");
+                idAspirante, EstadoPagoMatricula.EN_CURSO.getValor(),
+                EstadoPagoMatricula.EN_CURSO.getEntidad().getValor());
         if (entity == null) {
             return null;
         }
@@ -53,7 +55,7 @@ public class PagorecibomatriculaService extends GenericService<Pagorecibomatricu
     @Transactional(readOnly = true)
     public boolean existsCurrentByIdAspirante(Integer idAspirante) {
         return repository.existsByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCase(idAspirante,
-                "EN CURSO", "pagomatricula");
+                EstadoPagoMatricula.EN_CURSO.getValor(), EstadoPagoMatricula.EN_CURSO.getEntidad().getValor());
     }
 
     public PagorecibomatriculaDTO create(PagorecibomatriculaDTO dto) {
@@ -92,7 +94,8 @@ public class PagorecibomatriculaService extends GenericService<Pagorecibomatricu
     public PagorecibomatriculaDTO findLastRejectedByIdAspirante(Integer idAspirante) {
         var entity = repository
             .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
-                idAspirante, "RECHAZADO", "pagomatricula");
+                idAspirante, EstadoPagoMatricula.RECHAZADO.getValor(),
+                EstadoPagoMatricula.RECHAZADO.getEntidad().getValor());
         return entityToDto(entity);
     }
 

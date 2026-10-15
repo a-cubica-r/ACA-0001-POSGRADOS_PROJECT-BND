@@ -123,6 +123,10 @@ import ufps.edu.co.rest.services.PagoService;
 import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.services.core.crud.PagoCoreService;
 import ufps.edu.co.records.output.entity.PagoOutput;
+import ufps.edu.co.enums.EstadoAspirante;
+import ufps.edu.co.enums.EstadoPagoInscripcion;
+import ufps.edu.co.enums.EstadoPagoMatricula;
+import ufps.edu.co.enums.ActorCancelacion;
 
 @RestController
 @RequestMapping("/director-programa")
@@ -426,9 +430,7 @@ public class DirectorProgramaCase {
         try {
             Integer nuevoIdEstado = request != null ? request.idEstado() : null;
             if (nuevoIdEstado == null) {
-                var est = estadoService.findByTipoAndEntidad("RECHAZADO", "pagoinscripcion");
-                if (est == null)
-                    est = estadoService.findByTipoAndEntidad("RECHAZADO", "PAGOINSCRIPCION");
+                var est = estadoService.findByTipoAndEntidad(EstadoPagoInscripcion.RECHAZADO);
                 if (est == null)
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 nuevoIdEstado = est.getId();
@@ -496,9 +498,7 @@ public class DirectorProgramaCase {
         try {
             Integer nuevoIdEstado = request != null ? request.idEstado() : null;
             if (nuevoIdEstado == null) {
-                var est = estadoService.findByTipoAndEntidad("RECHAZADO", "pagomatricula");
-                if (est == null)
-                    est = estadoService.findByTipoAndEntidad("RECHAZADO", "PAGOMATRICULA");
+                var est = estadoService.findByTipoAndEntidad(EstadoPagoMatricula.RECHAZADO);
                 if (est == null)
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 nuevoIdEstado = est.getId();
@@ -989,7 +989,7 @@ public class DirectorProgramaCase {
             List<AspiranteDTO> aspirantes = aspiranteService.findByCohorte(cohorteId);
             // validation: require at least one aspirante with estado ADMITIDO
             boolean anyAdmitido = aspirantes.stream()
-                    .anyMatch(a -> a.getEstado() != null && "ADMITIDO".equalsIgnoreCase(a.getEstado().getTipo()));
+                    .anyMatch(a -> a.getEstado() != null && EstadoAspirante.ADMITIDO.matches(a.getEstado().getTipo()));
             if (!anyAdmitido) {
                 throw new DomainException(ListaadmitidosErrorCode.NO_ADMITIDOS_EN_COHORTE, cohorteId);
             }
@@ -997,15 +997,9 @@ public class DirectorProgramaCase {
             List<ListaadmitidosOutput> created = new ArrayList<>();
             LocalDate today = LocalDate.now();
 
-            EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "aspirante");
-            if (estadoPorLegalizar == null) {
-                estadoPorLegalizar = estadoService.findByTipoAndEntidad("POR LEGALIZAR", "ASPIRANTE");
-            }
+            EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad(EstadoAspirante.POR_LEGALIZAR);
 
-            EstadoDTO estadoCancelado = estadoService.findByTipoAndEntidad("CANCELADO", "aspirante");
-            if (estadoCancelado == null) {
-                estadoCancelado = estadoService.findByTipoAndEntidad("CANCELADO", "ASPIRANTE");
-            }
+            EstadoDTO estadoCancelado = estadoService.findByTipoAndEntidad(EstadoAspirante.CANCELADO);
 
             Integer idEstadoPorLegalizar = estadoPorLegalizar != null ? estadoPorLegalizar.getId() : null;
             Integer idEstadoCancelado = estadoCancelado != null ? estadoCancelado.getId() : null;
@@ -1013,7 +1007,7 @@ public class DirectorProgramaCase {
             // Insert admitido rows for aspirantes currently marked ADMITIDO
             for (AspiranteDTO a : aspirantes) {
                 String tipo = a.getEstado() != null ? a.getEstado().getTipo() : null;
-                if ("ADMITIDO".equalsIgnoreCase(tipo)) {
+                if (EstadoAspirante.ADMITIDO.matches(tipo)) {
                     if (!listaadmitidosService.existsByIdCohorteAndIdAspirante(cohorteId, a.getId())) {
                         AdmitidoDTO dto = new AdmitidoDTO();
                         dto.setIdCohorte(cohorteId);
@@ -1030,9 +1024,9 @@ public class DirectorProgramaCase {
             for (AspiranteDTO a : aspirantes) {
                 String tipo = a.getEstado() != null ? a.getEstado().getTipo() : null;
                 try {
-                    if ("ADMITIDO".equalsIgnoreCase(tipo) && idEstadoPorLegalizar != null) {
+                    if (EstadoAspirante.ADMITIDO.matches(tipo) && idEstadoPorLegalizar != null) {
                         aspiranteService.updateEstado(a.getId(), idEstadoPorLegalizar);
-                    } else if ("VALIDADO_CALIFICADO".equalsIgnoreCase(tipo) && idEstadoCancelado != null) {
+                    } else if (EstadoAspirante.VALIDADO_CALIFICADO.matches(tipo) && idEstadoCancelado != null) {
                         aspiranteService.updateEstado(a.getId(), idEstadoCancelado);
                     }
                 } catch (Exception ex) {
@@ -1095,14 +1089,14 @@ public class DirectorProgramaCase {
             List<ListaadmitidosOutput> created = new ArrayList<>();
             LocalDate today = LocalDate.now();
 
-            EstadoDTO estadoAdmitido = estadoService.findByTipoAndEntidad("ADMITIDO", "aspirante");
+            EstadoDTO estadoAdmitido = estadoService.findByTipoAndEntidad(EstadoAspirante.ADMITIDO);
             if (estadoAdmitido == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
 
             for (AspiranteDTO a : aspirantes) {
                 String tipo = a.getEstado() != null ? a.getEstado().getTipo() : null;
-                if ("VALIDADO_CALIFICADO".equalsIgnoreCase(tipo)) {
+                if (EstadoAspirante.VALIDADO_CALIFICADO.matches(tipo)) {
                     // set aspirante to ADMITIDO
                     aspiranteService.updateEstado(a.getId(), estadoAdmitido.getId());
 
@@ -1143,8 +1137,7 @@ public class DirectorProgramaCase {
 
             if (!admitido) {
 
-                EstadoDTO estadoValidadoCalificado = estadoService.findByTipoAndEntidad("VALIDADO_CALIFICADO",
-                        "aspirante");
+                EstadoDTO estadoValidadoCalificado = estadoService.findByTipoAndEntidad(EstadoAspirante.VALIDADO_CALIFICADO);
                 if (estadoValidadoCalificado == null) {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 }
@@ -1174,7 +1167,7 @@ public class DirectorProgramaCase {
                 return ResponseEntity.ok(resp);
             }
 
-            EstadoDTO estadoAdmitido = estadoService.findByTipoAndEntidad("ADMITIDO", "aspirante");
+            EstadoDTO estadoAdmitido = estadoService.findByTipoAndEntidad(EstadoAspirante.ADMITIDO);
             if (estadoAdmitido == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
@@ -1290,7 +1283,8 @@ public class DirectorProgramaCase {
             @PathVariable Integer idEntrevista,
             @RequestBody ENTREVISTA_CANCELAR_REQUEST request) {
         try {
-            EntrevistaOutput o = entrevistaProcessor.cancelInterview(idEntrevista, request.motivocambio(), "DIRECTOR");
+            EntrevistaOutput o = entrevistaProcessor.cancelInterview(idEntrevista, request.motivocambio(),
+                    ActorCancelacion.DIRECTOR.getValor());
             return ResponseEntity.ok(EntrevistaSimpleOutput.builder()
                     .idEntrevista(o.id())
                     .idAspirante(o.idAspirante())
@@ -1369,7 +1363,8 @@ public class DirectorProgramaCase {
             @PathVariable Integer idPrueba,
             @RequestBody PRUEBA_CANCELAR_REQUEST request) {
         try {
-            return ResponseEntity.ok(pruebaProcessor.cancelarPrueba(idPrueba, request.motivocambio(), "DIRECTOR"));
+            return ResponseEntity.ok(pruebaProcessor.cancelarPrueba(idPrueba, request.motivocambio(),
+                    ActorCancelacion.DIRECTOR.getValor()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();

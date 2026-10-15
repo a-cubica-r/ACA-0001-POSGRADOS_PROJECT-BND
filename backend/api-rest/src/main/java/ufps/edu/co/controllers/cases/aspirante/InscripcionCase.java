@@ -25,6 +25,10 @@ import ufps.edu.co.exception.SesEmailException;
 import ufps.edu.co.services.EmailConfirmationTokenService;
 import ufps.edu.co.services.SESService;
 import ufps.edu.co.utils.EmailTemplates;
+import ufps.edu.co.enums.EstadoAspirante;
+import ufps.edu.co.enums.EstadoCohorte;
+import ufps.edu.co.enums.ZonaResidencia;
+import ufps.edu.co.enums.Rol;
 
 @RestController
 @RequestMapping(value = "/inscripciones", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -263,7 +267,7 @@ public class InscripcionCase {
                 }
 
                 // 8. Ubicación de residencia
-                boolean esUrbana = "Urbana".equalsIgnoreCase(body.ubicacionResidencia().zonaResidencia());
+                boolean esUrbana = ZonaResidencia.URBANA.matches(body.ubicacionResidencia().zonaResidencia());
                 UbicacionDTO ubicResidencia = ubicacionService.create(
                                 UbicacionDTO.builder()
                                                 .idMunicipio(body.ubicacionResidencia().idMunicipioResidencia())
@@ -297,7 +301,7 @@ public class InscripcionCase {
                                                 .build());
 
                 // 10. Estado inicial del aspirante
-                EstadoDTO estado = estadoService.findByTipoAndEntidad("NO CONFIRMADO", "ASPIRANTE");
+                EstadoDTO estado = estadoService.findByTipoAndEntidad(EstadoAspirante.NO_CONFIRMADO);
                 if (estado == null) {
                         throw new RuntimeException(
                                         "Estado inicial 'NO CONFIRMADO' para ASPIRANTE no encontrado en la base de datos");
@@ -312,7 +316,7 @@ public class InscripcionCase {
                         throw new RuntimeException("Cohorte no encontrada con id: " + body.idCohorte());
                 }
                 if (cohorte.getEstado() != null && cohorte.getEstado().getTipo() != null
-                                && !"ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo())) {
+                                && !EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo())) {
                         throw new RuntimeException("La cohorte indicada no está abierta");
                 }
 
@@ -408,7 +412,7 @@ public class InscripcionCase {
                                 .idPersona(body.idPersona())
                                 .idClave(clave.getId())
                                 .idRol(
-                                                rolProcessor.findByNombre("ASPIRANTE").id())
+                                                rolProcessor.findByNombre(Rol.ASPIRANTE.getValor()).id())
                                 .nombreusuario(body.usuario())
                                 .build());
 
@@ -504,7 +508,7 @@ public class InscripcionCase {
 
                 // 8. Ubicación de residencia
                 boolean esUrbana = body.ubicacionResidencia() != null
-                                && "Urbana".equalsIgnoreCase(body.ubicacionResidencia().zonaResidencia());
+                                && ZonaResidencia.URBANA.matches(body.ubicacionResidencia().zonaResidencia());
                 UbicacionDTO ubicResidencia = ubicacionService.create(
                                 UbicacionDTO.builder()
                                                 .idMunicipio(body.ubicacionResidencia().idMunicipioResidencia())
@@ -539,7 +543,7 @@ public class InscripcionCase {
                                                 .build());
 
                 // 10. Estado inicial del aspirante
-                EstadoDTO estado = estadoService.findByTipoAndEntidad("NO CONFIRMADO", "ASPIRANTE");
+                EstadoDTO estado = estadoService.findByTipoAndEntidad(EstadoAspirante.NO_CONFIRMADO);
                 if (estado == null) {
                         throw new RuntimeException(
                                         "Estado inicial 'NO CONFIRMADO' para ASPIRANTE no encontrado en la base de datos");
@@ -554,7 +558,7 @@ public class InscripcionCase {
                         throw new RuntimeException("Cohorte no encontrada con id: " + body.idCohorte());
                 }
                 if (cohorte.getEstado() != null && cohorte.getEstado().getTipo() != null
-                                && !"ABIERTA".equalsIgnoreCase(cohorte.getEstado().getTipo())) {
+                                && !EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo())) {
                         throw new RuntimeException("La cohorte indicada no está abierta");
                 }
 
@@ -605,7 +609,7 @@ public class InscripcionCase {
                 UsuarioDTO usuario = usuarioService.create(UsuarioDTO.builder()
                                 .idPersona(persona.getId())
                                 .idClave(clave.getId())
-                                .idRol(rolProcessor.findByNombre("ASPIRANTE").id())
+                                .idRol(rolProcessor.findByNombre(Rol.ASPIRANTE.getValor()).id())
                                 .nombreusuario(body.usuario())
                                 .build());
 
@@ -673,9 +677,9 @@ public class InscripcionCase {
 
         @GetMapping("/zonas-residencia")
         public ResponseEntity<List<Map<String, Object>>> getZonasResidencia() {
-                return ResponseEntity.ok(List.of(
-                                Map.of("id", 1, "nombre", "Urbana"),
-                                Map.of("id", 2, "nombre", "Rural")));
+                return ResponseEntity.ok(Arrays.stream(ZonaResidencia.values())
+                                .map(zona -> Map.<String, Object>of("id", zona.getId(), "nombre", zona.getValor()))
+                                .toList());
         }
 
         @GetMapping("/tipos-documento")

@@ -12,6 +12,7 @@ import ufps.edu.co.persistence.entities.PagoreciboinscripcionEntity;
 import ufps.edu.co.persistence.repositories.PagoreciboinscripcionRepository;
 import ufps.edu.co.rest.dto.PagoreciboinscripcionDTO;
 import ufps.edu.co.rest.services.commons.GenericService;
+import ufps.edu.co.enums.EstadoPagoInscripcion;
 
 /**
  * REST service for entity "Pagoreciboinscripcion" <br>
@@ -44,7 +45,8 @@ public class PagoreciboinscripcionService
     public PagoreciboinscripcionDTO findCurrentByIdAspirante(Integer idAspirante) {
         var entity = repository
                 .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
-                        idAspirante, "EN CURSO", "pagoinscripcion");
+                        idAspirante, EstadoPagoInscripcion.EN_CURSO.getValor(),
+                        EstadoPagoInscripcion.EN_CURSO.getEntidad().getValor());
         if (entity == null) {
             return null;
         }
@@ -55,7 +57,8 @@ public class PagoreciboinscripcionService
     public PagoreciboinscripcionDTO findLastRejectedByIdAspirante(Integer idAspirante) {
         var entity = repository
                 .findFirstByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCaseOrderByIdDesc(
-                        idAspirante, "RECHAZADO", "pagoinscripcion");
+                        idAspirante, EstadoPagoInscripcion.RECHAZADO.getValor(),
+                        EstadoPagoInscripcion.RECHAZADO.getEntidad().getValor());
         return entityToDto(entity);
     }
 
@@ -68,7 +71,7 @@ public class PagoreciboinscripcionService
     @Transactional(readOnly = true)
     public boolean existsCurrentByIdAspirante(Integer idAspirante) {
         return repository.existsByPago_IdAspiranteAndEstado_TipoIgnoreCaseAndEstado_EntidadIgnoreCase(idAspirante,
-                "EN CURSO", "pagoinscripcion");
+                EstadoPagoInscripcion.EN_CURSO.getValor(), EstadoPagoInscripcion.EN_CURSO.getEntidad().getValor());
     }
 
     public PagoreciboinscripcionDTO create(PagoreciboinscripcionDTO dto) {

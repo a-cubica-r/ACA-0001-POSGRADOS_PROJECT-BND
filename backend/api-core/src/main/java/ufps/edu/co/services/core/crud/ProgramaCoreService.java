@@ -27,6 +27,8 @@ import ufps.edu.co.rest.services.ProgramaService;
 import ufps.edu.co.rest.services.SedeService;
 import ufps.edu.co.rest.services.TiporegistroService;
 import ufps.edu.co.usecase.GlobalUseCase;
+import ufps.edu.co.enums.Modalidad;
+import ufps.edu.co.enums.TipoRegistro;
 
 @Service
 public class ProgramaCoreService implements
@@ -66,13 +68,13 @@ public class ProgramaCoreService implements
     }
 
     private void resolveModalidad(ProgramaDTO dto) {
-        if (Integer.valueOf(1).equals(dto.getIdTiporegistro())) {
-            ModalidadDTO hibrida = modalidadService.findByNombre("HIBRIDA");
+        if (TipoRegistro.UNICO.getId().equals(dto.getIdTiporegistro())) {
+            ModalidadDTO hibrida = modalidadService.findByNombre(Modalidad.HIBRIDA.getValor());
             if (hibrida == null) {
-                throw new DomainException(ProgramaErrorCode.MODALIDAD_NOT_FOUND, "HIBRIDA");
+                throw new DomainException(ProgramaErrorCode.MODALIDAD_NOT_FOUND, Modalidad.HIBRIDA.getValor());
             }
             dto.setIdModalidad(hibrida.getId());
-        } else if (Integer.valueOf(2).equals(dto.getIdTiporegistro())) {
+        } else if (TipoRegistro.ESTANDAR.getId().equals(dto.getIdTiporegistro())) {
             if (dto.getIdModalidad() == null) {
                 throw new DomainException(ProgramaErrorCode.PROGRAMA_PARAMETRO_REQUERIDO, "idModalidad");
             }
@@ -144,16 +146,16 @@ public class ProgramaCoreService implements
                 throw new DomainException(ProgramaErrorCode.PROGRAMA_SIN_TIPO_REGISTRO, programaId);
             }
 
-            if ("UNICO".equalsIgnoreCase(tipoRegistro)) {
+            if (TipoRegistro.UNICO.matches(tipoRegistro)) {
                 return modalidadService.findAll().stream()
                         .filter(modalidad -> modalidad != null
                                 && modalidad.getNombre() != null
-                                && !"HIBRIDA".equalsIgnoreCase(modalidad.getNombre()))
+                                && !Modalidad.HIBRIDA.matches(modalidad.getNombre()))
                         .map(this::toModalidadOutput)
                         .toList();
             }
 
-            if ("ESTANDAR".equalsIgnoreCase(tipoRegistro)) {
+            if (TipoRegistro.ESTANDAR.matches(tipoRegistro)) {
                 if (programa.getIdModalidad() == null) {
                     throw new DomainException(ProgramaErrorCode.PROGRAMA_SIN_MODALIDAD_ASIGNADA, programaId);
                 }

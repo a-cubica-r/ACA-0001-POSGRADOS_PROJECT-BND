@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import ufps.edu.co.security.JwtAuthenticationFilter;
+import ufps.edu.co.enums.Rol;
 
 @Configuration
 public class SecurityConfig {
@@ -104,21 +105,21 @@ public class SecurityConfig {
 
                                                 // Posgrados y super admin.
                                                 .requestMatchers(POSGRADOS_PATHS)
-                                                .hasAnyRole("SUPER_ADMINISTRADOR", "POSGRADOS")
+                                                .hasAnyRole(Rol.SUPER_ADMINISTRADOR.getCodigo(), Rol.POSGRADOS.getCodigo())
 
                                                 .requestMatchers(DIRECTOR_PROGRAMA_PATHS)
-                                                .hasAnyRole("SUPER_ADMINISTRADOR", "DIRECTOR_DE_PROGRAMA", "POSGRADOS")
+                                                .hasAnyRole(Rol.SUPER_ADMINISTRADOR.getCodigo(), Rol.DIRECTOR_DE_PROGRAMA.getCodigo(), Rol.POSGRADOS.getCodigo())
 
                                                 .requestMatchers(DIRECTOR_PROGRAMA_POSGRADOS_PATHS)
-                                                .hasAnyRole("SUPER_ADMINISTRADOR", "DIRECTOR_DE_PROGRAMA", "POSGRADOS")
+                                                .hasAnyRole(Rol.SUPER_ADMINISTRADOR.getCodigo(), Rol.DIRECTOR_DE_PROGRAMA.getCodigo(), Rol.POSGRADOS.getCodigo())
 
                                                 // Aspirante, director de programa y super admin.
                                                 .requestMatchers(ASPIRANTE_PATHS)
-                                                .hasAnyRole("SUPER_ADMINISTRADOR", "DIRECTOR_DE_PROGRAMA", "ASPIRANTE")
+                                                .hasAnyRole(Rol.SUPER_ADMINISTRADOR.getCodigo(), Rol.DIRECTOR_DE_PROGRAMA.getCodigo(), Rol.ASPIRANTE.getCodigo())
 
                                                 // Catch-all para cualquier otra ruta: solo super admin.
                                                 .requestMatchers(SUPER_ADMIN_PATHS)
-                                                .hasRole("SUPER_ADMINISTRADOR")
+                                                .hasRole(Rol.SUPER_ADMINISTRADOR.getCodigo())
 
                                                 // Cualquier otra solicitud no contemplada se deniega.
                                                 .anyRequest().denyAll())
