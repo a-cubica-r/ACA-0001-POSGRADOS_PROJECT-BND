@@ -5,6 +5,7 @@
 package ufps.edu.co.persistence.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,6 @@ public interface ProgramaRepository extends JpaRepository<ProgramaEntity, Intege
 
 	@Query("SELECT p FROM ProgramaEntity p LEFT JOIN FETCH p.facultad LEFT JOIN FETCH p.sede sede LEFT JOIN FETCH sede.ubicacion LEFT JOIN FETCH p.otrosvalores LEFT JOIN FETCH p.tiporegistro WHERE p.idFacultad = :idFacultad")
 	List<ProgramaEntity> findByIdFacultad(@Param("idFacultad") Integer idFacultad);
+
+	Optional<ProgramaEntity> findFirstByCodigo(String codigo);
 }

@@ -113,6 +113,14 @@ public class ProgramaService extends GenericService<ProgramaEntity, ProgramaDTO>
         return entityListToDtoList(repository.findByIdFacultad(idFacultad));
     }
 
+    /** Id del programa con ese código exacto, o {@code null}. */
+    @Transactional(readOnly = true)
+    public Integer findIdByCodigo(String codigo) {
+        return repository.findFirstByCodigo(codigo)
+                .map(ProgramaEntity::getId)
+                .orElse(null);
+    }
+
     public ProgramaDTO create(ProgramaDTO dto) {
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

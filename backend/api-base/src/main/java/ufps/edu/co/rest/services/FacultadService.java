@@ -48,6 +48,14 @@ public class FacultadService extends GenericService<FacultadEntity, FacultadDTO>
         return entityToDto(repository.findById(id));
     }
 
+    /** Id de la facultad con ese nombre (ignorando mayúsculas/tildes), o {@code null}. */
+    @Transactional(readOnly = true)
+    public Integer findIdByNombreIgnoreCase(String nombre) {
+        return repository.findFirstByNombreIgnoreCase(nombre)
+                .map(FacultadEntity::getId)
+                .orElse(null);
+    }
+
     public FacultadDTO create(FacultadDTO dto) {
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

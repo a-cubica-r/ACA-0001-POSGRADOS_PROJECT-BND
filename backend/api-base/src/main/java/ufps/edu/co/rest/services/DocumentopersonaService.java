@@ -39,6 +39,12 @@ public class DocumentopersonaService extends GenericService<DocumentopersonaEnti
         return entityToDto(repository.findById(id));
     }
 
+    /** ¿Existe ya un documento con ese número y ese tipo? (índice UNIQUE de la BD). */
+    @Transactional(readOnly = true)
+    public boolean existsByNumerodocumentoAndIdTipodocumento(String numerodocumento, Integer idTipodocumento) {
+        return repository.existsByNumerodocumentoAndIdTipodocumento(numerodocumento, idTipodocumento);
+    }
+
     public DocumentopersonaDTO create(DocumentopersonaDTO dto) {
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

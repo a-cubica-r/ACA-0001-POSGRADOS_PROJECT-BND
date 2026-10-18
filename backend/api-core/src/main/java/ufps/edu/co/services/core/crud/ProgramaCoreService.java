@@ -108,6 +108,8 @@ public class ProgramaCoreService implements
         try {
             ProgramaDTO dto = map.toDto(input);
             resolveModalidad(dto);
+            dto.setCodigo(normalizarCodigo(dto.getCodigo()));
+            validarCodigoUnico(dto.getCodigo(), null);
             ProgramaDTO created = service.create(dto);
             return map.toOutput(created);
         } catch (DomainException | DataIntegrityViolationException e) {
@@ -131,6 +133,34 @@ public class ProgramaCoreService implements
         }
     }
 
+    /**
+     * Rechaza el código si ya lo usa otro programa. La comparación la hace la
+     * base (collation {@code utf8mb4_0900_ai_ci}: sin distinguir mayúsculas),
+     * igual que su índice UNIQUE.
+     */
+    private void validarCodigoUnico(String codigo, Integer idQueSeEdita) {
+        if (codigo == null) {
+            return;
+        }
+        Integer existente = service.findIdByCodigo(codigo);
+        if (existente != null && !existente.equals(idQueSeEdita)) {
+            Map<String, Object> param = new HashMap<>();
+            param.put("campo", "codigo");
+            param.put("valor", codigo);
+            param.put("idExistente", existente);
+            throw new DomainException(ProgramaErrorCode.PROGRAMA_CODIGO_DUPLICADO, param);
+        }
+    }
+
+    /** trim(); si queda vacío, {@code null} (la columna admite nulos). */
+    static String normalizarCodigo(String codigo) {
+        if (codigo == null) {
+            return null;
+        }
+        String limpio = codigo.trim();
+        return limpio.isEmpty() ? null : limpio;
+    }
+
     @Override
     public ProgramaOutput update(PROGRAMA_UPDATE input) {
         try {
@@ -142,6 +172,8 @@ public class ProgramaCoreService implements
                     dto.setDirectorId(actual.getDirectorId());
                 }
             }
+            dto.setCodigo(normalizarCodigo(dto.getCodigo()));
+            validarCodigoUnico(dto.getCodigo(), input.id());
             ProgramaDTO updated = service.update(input.id(), dto);
             return map.toOutput(updated);
         } catch (DomainException | DataIntegrityViolationException e) {

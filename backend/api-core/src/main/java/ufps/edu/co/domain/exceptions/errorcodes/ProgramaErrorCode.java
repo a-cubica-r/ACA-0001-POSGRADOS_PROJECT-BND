@@ -39,7 +39,10 @@ public enum ProgramaErrorCode implements BaseErrorCode {
             "El programa tiene un director asignado"),
     PROGRAMA_REFERENCIADO_CONFLICT(
             "PROGRAMA_REFERENCIADO_CONFLICT",
-            "El programa está referenciado por otros registros");
+            "El programa está referenciado por otros registros"),
+    PROGRAMA_CODIGO_DUPLICADO(
+            "PROGRAMA_CODIGO_DUPLICADO",
+            "Ya existe un programa con ese código");
 
     private final String code;
     private final String defaultMessage;

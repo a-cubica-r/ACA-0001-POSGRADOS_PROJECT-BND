@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.persistence.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +14,5 @@ import ufps.edu.co.persistence.entities.FacultadEntity;
 @Repository
 public interface FacultadRepository extends JpaRepository<FacultadEntity, Integer> {
 
+    Optional<FacultadEntity> findFirstByNombreIgnoreCase(String nombre);
 }
