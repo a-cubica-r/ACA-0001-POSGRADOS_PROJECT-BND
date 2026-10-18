@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,9 +32,9 @@ public class FacultadRestController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FacultadOutput> findById(@RequestBody FACULTAD_FIND request) {
-        FacultadOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<FacultadOutput> findById(@PathVariable Integer id) {
+        FacultadOutput output = processor.findById(new FACULTAD_FIND(id));
         if (output != null) {
             return ResponseEntity.ok(output);
         } else {

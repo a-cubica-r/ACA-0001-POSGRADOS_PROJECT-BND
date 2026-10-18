@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ufps.edu.co.services.core.crud.ProgramaCoreService;
-import ufps.edu.co.records.input.entity.CohorteInput.COHORTE_FIND;
-import ufps.edu.co.records.input.entity.FacultadInput.FACULTAD_FIND;
 import ufps.edu.co.records.input.entity.ProgramaInput.*;
 import ufps.edu.co.records.output.entity.ProgramaOutput;
 
@@ -33,9 +32,9 @@ public class ProgramaRestController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProgramaOutput> findById(@RequestBody PROGRAMA_FIND request) {
-        ProgramaOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<ProgramaOutput> findById(@PathVariable Integer id) {
+        ProgramaOutput output = processor.findById(new PROGRAMA_FIND(id));
         if (output != null) {
             return ResponseEntity.ok(output);
         } else {
@@ -61,17 +60,15 @@ public class ProgramaRestController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(value = "/listbyfacultad", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ProgramaOutput>> findByIdFacultad(@RequestBody FACULTAD_FIND request) {
-        List<ProgramaOutput> list = processor.findByIdFacultad(request.id());
+    @GetMapping("/byfacultad/{id}")
+    public ResponseEntity<List<ProgramaOutput>> findByIdFacultad(@PathVariable Integer id) {
+        List<ProgramaOutput> list = processor.findByIdFacultad(id);
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value = "/count-en-proceso", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> countAspirantesEnProcesoEnCohorteAbierta(@RequestBody COHORTE_FIND request) {
-
-        Long total = processor.countAspirantesEnProcesoEnCohorteAbierta(request.id());
-
+    @GetMapping("/count-en-proceso/{id}")
+    public ResponseEntity<Long> countAspirantesEnProcesoEnCohorteAbierta(@PathVariable Integer id) {
+        Long total = processor.countAspirantesEnProcesoEnCohorteAbierta(id);
         return ResponseEntity.ok(total);
     }
 }

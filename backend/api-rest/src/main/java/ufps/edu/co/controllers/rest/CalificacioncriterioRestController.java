@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,9 +32,9 @@ public class CalificacioncriterioRestController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CalificacioncriterioOutput> findById(@RequestBody CALIFICACIONCRITERIO_FIND request) {
-        CalificacioncriterioOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<CalificacioncriterioOutput> findById(@PathVariable Integer id) {
+        CalificacioncriterioOutput output = processor.findById(new CALIFICACIONCRITERIO_FIND(id));
         if (output != null) {
             return ResponseEntity.ok(output);
         } else {
@@ -41,17 +42,15 @@ public class CalificacioncriterioRestController {
         }
     }
 
-    @PostMapping(value = "/aspirante", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<CalificacioncriterioOutput>> findByIdAspirante(
-            @RequestBody CALIFICACIONCRITERIO_FIND_BY_ASPIRANTE request) {
-        List<CalificacioncriterioOutput> list = processor.findByIdAspirante(request.idAspirante());
+    @GetMapping("/aspirante/{idAspirante}")
+    public ResponseEntity<List<CalificacioncriterioOutput>> findByIdAspirante(@PathVariable Integer idAspirante) {
+        List<CalificacioncriterioOutput> list = processor.findByIdAspirante(idAspirante);
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value = "/criterio", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<CalificacioncriterioOutput>> findByIdCriterio(
-            @RequestBody CALIFICACIONCRITERIO_FIND_BY_CRITERIO request) {
-        List<CalificacioncriterioOutput> list = processor.findByIdCriterio(request.idCriterio());
+    @GetMapping("/criterio/{idCriterio}")
+    public ResponseEntity<List<CalificacioncriterioOutput>> findByIdCriterio(@PathVariable Integer idCriterio) {
+        List<CalificacioncriterioOutput> list = processor.findByIdCriterio(idCriterio);
         return ResponseEntity.ok(list);
     }
 

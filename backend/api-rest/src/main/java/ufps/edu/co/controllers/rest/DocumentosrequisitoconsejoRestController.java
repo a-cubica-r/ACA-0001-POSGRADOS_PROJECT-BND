@@ -39,9 +39,9 @@ public class DocumentosrequisitoconsejoRestController {
         return ResponseEntity.ok(processor.findAll());
     }
 
-    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DocumentosrequisitoconsejoOutput> findById(@RequestBody DOCUMENTOSREQUISITOCONSEJO_FIND request) {
-        DocumentosrequisitoconsejoOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<DocumentosrequisitoconsejoOutput> findById(@PathVariable Integer id) {
+        DocumentosrequisitoconsejoOutput output = processor.findById(new DOCUMENTOSREQUISITOCONSEJO_FIND(id));
         return output != null ? ResponseEntity.ok(output) : ResponseEntity.notFound().build();
     }
 

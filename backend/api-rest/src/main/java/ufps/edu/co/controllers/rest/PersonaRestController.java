@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,9 +33,9 @@ public class PersonaRestController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PersonaOutput> findById(@Valid @RequestBody PERSONA_FIND request) {
-        PersonaOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<PersonaOutput> findById(@PathVariable Integer id) {
+        PersonaOutput output = processor.findById(new PERSONA_FIND(id));
         if (output != null) {
             return ResponseEntity.ok(output);
         } else {

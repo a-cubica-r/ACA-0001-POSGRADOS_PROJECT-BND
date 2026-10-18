@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,9 +33,9 @@ public class AspiranteRestController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AspiranteOutput> findById(@Valid @RequestBody ASPIRANTE_FIND request) {
-        AspiranteOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<AspiranteOutput> findById(@PathVariable Integer id) {
+        AspiranteOutput output = processor.findById(new ASPIRANTE_FIND(id));
         if (output != null) {
             return ResponseEntity.ok(output);
         } else {
@@ -68,9 +69,9 @@ public class AspiranteRestController {
         }
     }
 
-    @PostMapping(value = "/estado", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EstadoOutput> findEstadoById(@Valid @RequestBody ASPIRANTE_FIND request) {
-        EstadoOutput estado = processor.findEstadoById(request);
+    @GetMapping("/{id}/estado")
+    public ResponseEntity<EstadoOutput> findEstadoById(@PathVariable Integer id) {
+        EstadoOutput estado = processor.findEstadoById(new ASPIRANTE_FIND(id));
         if (estado == null) {
             return ResponseEntity.notFound().build();
         }
