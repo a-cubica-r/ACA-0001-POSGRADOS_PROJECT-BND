@@ -5,6 +5,7 @@
 package ufps.edu.co.rest.services;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +39,18 @@ public class AdministrativoService extends GenericService<AdministrativoEntity, 
 
     public AdministrativoService() {
         super(AdministrativoEntity.class, AdministrativoDTO.class);
+    }
+
+    /**
+     * Cuenta los administrativos (activos o no) asignados a cualquiera de los
+     * cargos indicados. Una lista vacía no consulta la base: devuelve 0.
+     */
+    @Transactional(readOnly = true)
+    public long countByIdCargoIn(Collection<Integer> idsCargo) {
+        if (idsCargo == null || idsCargo.isEmpty()) {
+            return 0L;
+        }
+        return repository.countByIdCargoIn(idsCargo);
     }
 
     @Override

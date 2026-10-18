@@ -378,12 +378,12 @@ public class InscripcionCase {
 
                 boolean personaExistePorDocumento = false;
                 if (body.numeroDocumento() != null && body.idTipoDoc() != null) {
-                        personaExistePorDocumento = documentopersonaService.findAll().stream()
-                                        .anyMatch(doc -> doc.getNumerodocumento() != null
-                                                        && body.numeroDocumento().equals(
-                                                                        String.valueOf(doc.getNumerodocumento()))
-                                                        && java.util.Objects.equals(doc.getIdTipodocumento(),
-                                                                        body.idTipoDoc()));
+                        // Mismo criterio que el índice UNIQUE de la BD:
+                        // (numerodocumento, id_tipodocumento). Consulta directa, sin
+                        // recorrer la tabla en memoria.
+                        personaExistePorDocumento = documentopersonaService
+                                        .existsByNumerodocumentoAndIdTipodocumento(body.numeroDocumento().trim(),
+                                                        body.idTipoDoc());
                 }
 
                 if (personaExistePorDocumento) {

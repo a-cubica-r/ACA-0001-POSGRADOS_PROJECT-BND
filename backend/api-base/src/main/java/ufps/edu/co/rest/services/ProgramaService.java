@@ -90,6 +90,7 @@ public class ProgramaService extends GenericService<ProgramaEntity, ProgramaDTO>
                 .idSede(e.getIdSede())
                 .idTiporegistro(e.getIdTiporegistro())
                 .idModalidad(e.getIdModalidad())
+                .directorId(e.getDirectorId())
                 .facultad(facultadDto)
                 .sede(sedeDto)
                 .otrosvalores(otrosDto)
@@ -110,6 +111,14 @@ public class ProgramaService extends GenericService<ProgramaEntity, ProgramaDTO>
     @Transactional(readOnly = true)
     public List<ProgramaDTO> findByIdFacultad(Integer idFacultad) {
         return entityListToDtoList(repository.findByIdFacultad(idFacultad));
+    }
+
+    /** Id del programa con ese código exacto, o {@code null}. */
+    @Transactional(readOnly = true)
+    public Integer findIdByCodigo(String codigo) {
+        return repository.findFirstByCodigo(codigo)
+                .map(ProgramaEntity::getId)
+                .orElse(null);
     }
 
     public ProgramaDTO create(ProgramaDTO dto) {

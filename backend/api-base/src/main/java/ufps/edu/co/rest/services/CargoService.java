@@ -39,6 +39,11 @@ public class CargoService extends GenericService<CargoEntity, CargoDTO> {
         return entityToDto(repository.findById(id));
     }
 
+    @Transactional(readOnly = true)
+    public List<CargoDTO> findByIdPrograma(Integer idPrograma) {
+        return entityListToDtoList(repository.findByIdPrograma(idPrograma));
+    }
+
     public CargoDTO create(CargoDTO dto) {
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

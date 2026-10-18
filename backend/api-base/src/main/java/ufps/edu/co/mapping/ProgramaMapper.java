@@ -30,7 +30,6 @@ public interface ProgramaMapper extends EntityMapper<ProgramaEntity, ProgramaDTO
     @Mapping(target = "cargoList", ignore = true)
     @Mapping(target = "cohorteList", ignore = true)
     @Mapping(target = "criterioevaluacionList", ignore = true)
-    @Mapping(target = "directorId", ignore = true)
     @Mapping(target = "documentosrequisitoprogramaList", ignore = true)
     @Mapping(target = "estudiantesList", ignore = true)
     @Mapping(target = "historicomoodleld", ignore = true)

@@ -18,7 +18,13 @@ public record ProgramaInicioOutput(
             String nombre,
             boolean activa,
             LocalDate fechaLimiteDocumentos,
-            LocalDate fechaLimitePago
+            LocalDate fechaLimitePago,
+            LocalDate fechaInicioDocumentacion,
+            LocalDate fechaFinDocumentacion,
+            LocalDate fechaInicioInscripcion,
+            LocalDate fechaFinInscripcion,
+            LocalDate fechaInicioPago,
+            LocalDate fechaFinPago
     ) {}
 
     @Builder

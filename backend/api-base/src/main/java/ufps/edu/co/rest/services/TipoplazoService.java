@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ufps.edu.co.enums.TipoPlazo;
 import ufps.edu.co.persistence.entities.TipoplazoEntity;
 import ufps.edu.co.persistence.repositories.TipoplazoRepository;
 import ufps.edu.co.rest.dto.TipoplazoDTO;
@@ -46,6 +47,14 @@ public class TipoplazoService extends GenericService<TipoplazoEntity, TipoplazoD
     @Transactional(readOnly = true)
     public TipoplazoDTO findById(Integer id) {
         return entityToDto(repository.findById(id));
+    }
+
+    @Transactional(readOnly = true)
+    public TipoplazoDTO findByTipo(TipoPlazo tipo) {
+        if (tipo == null) {
+            return null;
+        }
+        return entityToDto(repository.findByTipoIgnoreCase(tipo.getValor()));
     }
 
     public TipoplazoDTO create(TipoplazoDTO dto) {

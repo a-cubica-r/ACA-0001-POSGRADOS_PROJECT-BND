@@ -68,9 +68,13 @@ INSERT INTO modalidad (nombre) VALUES ('Virtual');    -- 2
 
 INSERT INTO tiporegistro (tipo) VALUES ('Posgrado'); -- 1
 
-INSERT INTO tipoplazo (tipo) VALUES ('Inscripción');    -- 1
-INSERT INTO tipoplazo (tipo) VALUES ('Pago');           -- 2
-INSERT INTO tipoplazo (tipo) VALUES ('Documentación');  -- 3
+INSERT INTO tipoplazo (tipo) VALUES ('CORRECCION');    -- 1
+INSERT INTO tipoplazo (tipo) VALUES ('ENTREVISTA');    -- 2
+INSERT INTO tipoplazo (tipo) VALUES ('DOCUMENTACION'); -- 3
+INSERT INTO tipoplazo (tipo) VALUES ('INSCRIPCION');   -- 4
+INSERT INTO tipoplazo (tipo) VALUES ('MATRICULA');     -- 5
+INSERT INTO tipoplazo (tipo) VALUES ('ADMISION');      -- 6
+INSERT INTO tipoplazo (tipo) VALUES ('PAGO');          -- 7
 
 INSERT INTO pagoconcepto (tipo) VALUES ('INSCRIPCION'); -- 1
 INSERT INTO pagoconcepto (tipo) VALUES ('MATRICULA');   -- 2
@@ -130,8 +134,8 @@ INSERT INTO semestre (nombre, fecha_inicio, fecha_fin, id_estado)
 
 -- ── 9. Plazos (3 por cohorte × 10 cohortes = 30 plazos) ──────────────────────
 -- Reutilizamos 3 plazos globales abiertos
-INSERT INTO plazo (fechainicio, fechafin, id_tipoplazo) VALUES ('2026-01-01','2026-12-31', 1); -- 1 inscripcion
-INSERT INTO plazo (fechainicio, fechafin, id_tipoplazo) VALUES ('2026-01-01','2026-12-31', 2); -- 2 pago
+INSERT INTO plazo (fechainicio, fechafin, id_tipoplazo) VALUES ('2026-01-01','2026-12-31', 4); -- 1 inscripcion
+INSERT INTO plazo (fechainicio, fechafin, id_tipoplazo) VALUES ('2026-01-01','2026-12-31', 7); -- 2 pago
 INSERT INTO plazo (fechainicio, fechafin, id_tipoplazo) VALUES ('2026-01-01','2026-12-31', 3); -- 3 documentacion
 
 -- ── 10. Cohortes ──────────────────────────────────────────────────────────────

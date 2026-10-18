@@ -37,6 +37,8 @@ import ufps.edu.co.persistence.entities.DocumentopersonaEntity;
 @Repository
 public interface DocumentopersonaRepository extends JpaRepository<DocumentopersonaEntity, Integer> {
 
+	boolean existsByNumerodocumentoAndIdTipodocumento(String numerodocumento, Integer idTipodocumento);
+
 	// Insert specific finders here 
 
 	//List<DocumentopersonaEntity> findByXxx(String xxx);

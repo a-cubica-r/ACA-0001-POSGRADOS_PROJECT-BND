@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.persistence.repositories;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -36,6 +38,8 @@ import ufps.edu.co.persistence.entities.CargoEntity;
  */
 @Repository
 public interface CargoRepository extends JpaRepository<CargoEntity, Integer> {
+
+	List<CargoEntity> findByIdPrograma(Integer idPrograma);
 
 	// Insert specific finders here 
 

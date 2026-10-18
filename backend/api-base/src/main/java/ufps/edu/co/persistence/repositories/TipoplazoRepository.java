@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.persistence.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -36,5 +38,7 @@ import ufps.edu.co.persistence.entities.TipoplazoEntity;
  */
 @Repository
 public interface TipoplazoRepository extends JpaRepository<TipoplazoEntity, Integer> {
+
+    Optional<TipoplazoEntity> findByTipoIgnoreCase(String tipo);
 
 }

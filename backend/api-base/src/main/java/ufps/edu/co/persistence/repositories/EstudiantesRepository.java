@@ -15,6 +15,8 @@ public interface EstudiantesRepository extends JpaRepository<EstudiantesEntity, 
 
     List<EstudiantesEntity> findByProgramaId(Integer programaId);
 
+    long countByProgramaId(Integer programaId);
+
     List<EstudiantesEntity> findByCohorteId(Integer cohorteId);
 
     List<EstudiantesEntity> findByProgramaIdAndCohorteId(Integer programaId, Integer cohorteId);

@@ -38,6 +38,11 @@ public class EstudiantesService extends GenericService<EstudiantesEntity, Estudi
     }
 
     @Transactional(readOnly = true)
+    public long countByProgramaId(Integer programaId) {
+        return repository.countByProgramaId(programaId);
+    }
+
+    @Transactional(readOnly = true)
     public List<EstudiantesDTO> findByCohorteId(Integer cohorteId) {
         return entityListToDtoList(repository.findByCohorteId(cohorteId));
     }

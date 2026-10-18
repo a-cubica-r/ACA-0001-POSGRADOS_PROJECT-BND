@@ -49,21 +49,13 @@ public class FacultadRestController {
 
     @PutMapping("/update")
     public ResponseEntity<FacultadOutput> update(@RequestBody FACULTAD_UPDATE request) {
-        try {
-            FacultadOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        FacultadOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteById(@RequestBody FACULTAD_DELETE request) {
-        try {
-            processor.deleteById(request);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        processor.deleteById(request);
+        return ResponseEntity.noContent().build();
     }
 }

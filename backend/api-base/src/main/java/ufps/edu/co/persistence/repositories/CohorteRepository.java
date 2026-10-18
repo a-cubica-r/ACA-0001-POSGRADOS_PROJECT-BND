@@ -67,6 +67,8 @@ public interface CohorteRepository extends JpaRepository<CohorteEntity, Integer>
 
 	List<CohorteEntity> findByIdPrograma(Integer idPrograma);
 
+	long countByIdPrograma(Integer idPrograma);
+
 	@Query("SELECT DISTINCT c FROM CohorteEntity c LEFT JOIN FETCH c.estado LEFT JOIN FETCH c.semestre LEFT JOIN FETCH c.plazo LEFT JOIN FETCH c.plazo2 LEFT JOIN FETCH c.plazo3 WHERE c.idPrograma = :idPrograma")
 	List<CohorteEntity> findResumenDataByIdPrograma(@Param("idPrograma") Integer idPrograma);
 

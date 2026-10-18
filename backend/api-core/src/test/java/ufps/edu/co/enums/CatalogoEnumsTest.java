@@ -116,6 +116,12 @@ class CatalogoEnumsTest {
     }
 
     @Test
+    void tipoPlazo_coincideConTablaTipoplazo() {
+        assertEquals(List.of("CORRECCION", "ENTREVISTA", "DOCUMENTACION", "INSCRIPCION", "MATRICULA", "ADMISION",
+                "PAGO"), valores(TipoPlazo.values()));
+    }
+
+    @Test
     void rol_valorCoincideConTablaRoles() {
         assertEquals(List.of("Super Administrador", "Posgrados", "Decano de Facultad", "Director de Programa",
                 "Aspirante"), valores(Rol.values()));
