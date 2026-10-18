@@ -6,6 +6,8 @@ package ufps.edu.co.persistence.repositories;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -104,8 +106,13 @@ public interface AspiranteRepository extends JpaRepository<AspiranteEntity, Inte
 
 	List<AspiranteEntity> findByIdCohorte(int idCohorte);
 
+	Page<AspiranteEntity> findByIdCohorte(int idCohorte, Pageable pageable);
+
 	@Query("SELECT a FROM AspiranteEntity a WHERE a.idCohorte = :cohorteId AND a.estado.tipo IN :tipos")
 	List<AspiranteEntity> findByIdCohorteAndEstadoTipoIn(@Param("cohorteId") int cohorteId, @Param("tipos") List<String> tipos);
+
+	@Query("SELECT a FROM AspiranteEntity a WHERE a.idCohorte = :cohorteId AND a.estado.tipo IN :tipos")
+	Page<AspiranteEntity> findByIdCohorteAndEstadoTipoIn(@Param("cohorteId") int cohorteId, @Param("tipos") List<String> tipos, Pageable pageable);
 
 	long countByIdCohorte(Integer idCohorte);
 

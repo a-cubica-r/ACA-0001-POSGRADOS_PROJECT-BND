@@ -6,6 +6,8 @@ package ufps.edu.co.rest.services;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +45,11 @@ public class CalificacioncriterioService extends GenericService<Calificacioncrit
     @Transactional(readOnly = true)
     public List<CalificacioncriterioDTO> findAll() {
         return entityListToDtoList(repository.findAll());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CalificacioncriterioDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable).map(this::entityToDto);
     }
 
     @Transactional(readOnly = true)
