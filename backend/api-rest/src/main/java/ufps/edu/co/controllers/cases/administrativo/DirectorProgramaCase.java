@@ -762,7 +762,7 @@ public class DirectorProgramaCase {
     @PutMapping(value = "/cohorte/{cohorteId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CohorteListadoOutput> updateCohorte(
             @PathVariable Integer cohorteId,
-            @RequestBody COHORTE_DIRECTOR_UPDATE body) {
+            @Valid @RequestBody COHORTE_DIRECTOR_UPDATE body) {
         try {
             return ResponseEntity.ok(aspiranteProcessor.updateCohorte(cohorteId, body));
         } catch (DomainException e) {

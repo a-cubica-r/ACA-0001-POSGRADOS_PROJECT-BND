@@ -1,7 +1,14 @@
 package ufps.edu.co.exception;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ufps.edu.co.domain.exceptions.DomainException;
@@ -40,6 +47,35 @@ public class GlobalExceptionHandler {
                 null
         );
         return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(body);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        Map<String, String> param = new LinkedHashMap<>();
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            param.putIfAbsent(fieldError.getField(), fieldError.getDefaultMessage());
+        }
+        for (ObjectError objectError : ex.getBindingResult().getGlobalErrors()) {
+            param.putIfAbsent(objectError.getObjectName(), objectError.getDefaultMessage());
+        }
+        ErrorResponse body = new ErrorResponse(
+                "VALIDACION_FALLIDA",
+                "Hay campos inválidos en la solicitud",
+                param
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        Throwable causa = ex.getMostSpecificCause();
+        String detalle = causa != null ? causa.getMessage() : ex.getMessage();
+        ErrorResponse body = new ErrorResponse(
+                "CUERPO_INVALIDO",
+                "El cuerpo de la solicitud no se pudo leer",
+                detalle
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     private HttpStatus resolveStatus(String code) {

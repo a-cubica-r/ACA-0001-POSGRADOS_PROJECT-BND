@@ -14,6 +14,7 @@ import ufps.edu.co.domain.exceptions.DomainException;
 import ufps.edu.co.domain.exceptions.errorcodes.CohorteErrorCode;
 import ufps.edu.co.domain.exceptions.errorcodes.CriteriocohorteErrorCode;
 import ufps.edu.co.domain.exceptions.errorcodes.CriterioevaluacionErrorCode;
+import ufps.edu.co.domain.exceptions.errorcodes.TipoplazoErrorCode;
 import ufps.edu.co.maps.specific.AspiranteMap;
 import ufps.edu.co.maps.specific.EstadoMap;
 import ufps.edu.co.records.input.entity.AspiranteInput.*;
@@ -30,6 +31,7 @@ import ufps.edu.co.records.output.entity.CohorteResumenOutput;
 import ufps.edu.co.records.output.entity.CriterioFilaOutput;
 import ufps.edu.co.records.output.entity.CriteriosCohorteOutput;
 import ufps.edu.co.records.output.entity.EstadoOutput;
+import ufps.edu.co.records.output.entity.FechasCohorte;
 import ufps.edu.co.records.output.entity.PasoProcesoOutput;
 import ufps.edu.co.records.output.entity.ProgramaInicioOutput;
 import ufps.edu.co.rest.dto.CohorteDTO;
@@ -67,6 +69,7 @@ import ufps.edu.co.enums.EstadoAspirante;
 import ufps.edu.co.enums.EstadoDocumento;
 import ufps.edu.co.enums.EstadoSemestre;
 import ufps.edu.co.enums.EstadoPaso;
+import ufps.edu.co.enums.TipoPlazo;
 import ufps.edu.co.enums.ValorCatalogo;
 
 @Service
@@ -303,6 +306,7 @@ public class AspiranteCoreService implements
                     && EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo());
             long inscritos = service.countByCohorte(cohorte.getId());
             long admitidos = admitidoService.countByCohorte(cohorte.getId());
+            FechasCohorte fechas = FechasCohorte.desde(cohorte);
             return CohorteListadoOutput.builder()
                     .id(cohorte.getId())
                     .nombre(cohorte.getNombre())
@@ -313,6 +317,12 @@ public class AspiranteCoreService implements
                     .fechaLimiteDocumentos(cohorte.getPlazo() != null ? cohorte.getPlazo().getFechafin() : null)
                     .fechaLimitePago(cohorte.getPlazo3() != null ? cohorte.getPlazo3().getFechafin() : null)
                     .fechaInicio(cohorte.getSemestre() != null ? cohorte.getSemestre().getFechaInicio() : null)
+                    .fechaInicioDocumentacion(fechas.fechaInicioDocumentacion())
+                    .fechaFinDocumentacion(fechas.fechaFinDocumentacion())
+                    .fechaInicioInscripcion(fechas.fechaInicioInscripcion())
+                    .fechaFinInscripcion(fechas.fechaFinInscripcion())
+                    .fechaInicioPago(fechas.fechaInicioPago())
+                    .fechaFinPago(fechas.fechaFinPago())
                     .build();
         }).toList();
     }
@@ -327,6 +337,7 @@ public class AspiranteCoreService implements
         long validados = service.countValidadosByCohorte(cohorte.getId());
         long calificados = service.countCalificadosByCohorte(cohorte.getId());
 
+        FechasCohorte fechas = FechasCohorte.desde(cohorte);
         return ProgramaInicioOutput.builder()
                 .cohorteActual(ProgramaInicioOutput.CohorteResumen.builder()
                         .id(cohorte.getId())
@@ -334,6 +345,12 @@ public class AspiranteCoreService implements
                         .activa(true)
                         .fechaLimiteDocumentos(cohorte.getPlazo() != null ? cohorte.getPlazo().getFechafin() : null)
                         .fechaLimitePago(cohorte.getPlazo3() != null ? cohorte.getPlazo3().getFechafin() : null)
+                        .fechaInicioDocumentacion(fechas.fechaInicioDocumentacion())
+                        .fechaFinDocumentacion(fechas.fechaFinDocumentacion())
+                        .fechaInicioInscripcion(fechas.fechaInicioInscripcion())
+                        .fechaFinInscripcion(fechas.fechaFinInscripcion())
+                        .fechaInicioPago(fechas.fechaInicioPago())
+                        .fechaFinPago(fechas.fechaFinPago())
                         .build())
                 .validacion(ProgramaInicioOutput.ValidacionResumen.builder()
                         .totalInscritos(totalInscritos)
@@ -365,6 +382,7 @@ public class AspiranteCoreService implements
                         long validados = service.countValidadosByCohorte(cohorteId);
                         long calificados = service.countCalificadosByCohorte(cohorteId);
 
+                        FechasCohorte fechas = FechasCohorte.desde(cohorte);
                         return ProgramaInicioOutput.builder()
                                 .cohorteActual(ProgramaInicioOutput.CohorteResumen.builder()
                                         .id(cohorteId)
@@ -372,6 +390,12 @@ public class AspiranteCoreService implements
                                         .activa(true)
                                         .fechaLimiteDocumentos(fechaLimiteDocumentos)
                                         .fechaLimitePago(fechaLimitePago)
+                                        .fechaInicioDocumentacion(fechas.fechaInicioDocumentacion())
+                                        .fechaFinDocumentacion(fechas.fechaFinDocumentacion())
+                                        .fechaInicioInscripcion(fechas.fechaInicioInscripcion())
+                                        .fechaFinInscripcion(fechas.fechaFinInscripcion())
+                                        .fechaInicioPago(fechas.fechaInicioPago())
+                                        .fechaFinPago(fechas.fechaFinPago())
                                         .build())
                                 .validacion(ProgramaInicioOutput.ValidacionResumen.builder()
                                         .totalInscritos(totalInscritos)
@@ -482,6 +506,7 @@ public class AspiranteCoreService implements
                 .filter(java.util.Objects::nonNull)
                 .toList();
 
+        FechasCohorte fechas = FechasCohorte.desde(cohorte);
         return CohorteDetalleOutput.builder()
                 .id(cohorte.getId())
                 .nombre(cohorte.getNombre())
@@ -496,6 +521,12 @@ public class AspiranteCoreService implements
                 .fechaLimiteDocumentos(cohorte.getPlazo() != null ? cohorte.getPlazo().getFechafin() : null)
                 .fechaLimitePago(cohorte.getPlazo3() != null ? cohorte.getPlazo3().getFechafin() : null)
                 .fechaInicio(cohorte.getSemestre() != null ? cohorte.getSemestre().getFechaInicio() : null)
+                .fechaInicioDocumentacion(fechas.fechaInicioDocumentacion())
+                .fechaFinDocumentacion(fechas.fechaFinDocumentacion())
+                .fechaInicioInscripcion(fechas.fechaInicioInscripcion())
+                .fechaFinInscripcion(fechas.fechaFinInscripcion())
+                .fechaInicioPago(fechas.fechaInicioPago())
+                .fechaFinPago(fechas.fechaFinPago())
                 .criterios(criterios)
                 .documentosAsignados(CohorteDetalleOutput.DocumentosAsignadosInfo.builder()
                         .documentosConsejo(documentosConsejo)
@@ -694,28 +725,41 @@ public class AspiranteCoreService implements
 
     @Transactional
     public CohorteListadoOutput createCohorte(Integer programaId, COHORTE_DIRECTOR_CREATE body) {
-        LocalDate fechaInicio = body.fechaInicio();
+        LocalDate inicioDocumentacion = body.fechaInicioDocumentacion();
+        LocalDate finDocumentacion = body.fechaFinDocumentacion();
+        LocalDate inicioInscripcion = body.fechaInicioInscripcion();
+        LocalDate finInscripcion = body.fechaFinInscripcion();
+        LocalDate inicioPago = body.fechaInicioPago();
+        LocalDate finPago = body.fechaFinPago();
         String nombre = body.nombre();
 
-        List<TipoplazoDTO> tipoplazos = tipoplazoService.findAll();
-        if (tipoplazos.isEmpty()) {
-            throw new RuntimeException("No hay tipos de plazo configurados");
-        }
-        Integer tipoplazoId = tipoplazos.get(0).getId();
+        validarRangoPlazo("documentacion", inicioDocumentacion, finDocumentacion);
+        validarRangoPlazo("inscripcion", inicioInscripcion, finInscripcion);
+        validarRangoPlazo("pago", inicioPago, finPago);
+
+        Integer tipoDocumentacion = tipoPlazoId(TipoPlazo.DOCUMENTACION);
+        Integer tipoInscripcion = tipoPlazoId(TipoPlazo.INSCRIPCION);
+        Integer tipoPago = tipoPlazoId(TipoPlazo.PAGO);
 
         PlazoDTO plazoDoc = plazoService.create(PlazoDTO.builder()
-                .fechainicio(fechaInicio)
-                .fechafin(body.fechaLimiteDocumentos())
-                .idTipoplazo(tipoplazoId)
+                .fechainicio(inicioDocumentacion)
+                .fechafin(finDocumentacion)
+                .idTipoplazo(tipoDocumentacion)
+                .build());
+
+        PlazoDTO plazoInscripcion = plazoService.create(PlazoDTO.builder()
+                .fechainicio(inicioInscripcion)
+                .fechafin(finInscripcion)
+                .idTipoplazo(tipoInscripcion)
                 .build());
 
         PlazoDTO plazoPago = plazoService.create(PlazoDTO.builder()
-                .fechainicio(fechaInicio)
-                .fechafin(body.fechaLimitePago())
-                .idTipoplazo(tipoplazoId)
+                .fechainicio(inicioPago)
+                .fechafin(finPago)
+                .idTipoplazo(tipoPago)
                 .build());
 
-        SemestreDTO semestre = resolverSemestreHabilitado(body.idSemestre(), fechaInicio);
+        SemestreDTO semestre = resolverSemestreHabilitado(body.idSemestre(), inicioDocumentacion);
 
         EstadoDTO estadoCohorte = estadoService.findByTipoAndEntidad(EstadoCohorte.CERRADA);
         if (estadoCohorte == null) {
@@ -729,7 +773,7 @@ public class AspiranteCoreService implements
                 .idSemestre(semestre.getId())
                 .idModalidad(body.idModalidad())
                 .idPlazodocumentacion(plazoDoc.getId())
-                .idPlazoinscripcion(plazoDoc.getId())
+                .idPlazoinscripcion(plazoInscripcion.getId())
                 .idPlazopago(plazoPago.getId())
                 .idPrograma(programaId)
                 .build());
@@ -778,10 +822,102 @@ public class AspiranteCoreService implements
                 .inscritos(0)
                 .admitidos(0)
                 .cupos(body.cupos())
-                .fechaLimiteDocumentos(body.fechaLimiteDocumentos())
-                .fechaLimitePago(body.fechaLimitePago())
-                .fechaInicio(fechaInicio)
+                .fechaLimiteDocumentos(finDocumentacion)
+                .fechaLimitePago(finPago)
+                .fechaInicio(semestre.getFechaInicio())
+                .fechaInicioDocumentacion(inicioDocumentacion)
+                .fechaFinDocumentacion(finDocumentacion)
+                .fechaInicioInscripcion(inicioInscripcion)
+                .fechaFinInscripcion(finInscripcion)
+                .fechaInicioPago(inicioPago)
+                .fechaFinPago(finPago)
                 .build();
+    }
+
+    private void validarRangoPlazo(String nombrePlazo, LocalDate inicio, LocalDate fin) {
+        if (inicio != null && fin != null && inicio.isAfter(fin)) {
+            throw new DomainException(CohorteErrorCode.COHORTE_PLAZO_FECHAS_INVALIDAS, nombrePlazo);
+        }
+    }
+
+    private Integer tipoPlazoId(TipoPlazo tipo) {
+        TipoplazoDTO tipoPlazo = tipoplazoService.findByTipo(tipo);
+        if (tipoPlazo == null) {
+            throw new DomainException(TipoplazoErrorCode.TIPOPLAZO_NO_CONFIGURADO_CONFLICT, tipo.getValor());
+        }
+        return tipoPlazo.getId();
+    }
+
+    private LocalDate valorFinal(LocalDate solicitado, PlazoDTO plazo, boolean inicio) {
+        if (solicitado != null) {
+            return solicitado;
+        }
+        if (plazo == null) {
+            return null;
+        }
+        return inicio ? plazo.getFechainicio() : plazo.getFechafin();
+    }
+
+    /**
+     * Asigna a un plazo existente solo las fechas que cambian.
+     *
+     * @return {@code true} si modificó algo y por tanto hay que persistirlo.
+     */
+    private boolean aplicarPlazo(PlazoDTO plazo, LocalDate inicio, LocalDate fin) {
+        boolean changed = false;
+        if (inicio != null && !inicio.equals(plazo.getFechainicio())) {
+            plazo.setFechainicio(inicio);
+            changed = true;
+        }
+        if (fin != null && !fin.equals(plazo.getFechafin())) {
+            plazo.setFechafin(fin);
+            changed = true;
+        }
+        return changed;
+    }
+
+    /**
+     * Las cohortes creadas antes de D-00 comparten la fila del plazo de
+     * documentación con la de inscripción (y a veces con la de pago). Antes de
+     * modificar nada se separan: se crea un plazo nuevo del tipo que falte,
+     * copiando las fechas del plazo que estaba compartido.
+     *
+     * @return {@code true} si se creó algún plazo y la cohorte debe guardarse.
+     */
+    private boolean separarPlazosCompartidos(CohorteDTO cohorte) {
+        PlazoDTO plazoDocumentacion = cohorte.getPlazo();
+        boolean separado = false;
+
+        boolean inscripcionCompartida = cohorte.getIdPlazoinscripcion() == null
+                || cohorte.getIdPlazoinscripcion().equals(cohorte.getIdPlazodocumentacion());
+        if (inscripcionCompartida && (cohorte.getPlazo2() != null || plazoDocumentacion != null)) {
+            PlazoDTO origen = cohorte.getPlazo2() != null ? cohorte.getPlazo2() : plazoDocumentacion;
+            PlazoDTO nuevo = crearPlazo(TipoPlazo.INSCRIPCION, origen);
+            cohorte.setIdPlazoinscripcion(nuevo.getId());
+            cohorte.setPlazo2(nuevo);
+            separado = true;
+        }
+
+        boolean pagoCompartido = cohorte.getIdPlazopago() == null
+                || cohorte.getIdPlazopago().equals(cohorte.getIdPlazodocumentacion())
+                || cohorte.getIdPlazopago().equals(cohorte.getIdPlazoinscripcion());
+        if (pagoCompartido && (cohorte.getPlazo3() != null || plazoDocumentacion != null)) {
+            PlazoDTO origen = cohorte.getPlazo3() != null ? cohorte.getPlazo3() : plazoDocumentacion;
+            PlazoDTO nuevo = crearPlazo(TipoPlazo.PAGO, origen);
+            cohorte.setIdPlazopago(nuevo.getId());
+            cohorte.setPlazo3(nuevo);
+            separado = true;
+        }
+
+        return separado;
+    }
+
+    private PlazoDTO crearPlazo(TipoPlazo tipo, PlazoDTO origen) {
+        return plazoService.create(PlazoDTO.builder()
+                .fechainicio(origen != null ? origen.getFechainicio() : null)
+                .fechafin(origen != null ? origen.getFechafin() : null)
+                .idTipoplazo(tipoPlazoId(tipo))
+                .build());
     }
 
     private SemestreDTO resolverSemestreHabilitado(Integer idSemestre, LocalDate fechaInicio) {
@@ -831,6 +967,7 @@ public class AspiranteCoreService implements
             long calificados = service.countCalificadosByCohorte(id);
             long admitidos = service.countAdmitidosByCohorte(id);
 
+            FechasCohorte fechas = FechasCohorte.desde(row);
             return CohorteResumenOutput.builder()
                     .id(id)
                     .nombre(nombre)
@@ -840,6 +977,12 @@ public class AspiranteCoreService implements
                     .fechaLimitePago(plazoPagoFin)
                     .fechaLimiteDocs(plazoDocFin)
                     .fechaLimiteInscripcion(plazoInsFin)
+                    .fechaInicioDocumentacion(fechas.fechaInicioDocumentacion())
+                    .fechaFinDocumentacion(fechas.fechaFinDocumentacion())
+                    .fechaInicioInscripcion(fechas.fechaInicioInscripcion())
+                    .fechaFinInscripcion(fechas.fechaFinInscripcion())
+                    .fechaInicioPago(fechas.fechaInicioPago())
+                    .fechaFinPago(fechas.fechaFinPago())
                     .totalInscritos(inscritos)
                     .totalPazysalvo(pazYSalvo)
                     .totalValidados(validados)
@@ -990,6 +1133,7 @@ public class AspiranteCoreService implements
         cohorteService.update(cohorteId, cohorte);
 
         boolean activa = nuevoEstado == EstadoCohorte.ABIERTA;
+        FechasCohorte fechas = FechasCohorte.desde(cohorte);
         return CohorteListadoOutput.builder()
                 .id(cohorteId)
                 .nombre(cohorte.getNombre())
@@ -1000,6 +1144,12 @@ public class AspiranteCoreService implements
                 .fechaLimiteDocumentos(cohorte.getPlazo() != null ? cohorte.getPlazo().getFechafin() : null)
                 .fechaLimitePago(cohorte.getPlazo3() != null ? cohorte.getPlazo3().getFechafin() : null)
                 .fechaInicio(cohorte.getSemestre() != null ? cohorte.getSemestre().getFechaInicio() : null)
+                .fechaInicioDocumentacion(fechas.fechaInicioDocumentacion())
+                .fechaFinDocumentacion(fechas.fechaFinDocumentacion())
+                .fechaInicioInscripcion(fechas.fechaInicioInscripcion())
+                .fechaFinInscripcion(fechas.fechaFinInscripcion())
+                .fechaInicioPago(fechas.fechaInicioPago())
+                .fechaFinPago(fechas.fechaFinPago())
                 .build();
     }
 
@@ -1028,7 +1178,9 @@ public class AspiranteCoreService implements
             cohorteChanged = true;
         }
 
-        LocalDate fechaReferencia = body.fechaInicio();
+        LocalDate fechaReferencia = body.fechaInicioDocumentacion() != null
+                ? body.fechaInicioDocumentacion()
+                : body.fechaInicio();
         SemestreDTO semestreActual = cohorte.getSemestre();
         if (fechaReferencia == null && semestreActual != null) {
             fechaReferencia = semestreActual.getFechaInicio();
@@ -1059,21 +1211,48 @@ public class AspiranteCoreService implements
 
         LocalDate fechaInicio = semestre.getFechaInicio();
 
-        LocalDate fechaLimiteDocumentos = cohorte.getPlazo() != null ? cohorte.getPlazo().getFechafin() : null;
-        if (body.fechaLimiteDocumentos() != null && cohorte.getPlazo() != null) {
-            PlazoDTO plazo = cohorte.getPlazo();
-            plazo.setFechafin(body.fechaLimiteDocumentos());
-            plazoService.update(plazo.getId(), plazo);
-            fechaLimiteDocumentos = body.fechaLimiteDocumentos();
+        LocalDate inicioDocumentacion = body.fechaInicioDocumentacion();
+        LocalDate finDocumentacion = body.fechaFinDocumentacion() != null
+                ? body.fechaFinDocumentacion()
+                : body.fechaLimiteDocumentos();
+        LocalDate inicioInscripcion = body.fechaInicioInscripcion();
+        LocalDate finInscripcion = body.fechaFinInscripcion();
+        LocalDate inicioPago = body.fechaInicioPago();
+        LocalDate finPago = body.fechaFinPago() != null ? body.fechaFinPago() : body.fechaLimitePago();
+
+        // Valores finales = lo que llega en el body o, si no llega, lo que ya tiene el plazo.
+        LocalDate docInicioFinal = valorFinal(inicioDocumentacion, cohorte.getPlazo(), true);
+        LocalDate docFinFinal = valorFinal(finDocumentacion, cohorte.getPlazo(), false);
+        LocalDate insInicioFinal = valorFinal(inicioInscripcion, cohorte.getPlazo2(), true);
+        LocalDate insFinFinal = valorFinal(finInscripcion, cohorte.getPlazo2(), false);
+        LocalDate pagoInicioFinal = valorFinal(inicioPago, cohorte.getPlazo3(), true);
+        LocalDate pagoFinFinal = valorFinal(finPago, cohorte.getPlazo3(), false);
+
+        // Se valida antes de tocar la base para no dejar cambios a medias.
+        validarRangoPlazo("documentacion", docInicioFinal, docFinFinal);
+        validarRangoPlazo("inscripcion", insInicioFinal, insFinFinal);
+        validarRangoPlazo("pago", pagoInicioFinal, pagoFinFinal);
+
+        if (separarPlazosCompartidos(cohorte)) {
+            cohorteChanged = true;
         }
 
-        LocalDate fechaLimitePago = cohorte.getPlazo3() != null ? cohorte.getPlazo3().getFechafin() : null;
-        if (body.fechaLimitePago() != null && cohorte.getPlazo3() != null) {
-            PlazoDTO plazo3 = cohorte.getPlazo3();
-            plazo3.setFechafin(body.fechaLimitePago());
-            plazoService.update(plazo3.getId(), plazo3);
-            fechaLimitePago = body.fechaLimitePago();
+        PlazoDTO plazoDoc = cohorte.getPlazo();
+        PlazoDTO plazoIns = cohorte.getPlazo2();
+        PlazoDTO plazoPago = cohorte.getPlazo3();
+
+        if (plazoDoc != null && aplicarPlazo(plazoDoc, docInicioFinal, docFinFinal)) {
+            plazoService.update(plazoDoc.getId(), plazoDoc);
         }
+        if (plazoIns != null && aplicarPlazo(plazoIns, insInicioFinal, insFinFinal)) {
+            plazoService.update(plazoIns.getId(), plazoIns);
+        }
+        if (plazoPago != null && aplicarPlazo(plazoPago, pagoInicioFinal, pagoFinFinal)) {
+            plazoService.update(plazoPago.getId(), plazoPago);
+        }
+
+        LocalDate fechaLimiteDocumentos = docFinFinal;
+        LocalDate fechaLimitePago = pagoFinFinal;
 
         if (cohorteChanged) {
             cohorteService.update(targetCohorteId, cohorte);
@@ -1273,6 +1452,7 @@ public class AspiranteCoreService implements
 
         boolean activa = cohorte.getEstado() != null && EstadoCohorte.ABIERTA.matches(cohorte.getEstado().getTipo());
 
+        FechasCohorte fechas = FechasCohorte.desde(cohorte);
         return CohorteListadoOutput.builder()
                 .id(targetCohorteId)
                 .nombre(cohorte.getNombre())
@@ -1283,6 +1463,12 @@ public class AspiranteCoreService implements
                 .fechaLimiteDocumentos(fechaLimiteDocumentos)
                 .fechaLimitePago(fechaLimitePago)
                 .fechaInicio(fechaInicio)
+                .fechaInicioDocumentacion(fechas.fechaInicioDocumentacion())
+                .fechaFinDocumentacion(fechas.fechaFinDocumentacion())
+                .fechaInicioInscripcion(fechas.fechaInicioInscripcion())
+                .fechaFinInscripcion(fechas.fechaFinInscripcion())
+                .fechaInicioPago(fechas.fechaInicioPago())
+                .fechaFinPago(fechas.fechaFinPago())
                 .build();
     }
 

@@ -15,5 +15,12 @@ public record CohorteListadoOutput(
         int cupos,
         LocalDate fechaLimiteDocumentos,
         LocalDate fechaLimitePago,
-        LocalDate fechaInicio
+        // Inicio del SEMESTRE, no de un plazo. Se conserva por compatibilidad.
+        LocalDate fechaInicio,
+        LocalDate fechaInicioDocumentacion,
+        LocalDate fechaFinDocumentacion,
+        LocalDate fechaInicioInscripcion,
+        LocalDate fechaFinInscripcion,
+        LocalDate fechaInicioPago,
+        LocalDate fechaFinPago
 ) implements OutputResponse {}

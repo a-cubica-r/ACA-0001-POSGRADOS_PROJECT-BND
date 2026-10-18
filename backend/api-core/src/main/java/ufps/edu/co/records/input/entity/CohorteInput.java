@@ -58,9 +58,12 @@ public enum CohorteInput {
                         @NotNull Integer cupos,
                         @NotNull Integer idSemestre,
                         @NotNull Integer idModalidad,
-                        @NotNull LocalDate fechaInicio,
-                        @NotNull LocalDate fechaLimiteDocumentos,
-                        @NotNull LocalDate fechaLimitePago,
+                        @NotNull LocalDate fechaInicioDocumentacion,
+                        @NotNull LocalDate fechaFinDocumentacion,
+                        @NotNull LocalDate fechaInicioInscripcion,
+                        @NotNull LocalDate fechaFinInscripcion,
+                        @NotNull LocalDate fechaInicioPago,
+                        @NotNull LocalDate fechaFinPago,
                         List<DOCUMENTO_ASIGNADO_CREATE> documentosConsejo,
                         List<DOCUMENTO_ASIGNADO_CREATE> documentosPrograma,
                         List<CriteriocohorteInput.CRITERIOCOHORTE_CREATE> criteriosCohorte) implements CreateType {
@@ -85,9 +88,18 @@ public enum CohorteInput {
                         @NotNull Integer cupos,
                         @NotNull Integer idSemestre,
                         @NotNull Integer idModalidad,
+                        // Deprecado: alias por compatibilidad con el frontend anterior.
                         LocalDate fechaInicio,
+                        // Deprecado: alias por compatibilidad con el frontend anterior.
                         LocalDate fechaLimiteDocumentos,
+                        // Deprecado: alias por compatibilidad con el frontend anterior.
                         LocalDate fechaLimitePago,
+                        LocalDate fechaInicioDocumentacion,
+                        LocalDate fechaFinDocumentacion,
+                        LocalDate fechaInicioInscripcion,
+                        LocalDate fechaFinInscripcion,
+                        LocalDate fechaInicioPago,
+                        LocalDate fechaFinPago,
                         List<DOCUMENTO_ASIGNADO_CREATE> documentosConsejo,
                         List<DOCUMENTO_ASIGNADO_CREATE> documentosPrograma,
                         List<CRITERIOCOHORTE_DIRECTOR_UPDATE> criteriosCohorte) implements UpdateType {
