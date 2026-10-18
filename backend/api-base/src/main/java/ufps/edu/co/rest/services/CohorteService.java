@@ -140,6 +140,11 @@ public class CohorteService extends GenericService<CohorteEntity, CohorteDTO> {
     }
 
     @Transactional(readOnly = true)
+    public long countByIdPrograma(Integer idPrograma) {
+        return repository.countByIdPrograma(idPrograma);
+    }
+
+    @Transactional(readOnly = true)
     public List<CohorteDTO> findActivasByIdPrograma(Integer idPrograma) {
         return entityListToDtoList(repository.findActivasByIdPrograma(idPrograma,
                 EstadoCohorte.ABIERTA.getEntidad().getValor(), EstadoCohorte.ABIERTA.getValor()));

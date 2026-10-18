@@ -4,6 +4,7 @@
  */
 package ufps.edu.co.persistence.repositories;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +46,8 @@ public interface AdministrativoRepository extends JpaRepository<AdministrativoEn
 	List<AdministrativoEntity> findByCargoNombreNotIn(List<String> nombres);
 
 	List<AdministrativoEntity> findAllByIdCargo(Integer idCargo);
+
+	long countByIdCargoIn(Collection<Integer> idsCargo);
 
 	List<AdministrativoEntity> findAllByIdPersona(Integer idPersona);
 

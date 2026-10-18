@@ -48,6 +48,8 @@ public class ProgramaDTO implements Serializable {
     private String titulo ;
     private BigDecimal valormatricula ;
     private Boolean esPosgrado ;
+    //--- director_id: columna propia del programa (no es una FK declarada)
+    private Integer directorId ;
     //--- LINKS ( RELATIONSHIPS )
     private List<CargoDTO> cargoList ; 
     private List<CohorteDTO> cohorteList ; 

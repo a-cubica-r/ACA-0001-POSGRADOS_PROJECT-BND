@@ -27,7 +27,19 @@ public enum ProgramaErrorCode implements BaseErrorCode {
             "Tiporegistro no encontrado"),
     MODALIDAD_NOT_FOUND(
             "MODALIDAD_NOT_FOUND",
-            "Modalidad no encontrada");
+            "Modalidad no encontrada"),
+    PROGRAMA_CON_ESTUDIANTES_CONFLICT(
+            "PROGRAMA_CON_ESTUDIANTES_CONFLICT",
+            "El programa tiene estudiantes registrados"),
+    PROGRAMA_CON_COHORTES_CONFLICT(
+            "PROGRAMA_CON_COHORTES_CONFLICT",
+            "El programa tiene cohortes creadas"),
+    PROGRAMA_CON_DIRECTOR_CONFLICT(
+            "PROGRAMA_CON_DIRECTOR_CONFLICT",
+            "El programa tiene un director asignado"),
+    PROGRAMA_REFERENCIADO_CONFLICT(
+            "PROGRAMA_REFERENCIADO_CONFLICT",
+            "El programa está referenciado por otros registros");
 
     private final String code;
     private final String defaultMessage;

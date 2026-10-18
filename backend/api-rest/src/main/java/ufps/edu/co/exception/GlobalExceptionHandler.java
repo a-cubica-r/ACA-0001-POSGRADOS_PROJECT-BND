@@ -1,8 +1,12 @@
 package ufps.edu.co.exception;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,10 +17,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ufps.edu.co.domain.exceptions.DomainException;
 import ufps.edu.co.domain.exceptions.DuplicateAdmisionException;
+import ufps.edu.co.domain.exceptions.IntegridadSql;
 import ufps.edu.co.domain.exceptions.errorcodes.CriterioevaluacionErrorCode;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    private static final String CODE_REGISTRO_EN_USO = "REGISTRO_EN_USO_CONFLICT";
+    private static final String CODE_REGISTRO_DUPLICADO = "REGISTRO_DUPLICADO_CONFLICT";
+    private static final String CODE_REFERENCIA_INEXISTENTE = "REFERENCIA_INEXISTENTE";
+    private static final String CODE_INTEGRIDAD_DATOS = "INTEGRIDAD_DATOS_CONFLICT";
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleDomainException(DomainException ex) {
@@ -76,6 +88,44 @@ public class GlobalExceptionHandler {
                 detalle
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        int codigo = IntegridadSql.codigoError(ex);
+        String restriccion = IntegridadSql.extraerRestriccion(IntegridadSql.mensajeCausa(ex));
+        log.warn("Violación de integridad en la base (MySQL {}): {}", codigo, IntegridadSql.mensajeCausa(ex));
+
+        Map<String, Object> param = new HashMap<>();
+        param.put("restriccion", restriccion);
+
+        String code;
+        String message;
+        HttpStatus status;
+        switch (codigo) {
+            case 1451 -> {
+                code = CODE_REGISTRO_EN_USO;
+                message = "No se puede eliminar o modificar: el registro está en uso";
+                status = HttpStatus.CONFLICT;
+            }
+            case 1062 -> {
+                code = CODE_REGISTRO_DUPLICADO;
+                message = "Ya existe un registro con esos datos";
+                status = HttpStatus.CONFLICT;
+            }
+            case 1452 -> {
+                code = CODE_REFERENCIA_INEXISTENTE;
+                message = "Se hace referencia a un registro que no existe";
+                status = HttpStatus.BAD_REQUEST;
+            }
+            default -> {
+                code = CODE_INTEGRIDAD_DATOS;
+                message = "La operación viola una restricción de datos";
+                status = HttpStatus.CONFLICT;
+            }
+        }
+
+        return ResponseEntity.status(status).body(new ErrorResponse(code, message, param));
     }
 
     private HttpStatus resolveStatus(String code) {

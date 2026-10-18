@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufps.edu.co.domain.exceptions.DomainException;
 import ufps.edu.co.services.core.crud.ProgramaCoreService;
 import ufps.edu.co.records.input.entity.CohorteInput.COHORTE_FIND;
 import ufps.edu.co.records.input.entity.FacultadInput.FACULTAD_FIND;
@@ -52,26 +51,14 @@ public class ProgramaRestController {
 
     @PutMapping("/update")
     public ResponseEntity<ProgramaOutput> update(@RequestBody PROGRAMA_UPDATE request) {
-        try {
-            ProgramaOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (DomainException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        ProgramaOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteById(@RequestBody PROGRAMA_DELETE request) {
-        try {
-            processor.deleteById(request);
-            return ResponseEntity.noContent().build();
-        } catch (DomainException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        processor.deleteById(request);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/listbyfacultad", consumes = MediaType.APPLICATION_JSON_VALUE)
