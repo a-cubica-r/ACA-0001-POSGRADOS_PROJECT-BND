@@ -2,6 +2,8 @@ package ufps.edu.co.services.core.crud;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +105,10 @@ public class CalificacioncriterioCoreService implements
     @Override
     public List<CalificacioncriterioOutput> findAll() {
         return service.findAll().stream().map(map::toOutput).toList();
+    }
+
+    public Page<CalificacioncriterioOutput> findAll(Pageable pageable) {
+        return service.findAll(pageable).map(map::toOutput);
     }
 
     @Override

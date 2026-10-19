@@ -6,6 +6,8 @@ package ufps.edu.co.rest.services;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -86,8 +88,18 @@ public class DocumentoService extends GenericService<DocumentoEntity, DocumentoD
     }
 
     @Transactional(readOnly = true)
+    public Page<DocumentoDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable).map(this::entityToDto);
+    }
+
+    @Transactional(readOnly = true)
     public List<DocumentoDTO> findByIdAspirante(Integer idAspirante) {
         return entityListToDtoList(repository.findByIdAspirante(idAspirante));
+    }
+
+    @Transactional(readOnly = true)
+    public List<DocumentoDTO> findByIdAspiranteIn(List<Integer> ids) {
+        return entityListToDtoList(repository.findByIdAspiranteIn(ids));
     }
 
     @Transactional(readOnly = true)

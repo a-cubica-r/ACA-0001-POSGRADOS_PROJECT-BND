@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -993,65 +995,65 @@ public class AspiranteCoreService implements
     }
 
     public List<AspiranteCohorteOutput> findByCohorteConResumen(Integer cohorteId) {
-        return service.findByCohorte(cohorteId).stream().map(aspirante -> {
-            PersonaDTO p = aspirante.getPersona();
-            String nombre = p != null
-                    ? ((p.getNombres() != null ? p.getNombres() : "") + " "
-                            + (p.getApellidos() != null ? p.getApellidos() : "")).trim()
-                    : "";
-            String cedula = p != null && p.getDocumentopersona() != null
-                    && p.getDocumentopersona().getNumerodocumento() != null
-                            ? p.getDocumentopersona().getNumerodocumento().toString()
-                            : null;
+        List<AspiranteDTO> aspirantes = service.findByCohorte(cohorteId);
+        Map<Integer, List<DocumentoDTO>> docsByAspirante = batchLoadDocs(aspirantes);
+        return aspirantes.stream().map(a -> buildCohorteOutput(a, docsByAspirante)).toList();
+    }
 
-            List<DocumentoDTO> docs = documentoService.findByIdAspirante(aspirante.getId());
-            long total = docs.size();
-            long validados = docs.stream()
-                    .filter(d -> d.getEstadodocumento() != null
-                            && EstadoDocumento.APROBADO.matches(d.getEstadodocumento().getEstado()))
-                    .count();
-
-            return AspiranteCohorteOutput.builder()
-                    .id(aspirante.getId())
-                    .nombre(nombre)
-                    .cedula(cedula)
-                    .correo(p != null ? p.getCorreo() : null)
-                    .documentosValidados(validados)
-                    .totalDocumentos(total)
-                    .estadoGeneral(aspirante.getEstado().getTipo())
-                    .build();
-        }).toList();
+    public Page<AspiranteCohorteOutput> findByCohorteConResumen(Integer cohorteId, Pageable pageable) {
+        Page<AspiranteDTO> page = service.findByCohorte(cohorteId, pageable);
+        Map<Integer, List<DocumentoDTO>> docsByAspirante = batchLoadDocs(page.getContent());
+        return page.map(a -> buildCohorteOutput(a, docsByAspirante));
     }
 
     public List<AspiranteCohorteOutput> findAValidarByCohorte(Integer cohorteId) {
-        return service.findAValidarByCohorte(cohorteId).stream().map(aspirante -> {
-            PersonaDTO p = aspirante.getPersona();
-            String nombre = p != null
-                    ? ((p.getNombres() != null ? p.getNombres() : "") + " "
-                            + (p.getApellidos() != null ? p.getApellidos() : "")).trim()
-                    : "";
-            String cedula = p != null && p.getDocumentopersona() != null
-                    && p.getDocumentopersona().getNumerodocumento() != null
-                            ? p.getDocumentopersona().getNumerodocumento().toString()
-                            : null;
+        List<AspiranteDTO> aspirantes = service.findAValidarByCohorte(cohorteId);
+        Map<Integer, List<DocumentoDTO>> docsByAspirante = batchLoadDocs(aspirantes);
+        return aspirantes.stream().map(a -> buildCohorteOutput(a, docsByAspirante)).toList();
+    }
 
-            List<DocumentoDTO> docs = documentoService.findByIdAspirante(aspirante.getId());
-            long total = docs.size();
-            long validados = docs.stream()
-                    .filter(d -> d.getEstadodocumento() != null
-                            && EstadoDocumento.APROBADO.matches(d.getEstadodocumento().getEstado()))
-                    .count();
+    public Page<AspiranteCohorteOutput> findAValidarByCohorte(Integer cohorteId, Pageable pageable) {
+        Page<AspiranteDTO> page = service.findAValidarByCohorte(cohorteId, pageable);
+        Map<Integer, List<DocumentoDTO>> docsByAspirante = batchLoadDocs(page.getContent());
+        return page.map(a -> buildCohorteOutput(a, docsByAspirante));
+    }
 
-            return AspiranteCohorteOutput.builder()
-                    .id(aspirante.getId())
-                    .nombre(nombre)
-                    .cedula(cedula)
-                    .correo(p != null ? p.getCorreo() : null)
-                    .documentosValidados(validados)
-                    .totalDocumentos(total)
-                    .estadoGeneral(aspirante.getEstado().getTipo())
-                    .build();
-        }).toList();
+    public Page<AspiranteOutput> findAll(Pageable pageable) {
+        return service.findAll(pageable).map(map::toOutput);
+    }
+
+    private Map<Integer, List<DocumentoDTO>> batchLoadDocs(List<AspiranteDTO> aspirantes) {
+        if (aspirantes.isEmpty()) return Map.of();
+        List<Integer> ids = aspirantes.stream().map(AspiranteDTO::getId).toList();
+        return documentoService.findByIdAspiranteIn(ids)
+                .stream().collect(Collectors.groupingBy(DocumentoDTO::getIdAspirante));
+    }
+
+    private AspiranteCohorteOutput buildCohorteOutput(AspiranteDTO aspirante, Map<Integer, List<DocumentoDTO>> docsByAspirante) {
+        PersonaDTO p = aspirante.getPersona();
+        String nombre = p != null
+                ? ((p.getNombres() != null ? p.getNombres() : "") + " "
+                        + (p.getApellidos() != null ? p.getApellidos() : "")).trim()
+                : "";
+        String cedula = p != null && p.getDocumentopersona() != null
+                && p.getDocumentopersona().getNumerodocumento() != null
+                        ? p.getDocumentopersona().getNumerodocumento().toString()
+                        : null;
+        List<DocumentoDTO> docs = docsByAspirante.getOrDefault(aspirante.getId(), List.of());
+        long total = docs.size();
+        long validados = docs.stream()
+                .filter(d -> d.getEstadodocumento() != null
+                        && EstadoDocumento.APROBADO.matches(d.getEstadodocumento().getEstado()))
+                .count();
+        return AspiranteCohorteOutput.builder()
+                .id(aspirante.getId())
+                .nombre(nombre)
+                .cedula(cedula)
+                .correo(p != null ? p.getCorreo() : null)
+                .documentosValidados(validados)
+                .totalDocumentos(total)
+                .estadoGeneral(aspirante.getEstado().getTipo())
+                .build();
     }
 
     public RankingAdmitidosOutput getRankingAdmitidos(Integer cohorteId) {

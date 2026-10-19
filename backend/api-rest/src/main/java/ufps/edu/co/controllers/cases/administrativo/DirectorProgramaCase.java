@@ -216,9 +216,13 @@ public class DirectorProgramaCase {
     }
 
     @GetMapping(value = "/cohorte/{idCohorte}/aspirantes-a-validar")
-    public ResponseEntity<List<AspiranteCohorteOutput>> getAspirantesAValidar(@PathVariable Integer idCohorte) {
+    public ResponseEntity<Page<AspiranteCohorteOutput>> getAspirantesAValidar(
+            @PathVariable Integer idCohorte,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         try {
-            return ResponseEntity.ok(aspiranteProcessor.findAValidarByCohorte(idCohorte));
+            Pageable pageable = PageRequest.of(page, size);
+            return ResponseEntity.ok(aspiranteProcessor.findAValidarByCohorte(idCohorte, pageable));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

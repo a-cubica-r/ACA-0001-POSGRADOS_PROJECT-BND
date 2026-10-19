@@ -5,6 +5,8 @@
 package ufps.edu.co.rest.services;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,6 +84,11 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
     }
 
     @Transactional(readOnly = true)
+    public Page<AspiranteDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable).map(this::entityToDto);
+    }
+
+    @Transactional(readOnly = true)
     public AspiranteDTO findById(Integer id) {
         return entityToDto(repository.findById(id));
     }
@@ -133,6 +140,11 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
     @Transactional(readOnly = true)
     public List<AspiranteDTO> findByCohorte(int idCohorte) {
         return entityListToDtoList(repository.findByIdCohorte(idCohorte));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AspiranteDTO> findByCohorte(int idCohorte, Pageable pageable) {
+        return repository.findByIdCohorte(idCohorte, pageable).map(this::entityToDto);
     }
 
     @Transactional(readOnly = true)
@@ -193,6 +205,13 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
     public List<AspiranteDTO> findAValidarByCohorte(int cohorteId) {
         return entityListToDtoList(repository.findByIdCohorteAndEstadoTipoIn(
                 cohorteId, valores(EstadoAspirante.PAZ_Y_SALVO, EstadoAspirante.VALIDADO_POR_CALIFICAR)));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AspiranteDTO> findAValidarByCohorte(int cohorteId, Pageable pageable) {
+        return repository.findByIdCohorteAndEstadoTipoIn(
+                cohorteId, valores(EstadoAspirante.PAZ_Y_SALVO, EstadoAspirante.VALIDADO_POR_CALIFICAR), pageable)
+                .map(this::entityToDto);
     }
 
     @Transactional(readOnly = true)

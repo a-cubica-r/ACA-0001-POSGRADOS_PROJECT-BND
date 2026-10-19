@@ -2,6 +2,8 @@ package ufps.edu.co.services.core.crud;
 
 import java.util.*;
 import java.util.stream.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +111,10 @@ public class DocumentoCoreService implements
         } catch (Exception e) {
             throw new RuntimeException("Error finding all Documentos: " + e.getMessage(), e);
         }
+    }
+
+    public Page<DocumentoOutput> findAll(Pageable pageable) {
+        return service.findAll(pageable).map(map::toOutput);
     }
 
     @Override

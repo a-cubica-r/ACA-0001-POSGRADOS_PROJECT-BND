@@ -7,6 +7,8 @@ package ufps.edu.co.persistence.repositories;
 import java.util.List;
 import java.util.Optional;
 
+
+
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -27,6 +29,10 @@ public interface DocumentoRepository extends JpaRepository<DocumentoEntity, Inte
 	@EntityGraph(attributePaths = {"estadodocumento"}, type = EntityGraph.EntityGraphType.FETCH)
 	@Query("SELECT d FROM DocumentoEntity d WHERE d.idAspirante = :idAspirante")
 	List<DocumentoEntity> findByIdAspirante(@Param("idAspirante") Integer idAspirante);
+
+	@EntityGraph(attributePaths = {"estadodocumento"}, type = EntityGraph.EntityGraphType.FETCH)
+	@Query("SELECT d FROM DocumentoEntity d WHERE d.idAspirante IN :ids")
+	List<DocumentoEntity> findByIdAspiranteIn(@Param("ids") List<Integer> ids);
 
 	@Query("SELECT d FROM DocumentoEntity d LEFT JOIN FETCH d.estadodocumento WHERE d.idAspirante = :idAspirante AND d.idDocumentosrequisitoconsejocohorte = :idDocReqConsejoCohorte")
 	Optional<DocumentoEntity> findByIdAspiranteAndIdDocumentosrequisitoconsejocohorte(
