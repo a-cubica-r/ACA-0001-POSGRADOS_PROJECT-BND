@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,9 +39,9 @@ public class DepartamentoRestController {
         return ResponseEntity.ok(list); // 200 OK
     }
 
-    @PostMapping(value = "/list", consumes   = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DepartamentoOutput> findById(@RequestBody DEPARTAMENTO_FIND request) {
-        DepartamentoOutput departamentoOutput = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<DepartamentoOutput> findById(@PathVariable Integer id) {
+        DepartamentoOutput departamentoOutput = processor.findById(new DEPARTAMENTO_FIND(id));
         if ( departamentoOutput != null ) {
             return ResponseEntity.ok(departamentoOutput); // 200 OK
         } else {

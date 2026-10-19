@@ -56,7 +56,6 @@ import ufps.edu.co.records.input.entity.CriterioevaluacionInput.CRITERIO_UPDATE_
 import ufps.edu.co.records.input.entity.CriteriocohorteInput.CRITERIOCOHORTE_ASSIGN_BODY;
 import ufps.edu.co.records.input.entity.CriteriocohorteInput.CRITERIOCOHORTE_PESO_UPDATE;
 import ufps.edu.co.records.output.entity.CriteriocohorteOutput;
-import ufps.edu.co.records.input.entity.CalificacioncriterioInput.CALIFICACIONCRITERIO_FIND_BY_ASPIRANTE;
 import ufps.edu.co.records.input.entity.CalificacioncriterioInput.CALIFICACIONCRITERIO_UPDATE;
 import ufps.edu.co.records.output.entity.CalificacionCriterioSimpleOutput;
 import ufps.edu.co.records.output.entity.CalificacioncriterioOutput;
@@ -796,11 +795,11 @@ public class DirectorProgramaCase {
         }
     }
 
-    @PostMapping(value = "/calificacion/criterio/aspirante", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/aspirantes/{idAspirante}/calificaciones")
     public ResponseEntity<List<CalificacioncriterioOutput>> findCalificacionesByAspirante(
-            @RequestBody CALIFICACIONCRITERIO_FIND_BY_ASPIRANTE request) {
+            @PathVariable Integer idAspirante) {
         try {
-            return ResponseEntity.ok(calificacioncriterioProcessor.findByIdAspirante(request.idAspirante()));
+            return ResponseEntity.ok(calificacioncriterioProcessor.findByIdAspirante(idAspirante));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

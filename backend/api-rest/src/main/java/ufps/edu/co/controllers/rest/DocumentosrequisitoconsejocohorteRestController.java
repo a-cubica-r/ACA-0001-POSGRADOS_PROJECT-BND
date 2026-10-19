@@ -30,9 +30,9 @@ public class DocumentosrequisitoconsejocohorteRestController {
         return ResponseEntity.ok(processor.findAll());
     }
 
-    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DocumentosrequisitoconsejocohorteOutput> findById(@RequestBody DOCUMENTOSREQUISITOCONSEJOCOHORTE_FIND request) {
-        DocumentosrequisitoconsejocohorteOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<DocumentosrequisitoconsejocohorteOutput> findById(@PathVariable Integer id) {
+        DocumentosrequisitoconsejocohorteOutput output = processor.findById(new DOCUMENTOSREQUISITOCONSEJOCOHORTE_FIND(id));
         return output != null ? ResponseEntity.ok(output) : ResponseEntity.notFound().build();
     }
 

@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,9 +30,9 @@ public class DocumentosrequisitoprogramaRestController {
         return ResponseEntity.ok(processor.findAll());
     }
 
-    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DocumentosrequisitoprogramaOutput> findById(@RequestBody DOCUMENTOSREQUISITOPROGRAMA_FIND request) {
-        DocumentosrequisitoprogramaOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<DocumentosrequisitoprogramaOutput> findById(@PathVariable Integer id) {
+        DocumentosrequisitoprogramaOutput output = processor.findById(new DOCUMENTOSREQUISITOPROGRAMA_FIND(id));
         return output != null ? ResponseEntity.ok(output) : ResponseEntity.notFound().build();
     }
 

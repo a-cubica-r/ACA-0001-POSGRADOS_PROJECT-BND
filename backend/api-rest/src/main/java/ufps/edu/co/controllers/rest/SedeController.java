@@ -14,6 +14,7 @@ import ufps.edu.co.records.output.entity.SedeOutput;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,9 +32,9 @@ public class SedeController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value ="/list", consumes   = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SedeOutput> findById(@RequestBody SEDE_FIND request) {
-        SedeOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<SedeOutput> findById(@PathVariable Integer id) {
+        SedeOutput output = processor.findById(new SEDE_FIND(id));
         if (output != null) {
             return ResponseEntity.ok(output);
         } else {

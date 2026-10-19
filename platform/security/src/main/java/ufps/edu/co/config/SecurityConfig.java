@@ -57,7 +57,7 @@ public class SecurityConfig {
                         "/api/dev/endpoint/sedes/listall",
                         "/api/dev/endpoint/administrativo/listall",
                         "/api/dev/endpoint/facultad/listall",
-                        "/api/dev/endpoint/programa/listbyfacultad",
+                        "/api/dev/endpoint/programa/byfacultad/**",
                         "/api/dev/endpoint/programa/listall",
                         "/api/dev/endpoint/estado/listall",
                         "/api/dev/endpoint/cohortes/listall"

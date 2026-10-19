@@ -2,6 +2,7 @@ package ufps.edu.co.controllers.rest;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,9 +32,9 @@ public class UbicacionRestController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value = "/list", consumes   = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UbicacionOutput> findById(@RequestBody UBICACION_FIND request) {
-        UbicacionOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<UbicacionOutput> findById(@PathVariable Integer id) {
+        UbicacionOutput output = processor.findById(new UBICACION_FIND(id));
         if (output != null) {
             return ResponseEntity.ok(output);
         } else {

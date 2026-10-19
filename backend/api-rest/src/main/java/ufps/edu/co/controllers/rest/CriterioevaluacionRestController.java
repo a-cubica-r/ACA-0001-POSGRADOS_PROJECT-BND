@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,9 +31,9 @@ public class CriterioevaluacionRestController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping(value = "/list", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CriterioevaluacionOutput> findById(@RequestBody CRITERIOEVALUACION_FIND request) {
-        CriterioevaluacionOutput output = processor.findById(request);
+    @GetMapping("/{id}")
+    public ResponseEntity<CriterioevaluacionOutput> findById(@PathVariable Integer id) {
+        CriterioevaluacionOutput output = processor.findById(new CRITERIOEVALUACION_FIND(id));
         if (output != null) {
             return ResponseEntity.ok(output);
         } else {
