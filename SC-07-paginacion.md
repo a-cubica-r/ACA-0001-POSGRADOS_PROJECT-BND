@@ -1,4 +1,4 @@
-# SC-07 — Paginación de endpoints críticos
+1# SC-07 — Paginación de endpoints críticos
 
 > **Rama:** `SC-07`  
 > **Prioridad:** los 5 endpoints están sin paginación y sin `Pageable` en toda la cadena (repositorio, servicio, controlador).  
