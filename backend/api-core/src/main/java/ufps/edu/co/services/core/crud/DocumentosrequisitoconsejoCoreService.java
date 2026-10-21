@@ -65,11 +65,7 @@ public class DocumentosrequisitoconsejoCoreService implements
 
     @Override
     public void deleteById(DOCUMENTOSREQUISITOCONSEJO_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Documentosrequisitoconsejo by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 
     /**

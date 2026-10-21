@@ -68,10 +68,6 @@ public class EstadodocumentoCoreService implements
 
     @Override
     public void deleteById(ESTADODOCUMENTO_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Estadodocumento by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 }

@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -170,7 +172,7 @@ public class AdministrativoService extends GenericService<AdministrativoEntity, 
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Administrativo no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Administrativo no encontrado con id: " + id));
         repository.deleteById(id);
     }
 

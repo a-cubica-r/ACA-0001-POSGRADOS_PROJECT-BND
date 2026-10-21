@@ -82,11 +82,7 @@ public class PaisRestController {
      */
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteById(@RequestBody PAIS_DELETE request) {
-        try {
-            processor.deleteById(request);
-            return ResponseEntity.noContent().build(); // 204 No content
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build(); // 404 Not found
-        }
+        processor.deleteById(request);
+        return ResponseEntity.noContent().build(); // 204 No content
     }
 }

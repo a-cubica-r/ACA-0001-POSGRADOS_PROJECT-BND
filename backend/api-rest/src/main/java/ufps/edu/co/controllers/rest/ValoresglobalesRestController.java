@@ -93,11 +93,7 @@ public class ValoresglobalesRestController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
-        try {
-            service.deleteById(id);
-            return ResponseEntity.noContent().build(); // 204 No content
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build(); // 404 Not found
-        }
+        service.deleteById(id);
+        return ResponseEntity.noContent().build(); // 204 No content
     }
 }

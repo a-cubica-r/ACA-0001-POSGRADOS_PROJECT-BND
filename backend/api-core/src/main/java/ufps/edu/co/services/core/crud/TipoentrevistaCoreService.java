@@ -68,10 +68,6 @@ public class TipoentrevistaCoreService implements
 
     @Override
     public void deleteById(TIPOENTREVISTA_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Tipoentrevista by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 }

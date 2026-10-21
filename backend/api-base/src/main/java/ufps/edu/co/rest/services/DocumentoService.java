@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -79,7 +81,7 @@ public class DocumentoService extends GenericService<DocumentoEntity, DocumentoD
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Documento no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Documento no encontrado con id: " + id));
         repository.deleteById(id);
     }
 

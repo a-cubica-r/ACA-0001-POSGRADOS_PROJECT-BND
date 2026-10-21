@@ -68,10 +68,6 @@ public class CargoCoreService implements GlobalUseCase<CARGO_CREATE, CARGO_UPDAT
 
     @Override
     public void deleteById(CARGO_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Cargo: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 }

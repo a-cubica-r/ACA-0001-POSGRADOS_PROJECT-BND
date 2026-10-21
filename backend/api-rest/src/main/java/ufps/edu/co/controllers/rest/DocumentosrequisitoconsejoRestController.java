@@ -61,12 +61,8 @@ public class DocumentosrequisitoconsejoRestController {
 
     @DeleteMapping(value = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@RequestBody DOCUMENTOSREQUISITOCONSEJO_DELETE request) {
-        try {
-            processor.deleteById(request);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        processor.deleteById(request);
+        return ResponseEntity.noContent().build();
     }
 
         @PutMapping(value = "/{id}/formato", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

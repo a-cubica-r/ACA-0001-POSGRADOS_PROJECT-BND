@@ -70,11 +70,7 @@ public class SemestreCoreService implements
 
     @Override
     public void deleteById(SEMESTRE_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Semestre by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 }
 

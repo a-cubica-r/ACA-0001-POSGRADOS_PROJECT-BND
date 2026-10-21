@@ -102,11 +102,7 @@ public class CriteriocohorteRestController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
-        try {
-            processor.deleteById(new CRITERIOCOHORTE_DELETE(id));
-            return ResponseEntity.noContent().build(); // 204 No content
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build(); // 404 Not found
-        }
+        processor.deleteById(new CRITERIOCOHORTE_DELETE(id));
+        return ResponseEntity.noContent().build(); // 204 No content
     }
 }

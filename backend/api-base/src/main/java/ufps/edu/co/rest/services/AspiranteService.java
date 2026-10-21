@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -118,7 +120,7 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Aspirante no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Aspirante no encontrado con id: " + id));
         repository.deleteById(id);
     }
 

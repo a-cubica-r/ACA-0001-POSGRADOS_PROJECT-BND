@@ -61,12 +61,8 @@ public class AdministrativoRestController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteById(@Valid @RequestBody ADMINISTRATIVO_DELETE request) {
-        try {
-            processor.delete(request);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        processor.delete(request);
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -65,11 +65,7 @@ public class DocumentosrequisitoconsejocohorteCoreService implements
 
     @Override
     public void deleteById(DOCUMENTOSREQUISITOCONSEJOCOHORTE_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Documentosrequisitoconsejocohorte by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 
     public List<DocumentosrequisitoconsejocohorteOutput> findByIdCohorte(Integer idCohorte) {

@@ -68,11 +68,7 @@ public class RolCoreService implements
 
     @Override
     public void deleteById(ROL_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Rol by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 
     public RolOutput findByNombre(String nombre) {

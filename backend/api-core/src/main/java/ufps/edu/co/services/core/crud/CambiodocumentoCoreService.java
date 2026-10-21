@@ -68,10 +68,6 @@ public class CambiodocumentoCoreService implements
 
     @Override
     public void deleteById(CAMBIODOCUMENTO_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Cambiodocumento by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 }

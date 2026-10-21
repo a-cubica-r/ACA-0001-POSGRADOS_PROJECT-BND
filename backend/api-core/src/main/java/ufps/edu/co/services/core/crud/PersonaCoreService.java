@@ -74,10 +74,6 @@ public class PersonaCoreService implements
 
     @Override
     public void deleteById(PERSONA_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Persona by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 }
