@@ -143,6 +143,8 @@ public class CohorteCoreService implements GlobalUseCase<COHORTE_CREATE, COHORTE
         try {
             eliminarHijosDeLaCohorte(id);
             service.deleteById(id);
+            // Ejecutar el DELETE de la cohorte antes de contar los plazos.
+            cohorteRepository.flush();
             eliminarPlazosSinUso(plazos);
             // Forzar los DELETE dentro del try: si una llave que la verificación
             // previa no cubre lo impide, se informa como 409 y la transacción
@@ -191,20 +193,23 @@ public class CohorteCoreService implements GlobalUseCase<COHORTE_CREATE, COHORTE
         List<CriteriocohorteEntity> criterios = criteriocohorteRepository.findByIdCohorte(id);
         if (!criterios.isEmpty()) {
             // calificacioncriterio tiene ON DELETE CASCADE sobre estos registros.
-            criteriocohorteRepository.deleteAllInBatch(criterios);
+            criteriocohorteRepository.deleteAll(criterios);
         }
 
         List<DocumentosrequisitoconsejocohorteEntity> documentosConsejo =
                 documentosrequisitoconsejocohorteRepository.findByIdCohorte(id);
         if (!documentosConsejo.isEmpty()) {
-            documentosrequisitoconsejocohorteRepository.deleteAllInBatch(documentosConsejo);
+            documentosrequisitoconsejocohorteRepository.deleteAll(documentosConsejo);
         }
 
         List<DocumentosrequisitoprogramacohorteEntity> documentosPrograma =
                 documentosrequisitoprogramacohorteRepository.findByIdCohorte(id);
         if (!documentosPrograma.isEmpty()) {
-            documentosrequisitoprogramacohorteRepository.deleteAllInBatch(documentosPrograma);
+            documentosrequisitoprogramacohorteRepository.deleteAll(documentosPrograma);
         }
+
+        // Los hijos se borran como entidades y se ejecutan antes que el padre.
+        cohorteRepository.flush();
     }
 
     /**

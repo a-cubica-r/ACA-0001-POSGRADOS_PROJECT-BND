@@ -194,14 +194,16 @@ class CohorteEliminarTest {
                 documentosrequisitoconsejocohorteRepository,
                 documentosrequisitoprogramacohorteRepository,
                 service, plazoService, cohorteRepository);
-        orden.verify(criteriocohorteRepository).deleteAllInBatch(criterios);
-        orden.verify(documentosrequisitoconsejocohorteRepository).deleteAllInBatch(docsConsejo);
-        orden.verify(documentosrequisitoprogramacohorteRepository).deleteAllInBatch(docsPrograma);
+        orden.verify(criteriocohorteRepository).deleteAll(criterios);
+        orden.verify(documentosrequisitoconsejocohorteRepository).deleteAll(docsConsejo);
+        orden.verify(documentosrequisitoprogramacohorteRepository).deleteAll(docsPrograma);
+        orden.verify(cohorteRepository).flush();   // flush de los hijos
         orden.verify(service).deleteById(ID);
+        orden.verify(cohorteRepository).flush();   // DELETE de la cohorte antes de contar plazos
         orden.verify(plazoService).deleteById(PLAZO_DOC);
         orden.verify(plazoService).deleteById(PLAZO_INSC);
         orden.verify(plazoService).deleteById(PLAZO_PAGO);
-        orden.verify(cohorteRepository).flush();
+        orden.verify(cohorteRepository).flush();   // flush de los plazos
     }
 
     @Test
@@ -255,7 +257,13 @@ class CohorteEliminarTest {
     @DisplayName("Llave no cubierta en el flush → COHORTE_REFERENCIADO_CONFLICT con la restricción")
     @SuppressWarnings("unchecked")
     void llaveNoCubierta() {
-        cohorteSinUso();
+        when(service.findById(ID)).thenReturn(cohorte(PLAZO_DOC, PLAZO_INSC, PLAZO_PAGO));
+        when(aspiranteService.countByCohorte(ID)).thenReturn(0L);
+        when(admitidoService.countByCohorte(ID)).thenReturn(0L);
+        when(pruebaService.countByCohorte(ID)).thenReturn(0L);
+        when(criteriocohorteRepository.findByIdCohorte(ID)).thenReturn(List.of());
+        when(documentosrequisitoconsejocohorteRepository.findByIdCohorte(ID)).thenReturn(List.of());
+        when(documentosrequisitoprogramacohorteRepository.findByIdCohorte(ID)).thenReturn(List.of());
         doThrow(enUso()).when(cohorteRepository).flush();
 
         DomainException ex = assertThrows(DomainException.class,
@@ -278,7 +286,7 @@ class CohorteEliminarTest {
         assertThrows(DomainException.class, () -> processor.deleteById(new COHORTE_DELETE(ID)));
 
         verify(service, never()).deleteById(any());
-        verify(criteriocohorteRepository, never()).deleteAllInBatch(any());
+        verify(criteriocohorteRepository, never()).deleteAll(any());
         verify(plazoService, never()).deleteById(any());
     }
 }

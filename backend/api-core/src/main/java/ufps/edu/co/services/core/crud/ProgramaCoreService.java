@@ -281,7 +281,7 @@ public class ProgramaCoreService implements
     private void eliminarHijosDelPrograma(Integer id) {
         List<DocumentosrequisitoprogramaEntity> documentos = documentosrequisitoprogramaRepository.findByIdPrograma(id);
         if (!documentos.isEmpty()) {
-            documentosrequisitoprogramaRepository.deleteAllInBatch(documentos);
+            documentosrequisitoprogramaRepository.deleteAll(documentos);
             // Pendiente D-05: los archivos en S3 no se borran aquí.
             log.info("Programa {}: se eliminan {} documentos requisito. URLs que pueden quedar huérfanas en S3: {}",
                     id, documentos.size(), documentos.stream()
@@ -292,13 +292,16 @@ public class ProgramaCoreService implements
 
         List<CriterioevaluacionEntity> criterios = criterioevaluacionRepository.findByIdPrograma(id);
         if (!criterios.isEmpty()) {
-            criterioevaluacionRepository.deleteAllInBatch(criterios);
+            criterioevaluacionRepository.deleteAll(criterios);
         }
 
         List<CargoEntity> cargos = cargoRepository.findByIdPrograma(id);
         if (!cargos.isEmpty()) {
-            cargoRepository.deleteAllInBatch(cargos);
+            cargoRepository.deleteAll(cargos);
         }
+
+        // Los hijos se borran como entidades y se ejecutan antes que el padre.
+        programaRepository.flush();
     }
 
     // #region PERSONALIZADOS

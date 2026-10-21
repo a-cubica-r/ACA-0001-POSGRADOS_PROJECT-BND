@@ -211,11 +211,12 @@ class ProgramaEliminarTest {
 
         InOrder orden = inOrder(documentosrequisitoprogramaRepository, criterioevaluacionRepository,
                 cargoRepository, service, programaRepository);
-        orden.verify(documentosrequisitoprogramaRepository).deleteAllInBatch(documentos);
-        orden.verify(criterioevaluacionRepository).deleteAllInBatch(criterios);
-        orden.verify(cargoRepository).deleteAllInBatch(cargos);
+        orden.verify(documentosrequisitoprogramaRepository).deleteAll(documentos);
+        orden.verify(criterioevaluacionRepository).deleteAll(criterios);
+        orden.verify(cargoRepository).deleteAll(cargos);
+        orden.verify(programaRepository).flush();   // flush de los hijos
         orden.verify(service).deleteById(ID);
-        orden.verify(programaRepository).flush();
+        orden.verify(programaRepository).flush();   // DELETE del programa
     }
 
     @Test
@@ -225,9 +226,9 @@ class ProgramaEliminarTest {
         processor.deleteById(new PROGRAMA_DELETE(ID));
 
         verify(service).deleteById(ID);
-        verify(documentosrequisitoprogramaRepository, never()).deleteAllInBatch(any());
-        verify(criterioevaluacionRepository, never()).deleteAllInBatch(any());
-        verify(cargoRepository, never()).deleteAllInBatch(any());
+        verify(documentosrequisitoprogramaRepository, never()).deleteAll(any());
+        verify(criterioevaluacionRepository, never()).deleteAll(any());
+        verify(cargoRepository, never()).deleteAll(any());
     }
 
     @Test
