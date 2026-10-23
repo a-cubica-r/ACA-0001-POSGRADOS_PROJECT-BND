@@ -39,6 +39,7 @@ import ufps.edu.co.rest.dto.ProgramaDTO;
 import ufps.edu.co.rest.dto.SedeDTO;
 import ufps.edu.co.rest.dto.TiporegistroDTO;
 import ufps.edu.co.rest.dto.ModalidadDTO;
+import ufps.edu.co.rest.dto.UltimocodigoprogramaDTO;
 import ufps.edu.co.rest.services.AdministrativoService;
 import ufps.edu.co.rest.services.CargoService;
 import ufps.edu.co.rest.services.CohorteService;
@@ -48,6 +49,7 @@ import ufps.edu.co.rest.services.OtrosvaloresService;
 import ufps.edu.co.rest.services.ProgramaService;
 import ufps.edu.co.rest.services.SedeService;
 import ufps.edu.co.rest.services.TiporegistroService;
+import ufps.edu.co.rest.services.UltimocodigoprogramaService;
 import ufps.edu.co.usecase.GlobalUseCase;
 import ufps.edu.co.enums.Modalidad;
 import ufps.edu.co.enums.TipoRegistro;
@@ -103,7 +105,11 @@ public class ProgramaCoreService implements
     @Autowired
     private SedeService sedeService;
 
+    @Autowired
+    private UltimocodigoprogramaService ultimocodigoprogramaService;
+
     @Override
+    @Transactional
     public ProgramaOutput create(PROGRAMA_CREATE input) {
         try {
             ProgramaDTO dto = map.toDto(input);
@@ -111,12 +117,29 @@ public class ProgramaCoreService implements
             dto.setCodigo(normalizarCodigo(dto.getCodigo()));
             validarCodigoUnico(dto.getCodigo(), null);
             ProgramaDTO created = service.create(dto);
+            crearConsecutivoInicial(created);
             return map.toOutput(created);
         } catch (DomainException | DataIntegrityViolationException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error creating Programa: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Todo programa nace con su consecutivo en 0, para que la pantalla de
+     * «Últimos códigos» lo muestre desde el primer día. Corre en la misma
+     * transacción que el alta del programa.
+     */
+    private void crearConsecutivoInicial(ProgramaDTO programa) {
+        if (programa == null || programa.getId() == null
+                || ultimocodigoprogramaService.existsByIdPrograma(programa.getId())) {
+            return;
+        }
+        ultimocodigoprogramaService.create(UltimocodigoprogramaDTO.builder()
+                .idPrograma(programa.getId())
+                .codigo(0)
+                .build());
     }
 
     private void resolveModalidad(ProgramaDTO dto) {
@@ -279,6 +302,10 @@ public class ProgramaCoreService implements
      * administrativos ya se descartaron en {@link #evaluarDependencias}.
      */
     private void eliminarHijosDelPrograma(Integer id) {
+        // Primero el consecutivo: es el único hijo cuya tabla no está cubierta
+        // por una FK del esquema anterior.
+        ultimocodigoprogramaService.deleteByIdPrograma(id);
+
         List<DocumentosrequisitoprogramaEntity> documentos = documentosrequisitoprogramaRepository.findByIdPrograma(id);
         if (!documentos.isEmpty()) {
             documentosrequisitoprogramaRepository.deleteAll(documentos);
@@ -371,6 +398,7 @@ public class ProgramaCoreService implements
         }
     }
 
+    @Transactional
     public ProgramaOutput createWithRelations(PROGRAMA_CREATE_WITH_RELATIONS input, Integer idFacultad) {
         try {
             ProgramaDTO dto = buildDtoFromRelations(
@@ -390,6 +418,7 @@ public class ProgramaCoreService implements
                     input.otrosvalores(),
                     idFacultad);
             ProgramaDTO created = service.create(dto);
+            crearConsecutivoInicial(created);
             return map.toOutput(created);
         } catch (Exception e) {
             throw new RuntimeException("Error creating Programa with relations: " + e.getMessage(), e);

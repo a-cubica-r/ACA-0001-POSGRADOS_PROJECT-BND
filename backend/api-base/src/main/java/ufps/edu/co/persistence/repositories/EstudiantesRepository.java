@@ -27,4 +27,7 @@ public interface EstudiantesRepository extends JpaRepository<EstudiantesEntity, 
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<EstudiantesEntity> findFirstByProgramaIdOrderByCodigoDesc(Integer programaId);
+
+    /** Misma consulta que la anterior, sin bloqueo: solo para consultas. */
+    Optional<EstudiantesEntity> findTopByProgramaIdOrderByCodigoDesc(Integer programaId);
 }

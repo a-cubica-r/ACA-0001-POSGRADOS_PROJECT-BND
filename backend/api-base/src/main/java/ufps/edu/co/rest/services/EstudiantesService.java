@@ -87,4 +87,15 @@ public class EstudiantesService extends GenericService<EstudiantesEntity, Estudi
                 .map(EstudiantesEntity::getCodigo)
                 .orElse(null);
     }
+
+    /**
+     * Último código del programa sin tomar el bloqueo de escritura. Para usarlo
+     * en consultas y validaciones que no reservan el número.
+     */
+    @Transactional(readOnly = true)
+    public String findUltimoCodigoPorProgramaSinBloqueo(Integer programaId) {
+        return repository.findTopByProgramaIdOrderByCodigoDesc(programaId)
+                .map(EstudiantesEntity::getCodigo)
+                .orElse(null);
+    }
 }

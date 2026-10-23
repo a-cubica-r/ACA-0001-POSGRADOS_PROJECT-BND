@@ -45,6 +45,7 @@ import ufps.edu.co.rest.services.CargoService;
 import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.rest.services.EstudiantesService;
 import ufps.edu.co.rest.services.ProgramaService;
+import ufps.edu.co.rest.services.UltimocodigoprogramaService;
 import ufps.edu.co.services.core.crud.CohorteCoreService;
 import ufps.edu.co.services.core.crud.ProgramaCoreService;
 
@@ -62,6 +63,7 @@ class ProgramaEliminarTest {
     @Mock private CohorteCoreService cohorteProcessor;
     @Mock private CohorteService cohorteService;
     @Mock private EstudiantesService estudiantesService;
+    @Mock private UltimocodigoprogramaService ultimocodigoprogramaService;
     @Mock private CargoService cargoService;
     @Mock private AdministrativoService administrativoService;
     @Mock private ProgramaRepository programaRepository;
@@ -209,8 +211,9 @@ class ProgramaEliminarTest {
 
         processor.deleteById(new PROGRAMA_DELETE(ID));
 
-        InOrder orden = inOrder(documentosrequisitoprogramaRepository, criterioevaluacionRepository,
-                cargoRepository, service, programaRepository);
+        InOrder orden = inOrder(ultimocodigoprogramaService, documentosrequisitoprogramaRepository,
+                criterioevaluacionRepository, cargoRepository, service, programaRepository);
+        orden.verify(ultimocodigoprogramaService).deleteByIdPrograma(ID);
         orden.verify(documentosrequisitoprogramaRepository).deleteAll(documentos);
         orden.verify(criterioevaluacionRepository).deleteAll(criterios);
         orden.verify(cargoRepository).deleteAll(cargos);

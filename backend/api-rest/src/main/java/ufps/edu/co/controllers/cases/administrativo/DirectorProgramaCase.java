@@ -103,6 +103,8 @@ import ufps.edu.co.records.input.entity.PruebaInput.PRUEBA_CANCELAR_REQUEST;
 import ufps.edu.co.records.input.entity.PruebaInput.PRUEBA_CREAR_REQUEST;
 import ufps.edu.co.records.input.entity.PruebaInput.PRUEBA_EDITAR_REQUEST;
 import ufps.edu.co.records.input.entity.PruebaInput.PRUEBA_REAGENDAR_REQUEST;
+import ufps.edu.co.records.input.entity.UltimocodigoprogramaInput.ULTIMOCODIGOPROGRAMA_UPDATE_CODIGO;
+import ufps.edu.co.records.output.entity.UltimocodigoprogramaOutput;
 import ufps.edu.co.records.output.entity.PruebaResumenOutput;
 import ufps.edu.co.records.output.entity.PruebaSimpleOutput;
 import ufps.edu.co.services.*;
@@ -121,6 +123,7 @@ import ufps.edu.co.rest.services.PagorecibomatriculaService;
 import ufps.edu.co.rest.services.PagoService;
 import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.services.core.crud.PagoCoreService;
+import ufps.edu.co.services.core.crud.UltimocodigoprogramaCoreService;
 import ufps.edu.co.records.output.entity.PagoOutput;
 import ufps.edu.co.enums.EstadoAspirante;
 import ufps.edu.co.enums.EstadoPagoInscripcion;
@@ -204,6 +207,9 @@ public class DirectorProgramaCase {
 
     @Autowired
     private PagoCoreService pagoProcessor;
+
+    @Autowired
+    private UltimocodigoprogramaCoreService ultimocodigoprogramaCoreService;
 
     @GetMapping(value = "/cohortes")
     public ResponseEntity<List<CohorteResumenOutput>> getCohortesByPrograma() {
@@ -1408,6 +1414,13 @@ public class DirectorProgramaCase {
             throw new RuntimeException("El usuario autenticado no tiene un programa asignado");
         }
         return idPrograma;
+    }
+
+    @PutMapping(value = "/programa/{idPrograma}/ultimocodigo", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UltimocodigoprogramaOutput> updateUltimoCodigoPrograma(
+            @PathVariable Integer idPrograma,
+            @RequestBody ULTIMOCODIGOPROGRAMA_UPDATE_CODIGO body) {
+        return ResponseEntity.ok(ultimocodigoprogramaCoreService.updateCodigoPorPrograma(idPrograma, body.codigo()));
     }
 
     @PutMapping("/interview/rate")
