@@ -20,6 +20,8 @@ public interface DocumentosrequisitoprogramacohorteRepository extends JpaReposit
 	@EntityGraph(type = EntityGraph.EntityGraphType.FETCH)
 	List<DocumentosrequisitoprogramacohorteEntity> findByIdCohorte(Integer idCohorte);
 
+	List<DocumentosrequisitoprogramacohorteEntity> findByIdDocrequisito(Integer idDocrequisito);
+
 	@Query("SELECT dpc FROM DocumentosrequisitoprogramacohorteEntity dpc JOIN FETCH dpc.documentosrequisitoprograma WHERE dpc.idCohorte = :idCohorte")
 	List<DocumentosrequisitoprogramacohorteEntity> findByIdCohorteWithRequisito(@Param("idCohorte") Integer idCohorte);
 }

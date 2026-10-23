@@ -999,14 +999,8 @@ public class DirectorProgramaCase {
             @PathVariable Integer programaId,
             @PathVariable Integer cohorteId,
             @RequestBody CRITERIO_CREATE_BODY body) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(criterioevaluacionProcessor.createForCohorte(programaId, cohorteId, body));
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(criterioevaluacionProcessor.createForCohorte(programaId, cohorteId, body));
     }
 
     @PutMapping(value = "/programa/{programaId}/cohorte/{cohorteId}/criterios/{criterioId}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -1015,14 +1009,8 @@ public class DirectorProgramaCase {
             @PathVariable Integer cohorteId,
             @PathVariable Integer criterioId,
             @RequestBody CRITERIO_UPDATE_BODY body) {
-        try {
-            return ResponseEntity.ok(
-                    criterioevaluacionProcessor.updateForCohorte(programaId, cohorteId, criterioId, body));
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        return ResponseEntity.ok(
+                criterioevaluacionProcessor.updateForCohorte(programaId, cohorteId, criterioId, body));
     }
 
     @DeleteMapping("/programa/{programaId}/cohorte/{cohorteId}/criterios/{criterioId}")
@@ -1030,14 +1018,8 @@ public class DirectorProgramaCase {
             @PathVariable Integer programaId,
             @PathVariable Integer cohorteId,
             @PathVariable Integer criterioId) {
-        try {
-            criterioevaluacionProcessor.deleteForCohorte(programaId, cohorteId, criterioId);
-            return ResponseEntity.ok(SuccessOutput.builder().success(true).build());
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        criterioevaluacionProcessor.deleteForCohorte(programaId, cohorteId, criterioId);
+        return ResponseEntity.ok(SuccessOutput.builder().success(true).build());
     }
 
     @PostMapping(value = "/programa/{programaId}/cohorte/{cohorteId}/criterios/save", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -1608,14 +1590,8 @@ public class DirectorProgramaCase {
     public ResponseEntity<CriterioevaluacionOutput> createCriterioForPrograma(
             @PathVariable Integer programaId,
             @RequestBody CRITERIO_CREATE_BODY body) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(criterioevaluacionProcessor.createForPrograma(programaId, body));
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(criterioevaluacionProcessor.createForPrograma(programaId, body));
     }
 
     @PutMapping(value = "/programa/{programaId}/criterios/{criterioId}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -1623,27 +1599,15 @@ public class DirectorProgramaCase {
             @PathVariable Integer programaId,
             @PathVariable Integer criterioId,
             @RequestBody CRITERIO_UPDATE_BODY body) {
-        try {
-            return ResponseEntity.ok(criterioevaluacionProcessor.updateForPrograma(programaId, criterioId, body));
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        return ResponseEntity.ok(criterioevaluacionProcessor.updateForPrograma(programaId, criterioId, body));
     }
 
     @DeleteMapping("/programa/{programaId}/criterios/{criterioId}")
     public ResponseEntity<SuccessOutput> deleteCriterioForPrograma(
             @PathVariable Integer programaId,
             @PathVariable Integer criterioId) {
-        try {
-            criterioevaluacionProcessor.deleteForPrograma(programaId, criterioId);
-            return ResponseEntity.ok(SuccessOutput.builder().success(true).build());
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        criterioevaluacionProcessor.deleteForPrograma(programaId, criterioId);
+        return ResponseEntity.ok(SuccessOutput.builder().success(true).build());
     }
 
     // --- Criteriocohorte ---
@@ -1689,13 +1653,7 @@ public class DirectorProgramaCase {
     public ResponseEntity<CriterioevaluacionOutput> desactivarCriterio(
             @PathVariable Integer programaId,
             @PathVariable Integer criterioId) {
-        try {
-            return ResponseEntity.ok(criterioevaluacionProcessor.desactivarCriterio(programaId, criterioId));
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        return ResponseEntity.ok(criterioevaluacionProcessor.desactivarCriterio(programaId, criterioId));
     }
 
 }

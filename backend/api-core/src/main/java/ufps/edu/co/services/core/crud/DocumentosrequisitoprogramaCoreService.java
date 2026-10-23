@@ -1,14 +1,20 @@
 package ufps.edu.co.services.core.crud;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import ufps.edu.co.domain.exceptions.DomainException;
+import ufps.edu.co.domain.exceptions.errorcodes.DocumentosrequisitoprogramaErrorCode;
 import ufps.edu.co.maps.specific.DocumentosrequisitoprogramaMap;
 import ufps.edu.co.records.input.entity.DocumentosrequisitoprogramaInput.*;
 import ufps.edu.co.records.output.entity.DocumentosrequisitoprogramaOutput;
+import ufps.edu.co.rest.dto.DocumentosrequisitoprogramacohorteDTO;
 import ufps.edu.co.rest.dto.DocumentosrequisitoprogramaDTO;
 import ufps.edu.co.rest.services.DocumentosrequisitoprogramaService;
+import ufps.edu.co.rest.services.DocumentosrequisitoprogramacohorteService;
 import ufps.edu.co.usecase.GlobalUseCase;
 
 @Service
@@ -28,6 +34,9 @@ public class DocumentosrequisitoprogramaCoreService implements
     @Autowired
     private DocumentosrequisitoprogramaMap map;
 
+    @Autowired
+    private DocumentosrequisitoprogramacohorteService programaCohorteService;
+
     @Override
     public DocumentosrequisitoprogramaOutput create(DOCUMENTOSREQUISITOPROGRAMA_CREATE input) {
         try {
@@ -39,44 +48,32 @@ public class DocumentosrequisitoprogramaCoreService implements
     }
 
     public DocumentosrequisitoprogramaOutput create(DOCUMENTOSREQUISITOPROGRAMA_CREATEDOCUMENT input, Integer idPrograma) {
-        try {
-            DocumentosrequisitoprogramaDTO dto = DocumentosrequisitoprogramaDTO.builder()
-                    .nombre(input.nombre())
-                    .tamanomaximo(input.tamanomaximo())
-                    .urlformato(input.urlformato())
-                    .id_programa(idPrograma)
-                    .build();
-            dto.setId_programa(idPrograma);
-            return map.toOutput(service.create(dto));
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Documentosrequisitoprograma: " + e.getMessage(), e);
-        }
+        DocumentosrequisitoprogramaDTO dto = DocumentosrequisitoprogramaDTO.builder()
+                .nombre(input.nombre())
+                .tamanomaximo(input.tamanomaximo())
+                .urlformato(input.urlformato())
+                .id_programa(idPrograma)
+                .build();
+        dto.setId_programa(idPrograma);
+        return map.toOutput(service.create(dto));
     }
 
     public DocumentosrequisitoprogramaOutput update(DOCUMENTOSREQUISITOPROGRAMA_CREATEDOCUMENT input, Integer idDocumento,
             Integer idPrograma) {
-        try {
-            DocumentosrequisitoprogramaDTO dto = DocumentosrequisitoprogramaDTO.builder()
-                    .nombre(input.nombre())
-                    .tamanomaximo(input.tamanomaximo())
-                    .urlformato(input.urlformato())
-                    .id_programa(idPrograma)
-                    .build();
-            dto.setId(idDocumento);
-            return map.toOutput(service.update(idDocumento, dto));
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Documentosrequisitoprograma: " + e.getMessage(), e);
-        }
+        DocumentosrequisitoprogramaDTO dto = DocumentosrequisitoprogramaDTO.builder()
+                .nombre(input.nombre())
+                .tamanomaximo(input.tamanomaximo())
+                .urlformato(input.urlformato())
+                .id_programa(idPrograma)
+                .build();
+        dto.setId(idDocumento);
+        return map.toOutput(service.update(idDocumento, dto));
     }
 
     @Override
     public DocumentosrequisitoprogramaOutput update(DOCUMENTOSREQUISITOPROGRAMA_UPDATE input) {
-        try {
-            DocumentosrequisitoprogramaDTO dto = map.toDto(input);
-            return map.toOutput(service.update(input.id(), dto));
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Documentosrequisitoprograma: " + e.getMessage(), e);
-        }
+        DocumentosrequisitoprogramaDTO dto = map.toDto(input);
+        return map.toOutput(service.update(input.id(), dto));
     }
 
     @Override
@@ -104,6 +101,19 @@ public class DocumentosrequisitoprogramaCoreService implements
 
     @Override
     public void deleteById(DOCUMENTOSREQUISITOPROGRAMA_DELETE input) {
-        service.deleteById(input.id());
+        Integer id = input.id();
+        if (service.findById(id) == null) {
+            throw new DomainException(DocumentosrequisitoprogramaErrorCode.DOCUMENTO_REQUISITO_NOT_FOUND, id);
+        }
+        List<Integer> cohortes = programaCohorteService.findByIdDocrequisito(id).stream()
+                .map(DocumentosrequisitoprogramacohorteDTO::getIdCohorte)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (!cohortes.isEmpty()) {
+            throw new DomainException(DocumentosrequisitoprogramaErrorCode.DOCUMENTO_REQUISITO_EN_USO_CONFLICT,
+                    Map.of("documentoId", id, "cohortes", cohortes));
+        }
+        service.deleteById(id);
     }
 }

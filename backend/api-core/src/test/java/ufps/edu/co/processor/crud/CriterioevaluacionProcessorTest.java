@@ -10,10 +10,12 @@ import ufps.edu.co.domain.exceptions.DomainException;
 import ufps.edu.co.domain.exceptions.errorcodes.CriterioevaluacionErrorCode;
 import ufps.edu.co.maps.specific.CriterioevaluacionMap;
 import ufps.edu.co.records.input.entity.CriterioevaluacionInput.CRITERIO_UPDATE_BODY;
+import ufps.edu.co.records.input.entity.CriterioevaluacionInput.CRITERIOEVALUACION_UPDATE;
 import ufps.edu.co.records.output.entity.CriterioevaluacionOutput;
 import ufps.edu.co.rest.dto.CohorteDTO;
 import ufps.edu.co.rest.dto.CriterioevaluacionDTO;
 import ufps.edu.co.rest.dto.CriteriocohorteDTO;
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import ufps.edu.co.rest.services.*;
 import ufps.edu.co.services.core.crud.CalificacioncriterioCoreService;
 import ufps.edu.co.services.core.crud.CriterioevaluacionCoreService;
@@ -26,6 +28,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+
+import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * DEPENDE_DE_PROCESSOR - Tests sobre CriterioevaluacionProcessor.
@@ -191,5 +195,34 @@ class CriterioevaluacionProcessorTest {
         DomainException ex = assertThrows(DomainException.class,
                 () -> processor.desactivarCriterio(1, 10));
         assertEquals(CriterioevaluacionErrorCode.CRITERIO_COHORTE_MISMATCH, ex.getCode());
+    }
+
+    // ─── update: la integridad se propaga; solo "no encontrado" sigue siendo 404 ─
+
+    @Test
+    void update_conViolacionDeIntegridad_propagaLaExcepcion() {
+        CriterioevaluacionDTO actual = CriterioevaluacionDTO.builder()
+                .id(10).peso(new BigDecimal("20")).build();
+        when(service.findById(10)).thenReturn(actual);
+        when(service.update(eq(10), any())).thenThrow(new DataIntegrityViolationException("duplicado"));
+
+        CRITERIOEVALUACION_UPDATE input = CRITERIOEVALUACION_UPDATE.builder()
+                .id(10).nombre("Repetido").peso(new BigDecimal("20")).idPrograma(1).build();
+
+        assertThrows(DataIntegrityViolationException.class, () -> processor.update(input));
+    }
+
+    @Test
+    void update_conRegistroNoEncontrado_sigueDandoNotFound() {
+        CriterioevaluacionDTO actual = CriterioevaluacionDTO.builder()
+                .id(11).peso(new BigDecimal("20")).build();
+        when(service.findById(11)).thenReturn(actual);
+        when(service.update(eq(11), any())).thenThrow(new RegistroNoEncontradoException("no existe"));
+
+        CRITERIOEVALUACION_UPDATE input = CRITERIOEVALUACION_UPDATE.builder()
+                .id(11).nombre("X").peso(new BigDecimal("20")).idPrograma(1).build();
+
+        DomainException ex = assertThrows(DomainException.class, () -> processor.update(input));
+        assertEquals(CriterioevaluacionErrorCode.CRITERIOEVALUACION_NOT_FOUND, ex.getCode());
     }
 }

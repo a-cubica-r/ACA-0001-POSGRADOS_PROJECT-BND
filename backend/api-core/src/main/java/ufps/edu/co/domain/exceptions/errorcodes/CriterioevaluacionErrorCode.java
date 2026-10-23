@@ -12,7 +12,9 @@ public enum CriterioevaluacionErrorCode implements BaseErrorCode {
     COHORTE_PROGRAMA_MISMATCH("COHORTE_PROGRAMA_NOT_FOUND", "La cohorte no pertenece al programa indicado"),
     PESO_EXCEDE_LIMITE("PESO_EXCEDE_LIMITE", "La suma de los pesos de los criterios de aceptación no puede exceder 100"),
     CRITERIO_CON_ASPIRANTES_CALIFICADOS("CRITERIO_CON_ASPIRANTES_CALIFICADOS", "El criterio no se puede borrar porque hay aspirantes calificados"),
-    CRITERIO_CON_CALIFICACIONES_BLOQUEADO("CRITERIO_CON_CALIFICACIONES_BLOQUEADO", "El criterio no se puede editar ni borrar porque ya tiene calificaciones registradas");
+    CRITERIO_CON_CALIFICACIONES_BLOQUEADO("CRITERIO_CON_CALIFICACIONES_BLOQUEADO", "El criterio no se puede editar ni borrar porque ya tiene calificaciones registradas"),
+    CRITERIO_DUPLICADO("CRITERIO_DUPLICADO", "Ya existe un criterio con ese nombre en el programa"),
+    CRITERIO_EN_USO_CONFLICT("CRITERIO_EN_USO_CONFLICT", "El criterio no se puede eliminar porque está asignado a una o más cohortes");
 
     private final String code;
     private final String defaultMessage;
