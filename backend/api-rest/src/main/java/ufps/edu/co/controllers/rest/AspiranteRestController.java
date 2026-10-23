@@ -67,12 +67,8 @@ public class AspiranteRestController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteById(@Valid @RequestBody ASPIRANTE_DELETE request) {
-        try {
-            processor.deleteById(request);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        processor.deleteById(request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/estado")

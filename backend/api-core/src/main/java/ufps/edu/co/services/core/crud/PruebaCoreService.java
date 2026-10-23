@@ -20,6 +20,7 @@ import ufps.edu.co.rest.dto.EstadoDTO;
 import ufps.edu.co.rest.dto.PruebaDTO;
 import ufps.edu.co.rest.dto.TipopruebaDTO;
 import ufps.edu.co.rest.dto.UbicacionDTO;
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import ufps.edu.co.rest.services.AdministrativoService;
 import ufps.edu.co.rest.services.AspiranteService;
 import ufps.edu.co.rest.services.CohorteService;
@@ -94,15 +95,13 @@ public class PruebaCoreService implements
 
     @Override
     public void deleteById(PRUEBA_DELETE input) {
-        PruebaDTO prueba;
-        try {
-            prueba = service.findById(input.id());
-        } catch (Exception e) {
+        PruebaDTO prueba = service.findById(input.id());
+        if (prueba == null) {
             throw new DomainException(PruebaErrorCode.PRUEBA_NOT_FOUND, input.id());
         }
         try {
             service.deleteById(input.id());
-        } catch (Exception e) {
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(PruebaErrorCode.PRUEBA_NOT_FOUND, input.id());
         }
         notifyPruebaEliminada(prueba);

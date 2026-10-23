@@ -119,11 +119,7 @@ public class DocumentoCoreService implements
 
     @Override
     public void deleteById(DOCUMENTO_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Documento by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 
     public AprobarDocumentoOutput approveDocument(DOCUMENTO_FIND input) {

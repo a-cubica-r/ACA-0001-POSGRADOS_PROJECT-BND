@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
@@ -63,7 +65,7 @@ public class CriteriocohorteService extends GenericService<CriteriocohorteEntity
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Criteriocohorte no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Criteriocohorte no encontrado con id: " + id));
         repository.deleteById(id);
     }
 

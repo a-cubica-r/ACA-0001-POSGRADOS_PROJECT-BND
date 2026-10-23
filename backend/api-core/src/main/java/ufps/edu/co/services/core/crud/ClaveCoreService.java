@@ -68,10 +68,6 @@ public class ClaveCoreService implements
 
     @Override
     public void deleteById(CLAVE_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Clave by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 }

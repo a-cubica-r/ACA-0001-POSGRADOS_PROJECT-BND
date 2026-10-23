@@ -1,5 +1,6 @@
 package ufps.edu.co.services.core.crud;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,7 +69,7 @@ public class OtrosvaloresCoreService implements
     public void deleteById(OTROSVALORES_DELETE input) {
         try {
             service.deleteById(input.id());
-        } catch (Exception e) {
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(OtrosvaloresErrorCode.OTROSVALORES_NOT_FOUND, input.id());
         }
     }

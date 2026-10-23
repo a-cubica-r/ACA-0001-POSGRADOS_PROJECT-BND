@@ -107,6 +107,13 @@ public class SecurityConfig {
                                                 .requestMatchers(POSGRADOS_PATHS)
                                                 .hasAnyRole(Rol.SUPER_ADMINISTRADOR.getCodigo(), Rol.POSGRADOS.getCodigo())
 
+                                                // El consecutivo solo lo edita el Superadministrador; debe ir
+                                                // antes del bloque de director-programa para que no lo hereden
+                                                // Director de Programa ni Posgrados.
+                                                .requestMatchers(HttpMethod.PUT,
+                                                                "/api/application/case/director-programa/programa/*/ultimocodigo")
+                                                .hasRole(Rol.SUPER_ADMINISTRADOR.getCodigo())
+
                                                 .requestMatchers(DIRECTOR_PROGRAMA_PATHS)
                                                 .hasAnyRole(Rol.SUPER_ADMINISTRADOR.getCodigo(), Rol.DIRECTOR_DE_PROGRAMA.getCodigo(), Rol.POSGRADOS.getCodigo())
 

@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -96,7 +98,7 @@ public class CalificacioncriterioService extends GenericService<Calificacioncrit
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Calificacioncriterio no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Calificacioncriterio no encontrado con id: " + id));
         repository.deleteById(id);
     }
 }

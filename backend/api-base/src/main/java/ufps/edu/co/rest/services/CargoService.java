@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,7 +59,7 @@ public class CargoService extends GenericService<CargoEntity, CargoDTO> {
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cargo no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Cargo no encontrado con id: " + id));
         repository.deleteById(id);
     }
 }

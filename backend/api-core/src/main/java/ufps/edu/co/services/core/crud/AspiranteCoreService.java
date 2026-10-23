@@ -1,5 +1,6 @@
 package ufps.edu.co.services.core.crud;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ufps.edu.co.domain.exceptions.DomainException;
+import ufps.edu.co.domain.exceptions.errorcodes.AspiranteErrorCode;
 import ufps.edu.co.domain.exceptions.errorcodes.CohorteErrorCode;
 import ufps.edu.co.domain.exceptions.errorcodes.CriteriocohorteErrorCode;
 import ufps.edu.co.domain.exceptions.errorcodes.CriterioevaluacionErrorCode;
@@ -183,8 +185,8 @@ public class AspiranteCoreService implements
     public void deleteById(ASPIRANTE_DELETE input) {
         try {
             service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Aspirante by ID: " + e.getMessage(), e);
+        } catch (RegistroNoEncontradoException e) {
+            throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, input.id());
         }
     }
 

@@ -1,5 +1,6 @@
 package ufps.edu.co.services.core.crud;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,7 +83,7 @@ public class SedeCoreService
     public void deleteById(SEDE_DELETE input) {
         try {
             service.deleteById(input.id());
-        } catch (Exception e) {
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(SedeErrorCode.SEDE_NOT_FOUND, input.id());
         }
     }

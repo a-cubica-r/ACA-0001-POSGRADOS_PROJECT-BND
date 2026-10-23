@@ -10,6 +10,21 @@ public enum CohorteErrorCode implements BaseErrorCode {
     COHORTE_NOT_FOUND(
             "COHORTE_NOT_FOUND",
             "Cohorte no encontrada"),
+    COHORTE_PARAMETRO_REQUERIDO(
+            "COHORTE_PARAMETRO_REQUERIDO",
+            "El id de la cohorte es obligatorio"),
+    COHORTE_CON_ASPIRANTES_CONFLICT(
+            "COHORTE_CON_ASPIRANTES_CONFLICT",
+            "La cohorte tiene aspirantes registrados"),
+    COHORTE_CON_ADMITIDOS_CONFLICT(
+            "COHORTE_CON_ADMITIDOS_CONFLICT",
+            "La cohorte tiene admitidos"),
+    COHORTE_CON_PRUEBAS_CONFLICT(
+            "COHORTE_CON_PRUEBAS_CONFLICT",
+            "La cohorte tiene pruebas programadas"),
+    COHORTE_REFERENCIADO_CONFLICT(
+            "COHORTE_REFERENCIADO_CONFLICT",
+            "La cohorte está referenciada por otros registros"),
     COHORTE_DUPLICADO(
             "COHORTE_DUPLICADO",
             "Cohorte duplicada"),

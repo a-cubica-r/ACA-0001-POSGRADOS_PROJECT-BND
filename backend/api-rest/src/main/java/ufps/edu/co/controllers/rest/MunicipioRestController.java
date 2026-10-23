@@ -61,11 +61,7 @@ public class MunicipioRestController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteById(@RequestBody MUNICIPIO_DELETE request) {
-        try {
-            processor.deleteById(request);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        processor.deleteById(request);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,7 +66,7 @@ public class MunicipioService extends GenericService<MunicipioEntity, MunicipioD
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Municipio no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Municipio no encontrado con id: " + id));
         repository.deleteById(id);
     }
 }

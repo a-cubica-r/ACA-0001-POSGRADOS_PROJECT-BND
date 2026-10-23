@@ -1,5 +1,7 @@
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +67,7 @@ public class EstudiantesService extends GenericService<EstudiantesEntity, Estudi
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Estudiante no encontrado con id: " + id));
         repository.deleteById(id);
     }
 
@@ -82,6 +84,17 @@ public class EstudiantesService extends GenericService<EstudiantesEntity, Estudi
     @Transactional
     public String findUltimoCodigoPorPrograma(Integer programaId) {
         return repository.findFirstByProgramaIdOrderByCodigoDesc(programaId)
+                .map(EstudiantesEntity::getCodigo)
+                .orElse(null);
+    }
+
+    /**
+     * Último código del programa sin tomar el bloqueo de escritura. Para usarlo
+     * en consultas y validaciones que no reservan el número.
+     */
+    @Transactional(readOnly = true)
+    public String findUltimoCodigoPorProgramaSinBloqueo(Integer programaId) {
+        return repository.findTopByProgramaIdOrderByCodigoDesc(programaId)
                 .map(EstudiantesEntity::getCodigo)
                 .orElse(null);
     }
