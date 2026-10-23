@@ -58,6 +58,11 @@ public class DocumentosrequisitoprogramacohorteService extends GenericService<Do
     }
 
     @Transactional(readOnly = true)
+    public List<DocumentosrequisitoprogramacohorteDTO> findByIdDocrequisito(Integer idDocrequisito) {
+        return entityListToDtoList(repository.findByIdDocrequisito(idDocrequisito));
+    }
+
+    @Transactional(readOnly = true)
     public Map<Integer, String> findNombreMapByCohorte(Integer idCohorte) {
         return repository.findByIdCohorteWithRequisito(idCohorte).stream()
                 .filter(dpc -> dpc.getDocumentosrequisitoprograma() != null)

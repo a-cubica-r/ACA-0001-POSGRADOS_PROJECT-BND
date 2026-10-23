@@ -54,6 +54,16 @@ public class CriterioevaluacionService extends GenericService<Criterioevaluacion
     }
 
     @Transactional(readOnly = true)
+    public boolean existsByIdProgramaAndNombre(Integer idPrograma, String nombre) {
+        return repository.existsByIdProgramaAndNombre(idPrograma, nombre);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByIdProgramaAndNombreAndIdNot(Integer idPrograma, String nombre, Integer id) {
+        return repository.existsByIdProgramaAndNombreAndIdNot(idPrograma, nombre, id);
+    }
+
+    @Transactional(readOnly = true)
     public CriterioevaluacionDTO findById(Integer id) {
         return entityToDto(repository.findById(id));
     }
@@ -64,7 +74,7 @@ public class CriterioevaluacionService extends GenericService<Criterioevaluacion
 
     public CriterioevaluacionDTO update(Integer id, CriterioevaluacionDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Criterioevaluacion no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Criterioevaluacion no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(toEntity(dto)));
     }

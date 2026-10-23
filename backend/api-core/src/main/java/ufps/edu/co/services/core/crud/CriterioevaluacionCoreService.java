@@ -2,11 +2,13 @@ package ufps.edu.co.services.core.crud;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import ufps.edu.co.domain.exceptions.DomainException;
@@ -59,6 +61,12 @@ public class CriterioevaluacionCoreService implements
 
     @Override
     public CriterioevaluacionOutput create(CRITERIOEVALUACION_CREATE input) {
+        String nombre = input.nombre() != null ? input.nombre().trim() : null;
+        if (nombre != null && input.idPrograma() != null
+                && service.existsByIdProgramaAndNombre(input.idPrograma(), nombre)) {
+            throw new DomainException(CriterioevaluacionErrorCode.CRITERIO_DUPLICADO,
+                    Map.of("nombre", nombre, "idPrograma", input.idPrograma()));
+        }
         CriterioevaluacionDTO dto = map.toDto(input);
         CriterioevaluacionOutput output = map.toOutput(service.create(dto));
         marcarAspirantesEnProgreso(input.idPrograma());
@@ -71,6 +79,14 @@ public class CriterioevaluacionCoreService implements
             assertCriterioSinCalificaciones(input.id());
             CriterioevaluacionDTO old = service.findById(input.id());
             BigDecimal oldPeso = old != null ? old.getPeso() : null;
+            Integer idPrograma = input.idPrograma() != null ? input.idPrograma()
+                    : (old != null ? old.getIdprograma() : null);
+            String nombre = input.nombre() != null ? input.nombre().trim() : null;
+            if (nombre != null && idPrograma != null
+                    && service.existsByIdProgramaAndNombreAndIdNot(idPrograma, nombre, input.id())) {
+                throw new DomainException(CriterioevaluacionErrorCode.CRITERIO_DUPLICADO,
+                        Map.of("nombre", nombre, "idPrograma", idPrograma));
+            }
             CriterioevaluacionDTO dto = map.toDto(input);
             CriterioevaluacionOutput output = map.toOutput(service.update(input.id(), dto));
             if (input.peso() != null && oldPeso != null && input.peso().compareTo(oldPeso) != 0) {
@@ -79,7 +95,9 @@ public class CriterioevaluacionCoreService implements
             return output;
         } catch (DomainException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (DataIntegrityViolationException e) {
+            throw e;
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(CriterioevaluacionErrorCode.CRITERIOEVALUACION_NOT_FOUND, input.id());
         }
     }
@@ -108,6 +126,17 @@ public class CriterioevaluacionCoreService implements
         assertCriterioSinCalificaciones(input.id());
         CriterioevaluacionDTO criterio = service.findById(input.id());
         Integer programaId = criterio != null ? criterio.getIdprograma() : null;
+
+        List<Integer> cohortes = criteriocohorteService.findByIdCriterio(input.id()).stream()
+                .map(CriteriocohorteDTO::getIdCohorte)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (!cohortes.isEmpty()) {
+            throw new DomainException(CriterioevaluacionErrorCode.CRITERIO_EN_USO_CONFLICT,
+                    Map.of("criterioId", input.id(), "cohortes", cohortes));
+        }
+
         try {
             service.deleteById(input.id());
         } catch (DomainException e) {

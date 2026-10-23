@@ -48,4 +48,8 @@ import ufps.edu.co.persistence.entities.CriterioevaluacionEntity;
 public interface CriterioevaluacionRepository extends JpaRepository<CriterioevaluacionEntity, Integer> {
 
     List<CriterioevaluacionEntity> findByIdPrograma(Integer idPrograma);
+
+    boolean existsByIdProgramaAndNombre(Integer idPrograma, String nombre);
+
+    boolean existsByIdProgramaAndNombreAndIdNot(Integer idPrograma, String nombre, Integer id);
 }
