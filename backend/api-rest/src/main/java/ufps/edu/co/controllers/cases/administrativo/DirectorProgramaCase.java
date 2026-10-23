@@ -129,6 +129,8 @@ import ufps.edu.co.enums.EstadoAspirante;
 import ufps.edu.co.enums.EstadoPagoInscripcion;
 import ufps.edu.co.enums.EstadoPagoMatricula;
 import ufps.edu.co.enums.ActorCancelacion;
+import ufps.edu.co.enums.Rol;
+import ufps.edu.co.services.core.crud.CohorteCoreService;
 
 @RestController
 @RequestMapping("/director-programa")
@@ -210,6 +212,9 @@ public class DirectorProgramaCase {
 
     @Autowired
     private UltimocodigoprogramaCoreService ultimocodigoprogramaCoreService;
+
+    @Autowired
+    private CohorteCoreService cohorteCoreService;
 
     @GetMapping(value = "/cohortes")
     public ResponseEntity<List<CohorteResumenOutput>> getCohortesByPrograma() {
@@ -403,6 +408,134 @@ public class DirectorProgramaCase {
             }
         } catch (Exception e) {
             logger.error("Error listando pagos de matrícula", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping(value = "/pagos/{idCohorte}/inscripcion")
+    public ResponseEntity<?> listPagosInscripcionPorCohorte(
+            @PathVariable Integer idCohorte,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
+        try {
+            cohorteCoreService.validarAccesoCohorte(idCohorte, resolveProgramaParaCohorte());
+            if (page == null) {
+                List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> recibos = pagoreciboinscripcionService
+                        .findDirectorByCohorteId(idCohorte);
+                var outputs = recibos.stream().map(r -> {
+                    try {
+                        if (r == null)
+                            return null;
+                        return PagoreciboDirectorOutput.builder()
+                                .id(r.getId())
+                                .idPago(r.getIdPago())
+                                .idAspirante(r.getIdAspirante())
+                                .aspirante(r.getAspirante())
+                                .fechavencimiento(r.getFechavencimiento())
+                                .urlrecibo(r.getUrlrecibo())
+                                .urlfactura(r.getUrlfactura())
+                                .referenciapago(r.getReferenciapago())
+                                .valorpago(r.getValorpago())
+                                .idEstado(r.getIdEstado())
+                                .estado(r.getEstado())
+                                .build();
+                    } catch (Exception ex) {
+                        logger.error("Error mapeando recibo inscripcion {}", r != null ? r.getId() : null, ex);
+                        return null;
+                    }
+                }).filter(Objects::nonNull).toList();
+
+                return ResponseEntity.ok(outputs);
+            } else {
+                int p = Math.max(0, page);
+                int s = (size != null && size > 0) ? size : 50;
+                Pageable pageable = PageRequest.of(p, s);
+                Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagoreciboinscripcionService
+                        .findDirectorByCohorteId(idCohorte, pageable);
+                Page<PagoreciboDirectorOutput> mapped = pageResult
+                        .map(r -> PagoreciboDirectorOutput.builder()
+                                .id(r.getId())
+                                .idPago(r.getIdPago())
+                                .idAspirante(r.getIdAspirante())
+                                .aspirante(r.getAspirante())
+                                .fechavencimiento(r.getFechavencimiento())
+                                .urlrecibo(r.getUrlrecibo())
+                                .urlfactura(r.getUrlfactura())
+                                .referenciapago(r.getReferenciapago())
+                                .valorpago(r.getValorpago())
+                                .idEstado(r.getIdEstado())
+                                .estado(r.getEstado())
+                                .build());
+                return ResponseEntity.ok(mapped);
+            }
+        } catch (DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error listando pagos de inscripción por cohorte {}", idCohorte, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping(value = "/pagos/{idCohorte}/matricula")
+    public ResponseEntity<?> listPagosMatriculaPorCohorte(
+            @PathVariable Integer idCohorte,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size) {
+        try {
+            cohorteCoreService.validarAccesoCohorte(idCohorte, resolveProgramaParaCohorte());
+            if (page == null) {
+                List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> recibos = pagorecibomatriculaService
+                        .findDirectorByCohorteId(idCohorte);
+                var outputs = recibos.stream().map(r -> {
+                    try {
+                        if (r == null)
+                            return null;
+                        return PagoreciboDirectorOutput.builder()
+                                .id(r.getId())
+                                .idPago(r.getIdPago())
+                                .idAspirante(r.getIdAspirante())
+                                .aspirante(r.getAspirante())
+                                .fechavencimiento(r.getFechavencimiento())
+                                .urlrecibo(r.getUrlrecibo())
+                                .urlfactura(r.getUrlfactura())
+                                .referenciapago(r.getReferenciapago())
+                                .valorpago(r.getValorpago())
+                                .idEstado(r.getIdEstado())
+                                .estado(r.getEstado())
+                                .build();
+                    } catch (Exception ex) {
+                        logger.error("Error mapeando recibo matricula {}", r != null ? r.getId() : null, ex);
+                        return null;
+                    }
+                }).filter(Objects::nonNull).toList();
+
+                return ResponseEntity.ok(outputs);
+            } else {
+                int p = Math.max(0, page);
+                int s = (size != null && size > 0) ? size : 50;
+                Pageable pageable = PageRequest.of(p, s);
+                Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> pageResult = pagorecibomatriculaService
+                        .findDirectorByCohorteId(idCohorte, pageable);
+                Page<PagoreciboDirectorOutput> mapped = pageResult
+                        .map(r -> PagoreciboDirectorOutput.builder()
+                                .id(r.getId())
+                                .idPago(r.getIdPago())
+                                .idAspirante(r.getIdAspirante())
+                                .aspirante(r.getAspirante())
+                                .fechavencimiento(r.getFechavencimiento())
+                                .urlrecibo(r.getUrlrecibo())
+                                .urlfactura(r.getUrlfactura())
+                                .referenciapago(r.getReferenciapago())
+                                .valorpago(r.getValorpago())
+                                .idEstado(r.getIdEstado())
+                                .estado(r.getEstado())
+                                .build());
+                return ResponseEntity.ok(mapped);
+            }
+        } catch (DomainException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error listando pagos de matrícula por cohorte {}", idCohorte, e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -1401,6 +1534,22 @@ public class DirectorProgramaCase {
                 .estado(o.estado() != null ? o.estado().tipo() : null)
                 .motivocambio(null)
                 .build();
+    }
+
+    /**
+     * Programa contra el que se valida el acceso a una cohorte.
+     *
+     * <p>Posgrados y Super Administrador pueden consultar cualquier cohorte, por
+     * eso devuelven {@code null}. Cualquier otro usuario se trata como Director
+     * de Programa y solo accede a las cohortes de su programa.</p>
+     */
+    private Integer resolveProgramaParaCohorte() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean accesoTotal = authentication != null && authentication.getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .anyMatch(authority -> ("ROLE_" + Rol.SUPER_ADMINISTRADOR.getCodigo()).equals(authority)
+                        || ("ROLE_" + Rol.POSGRADOS.getCodigo()).equals(authority));
+        return accesoTotal ? null : resolvePrograma();
     }
 
     private Integer resolvePrograma() {
