@@ -39,7 +39,10 @@ public enum CohorteErrorCode implements BaseErrorCode {
             "La fecha de inicio de un plazo es posterior a su fecha de fin"),
     COHORTE_CON_ASIGNACIONES_BLOQUEADAS(
             "COHORTE_CON_ASIGNACIONES_BLOQUEADAS",
-            "No se pueden eliminar asignaciones porque existen documentos cargados que dependen de ellas");
+            "No se pueden eliminar asignaciones porque existen documentos cargados que dependen de ellas"),
+    COHORTE_ACCESO_FORBIDDEN(
+            "COHORTE_ACCESO_FORBIDDEN",
+            "No tiene acceso a esta cohorte");
 
     private final String code;
     private final String defaultMessage;

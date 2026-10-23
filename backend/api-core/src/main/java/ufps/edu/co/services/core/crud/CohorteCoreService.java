@@ -268,4 +268,28 @@ public class CohorteCoreService implements GlobalUseCase<COHORTE_CREATE, COHORTE
         }
     }
 
+    /**
+     * Valida que el usuario pueda consultar la cohorte indicada.
+     *
+     * <p>Es lógica de dominio pura (sin {@code SecurityContext}): el
+     * controlador resuelve el programa del usuario y lo pasa aquí.</p>
+     *
+     * @param idCohorte         cohorte solicitada; si no existe se informa 404.
+     * @param idProgramaDirector programa del Director de Programa autenticado;
+     *                           {@code null} significa acceso total (Posgrados y
+     *                           Super Administrador) y no se comprueba nada más.
+     */
+    public void validarAccesoCohorte(Integer idCohorte, Integer idProgramaDirector) {
+        CohorteDTO cohorte = service.findById(idCohorte);
+        if (cohorte == null) {
+            throw new DomainException(CohorteErrorCode.COHORTE_NOT_FOUND, idCohorte);
+        }
+        if (idProgramaDirector == null) {
+            return;
+        }
+        if (cohorte.getIdPrograma() == null || !cohorte.getIdPrograma().equals(idProgramaDirector)) {
+            throw new DomainException(CohorteErrorCode.COHORTE_ACCESO_FORBIDDEN, idCohorte);
+        }
+    }
+
 }

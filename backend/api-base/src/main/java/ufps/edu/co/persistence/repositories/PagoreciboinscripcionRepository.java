@@ -94,6 +94,26 @@ public interface PagoreciboinscripcionRepository extends JpaRepository<Pagorecib
 	org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByProgramaId(
 			@Param("programaId") Integer programaId, org.springframework.data.domain.Pageable pageable);
 
+	@Query("select new ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO(r.id, p.id, a.id, concat(coalesce(per.nombres,''), ' ', coalesce(per.apellidos,'')), r.fechavencimiento, r.urlrecibo, r.urlfactura, r.referenciapago, r.valorpago, r.idEstado, est.tipo) "
+			+ "from PagoreciboinscripcionEntity r "
+			+ "join r.pago p "
+			+ "join p.aspirante a "
+			+ "left join a.persona per "
+			+ "left join r.estado est "
+			+ "where a.idCohorte = :cohorteId")
+	List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByCohorteId(
+			@Param("cohorteId") Integer cohorteId);
+
+	@Query(value = "select new ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO(r.id, p.id, a.id, concat(coalesce(per.nombres,''), ' ', coalesce(per.apellidos,'')), r.fechavencimiento, r.urlrecibo, r.urlfactura, r.referenciapago, r.valorpago, r.idEstado, est.tipo) "
+			+ "from PagoreciboinscripcionEntity r "
+			+ "join r.pago p "
+			+ "join p.aspirante a "
+			+ "left join a.persona per "
+			+ "left join r.estado est "
+			+ "where a.idCohorte = :cohorteId", countQuery = "select count(r) from PagoreciboinscripcionEntity r join r.pago p join p.aspirante a where a.idCohorte = :cohorteId")
+	org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByCohorteId(
+			@Param("cohorteId") Integer cohorteId, org.springframework.data.domain.Pageable pageable);
+
 	// List<PagoreciboinscripcionEntity> findByXxxStartingWith(String xxx);
 
 	// List<PagoreciboinscripcionEntity> findByXxxContaining(String xxx);
