@@ -141,7 +141,12 @@ public class AdministrativoService extends GenericService<AdministrativoEntity, 
 
     @Transactional(readOnly = true)
     public AdministrativoDTO findByIdPersona(Integer idPersona) {
-        return entityToDto(repository.findByIdPersona(idPersona));
+        return entityToDto(repository.findFirstByIdPersona(idPersona));
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdministrativoDTO> findAllByIdPersona(Integer idPersona) {
+        return entityListToDtoList(repository.findAllByIdPersona(idPersona));
     }
 
     @Transactional(readOnly = true)

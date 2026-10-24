@@ -1049,122 +1049,112 @@ public class DirectorProgramaCase {
 
     @GetMapping("{idCohorte}/generateAdmittedList")
     public ResponseEntity<byte[]> generateAdmittedList(@PathVariable Integer idCohorte) {
-        try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            Integer idPersona = usuarioService.findIdPersonaByNombreusuario(username);
-            var admin = administrativoService.findByIdPersona(idPersona);
-            String directorNombre = (admin != null && admin.getPersona() != null)
-                    ? admin.getPersona().getNombres() + " " + admin.getPersona().getApellidos()
-                    : "Director de Programa";
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Integer idPersona = usuarioService.findIdPersonaByNombreusuario(username);
+        var admin = administrativoService.findByIdPersona(idPersona);
+        String directorNombre = (admin != null && admin.getPersona() != null)
+                ? admin.getPersona().getNombres() + " " + admin.getPersona().getApellidos()
+                : "Director de Programa";
 
-            // Generate PDF from the Admitido table (do NOT update aspirante states here)
-            List<ufps.edu.co.rest.dto.AdmitidoDTO> admitidos = listaadmitidosService.findByIdCohorte(idCohorte);
-            List<ufps.edu.co.records.output.entity.AspiranteOutput> aspirantesOutput = admitidos.stream()
-                    .map(a -> {
-                        ufps.edu.co.rest.dto.AspiranteDTO asp = a.getAspirante();
-                        return ufps.edu.co.records.output.entity.AspiranteOutput.builder()
-                                .id(asp != null ? asp.getId() : null)
-                                .puntuacion(asp != null ? asp.getPuntuacion() : null)
-                                .persona(asp != null && asp.getPersona() != null
-                                        ? ufps.edu.co.records.output.entity.PersonaOutput.builder()
-                                                .nombres(asp.getPersona().getNombres())
-                                                .apellidos(asp.getPersona().getApellidos())
-                                                .correo(asp.getPersona().getCorreo())
-                                                .build()
-                                        : null)
-                                .build();
-                    })
-                    .toList();
-
-            byte[] pdf = pdfGeneratorService.generarListaAdmitidos(
-                    cohorteService.findById(idCohorte).getNombre(), LocalDateTime.now(), aspirantesOutput,
-                    directorNombre);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"admitidos_cohorte_" + idCohorte + ".pdf\"")
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(pdf);
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+        CohorteDTO cohorteDto = cohorteService.findById(idCohorte);
+        if (cohorteDto == null) {
+            return ResponseEntity.notFound().build();
         }
+
+        // Generate PDF from the Admitido table (do NOT update aspirante states here)
+        List<ufps.edu.co.rest.dto.AdmitidoDTO> admitidos = listaadmitidosService.findByIdCohorte(idCohorte);
+        List<ufps.edu.co.records.output.entity.AspiranteOutput> aspirantesOutput = admitidos.stream()
+                .map(a -> {
+                    ufps.edu.co.rest.dto.AspiranteDTO asp = a.getAspirante();
+                    return ufps.edu.co.records.output.entity.AspiranteOutput.builder()
+                            .id(asp != null ? asp.getId() : null)
+                            .puntuacion(asp != null ? asp.getPuntuacion() : null)
+                            .persona(asp != null && asp.getPersona() != null
+                                    ? ufps.edu.co.records.output.entity.PersonaOutput.builder()
+                                            .nombres(asp.getPersona().getNombres())
+                                            .apellidos(asp.getPersona().getApellidos())
+                                            .correo(asp.getPersona().getCorreo())
+                                            .build()
+                                    : null)
+                            .build();
+                })
+                .toList();
+
+        byte[] pdf = pdfGeneratorService.generarListaAdmitidos(
+                cohorteDto.getNombre(), LocalDateTime.now(), aspirantesOutput, directorNombre);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"admitidos_cohorte_" + idCohorte + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     @PostMapping(value = "/cohorte/{cohorteId}/admitidos/finalize")
     public ResponseEntity<List<ListaadmitidosOutput>> finalizeAdmitidos(@PathVariable Integer cohorteId) {
-        try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            Integer idPersona = usuarioService.findIdPersonaByNombreusuario(username);
-            var admin = administrativoService.findByIdPersona(idPersona);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Integer idPersona = usuarioService.findIdPersonaByNombreusuario(username);
 
-            CohorteDTO cohorte = cohorteService.findById(cohorteId);
-            if (cohorte == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            if (admin == null || admin.getCargo() == null || cohorte.getIdPrograma() == null
-                    || admin.getCargo().getIdPrograma() == null
-                    || !cohorte.getIdPrograma().equals(admin.getCargo().getIdPrograma())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-
-            List<AspiranteDTO> aspirantes = aspiranteService.findByCohorte(cohorteId);
-            // validation: require at least one aspirante with estado ADMITIDO
-            boolean anyAdmitido = aspirantes.stream()
-                    .anyMatch(a -> a.getEstado() != null && EstadoAspirante.ADMITIDO.matches(a.getEstado().getTipo()));
-            if (!anyAdmitido) {
-                throw new DomainException(ListaadmitidosErrorCode.NO_ADMITIDOS_EN_COHORTE, cohorteId);
-            }
-
-            List<ListaadmitidosOutput> created = new ArrayList<>();
-            LocalDate today = LocalDate.now();
-
-            EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad(EstadoAspirante.POR_LEGALIZAR);
-
-            EstadoDTO estadoCancelado = estadoService.findByTipoAndEntidad(EstadoAspirante.CANCELADO);
-
-            Integer idEstadoPorLegalizar = estadoPorLegalizar != null ? estadoPorLegalizar.getId() : null;
-            Integer idEstadoCancelado = estadoCancelado != null ? estadoCancelado.getId() : null;
-
-            // Insert admitido rows for aspirantes currently marked ADMITIDO
-            for (AspiranteDTO a : aspirantes) {
-                String tipo = a.getEstado() != null ? a.getEstado().getTipo() : null;
-                if (EstadoAspirante.ADMITIDO.matches(tipo)) {
-                    if (!listaadmitidosService.existsByIdCohorteAndIdAspirante(cohorteId, a.getId())) {
-                        AdmitidoDTO dto = new AdmitidoDTO();
-                        dto.setIdCohorte(cohorteId);
-                        dto.setIdAspirante(a.getId());
-                        dto.setFechageneracion(today);
-                        AdmitidoDTO saved = listaadmitidosService.create(dto);
-                        saved.setAspirante(a);
-                        created.add(listaadmitidosMap.toOutput(saved));
-                    }
-                }
-            }
-
-            // Update states: ADMITIDO -> POR LEGALIZAR, VALIDADO_CALIFICADO -> CANCELADO
-            for (AspiranteDTO a : aspirantes) {
-                String tipo = a.getEstado() != null ? a.getEstado().getTipo() : null;
-                try {
-                    if (EstadoAspirante.ADMITIDO.matches(tipo) && idEstadoPorLegalizar != null) {
-                        aspiranteService.updateEstado(a.getId(), idEstadoPorLegalizar);
-                    } else if (EstadoAspirante.VALIDADO_CALIFICADO.matches(tipo) && idEstadoCancelado != null) {
-                        aspiranteService.updateEstado(a.getId(), idEstadoCancelado);
-                    }
-                } catch (Exception ex) {
-                    logger.warn("No se pudo actualizar estado de aspirante id={} : {}", a.getId(), ex.getMessage());
-                }
-            }
-
-            return ResponseEntity.ok(created);
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+        CohorteDTO cohorte = cohorteService.findById(cohorteId);
+        if (cohorte == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        // A person can have multiple admin records; access is granted if any matches the cohorte's program
+        boolean tieneAcceso = cohorte.getIdPrograma() != null
+                && administrativoService.findAllByIdPersona(idPersona).stream()
+                        .anyMatch(a -> a.getCargo() != null
+                                && cohorte.getIdPrograma().equals(a.getCargo().getIdPrograma()));
+        if (!tieneAcceso) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<AspiranteDTO> aspirantes = aspiranteService.findByCohorte(cohorteId);
+        // validation: require at least one aspirante with estado ADMITIDO
+        boolean anyAdmitido = aspirantes.stream()
+                .anyMatch(a -> a.getEstado() != null && EstadoAspirante.ADMITIDO.matches(a.getEstado().getTipo()));
+        if (!anyAdmitido) {
+            throw new DomainException(ListaadmitidosErrorCode.NO_ADMITIDOS_EN_COHORTE, cohorteId);
+        }
+
+        List<ListaadmitidosOutput> created = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+
+        EstadoDTO estadoPorLegalizar = estadoService.findByTipoAndEntidad(EstadoAspirante.POR_LEGALIZAR);
+        EstadoDTO estadoCancelado = estadoService.findByTipoAndEntidad(EstadoAspirante.CANCELADO);
+        Integer idEstadoPorLegalizar = estadoPorLegalizar != null ? estadoPorLegalizar.getId() : null;
+        Integer idEstadoCancelado = estadoCancelado != null ? estadoCancelado.getId() : null;
+
+        // Insert admitido rows for aspirantes currently marked ADMITIDO
+        for (AspiranteDTO a : aspirantes) {
+            String tipo = a.getEstado() != null ? a.getEstado().getTipo() : null;
+            if (EstadoAspirante.ADMITIDO.matches(tipo)) {
+                if (!listaadmitidosService.existsByIdCohorteAndIdAspirante(cohorteId, a.getId())) {
+                    AdmitidoDTO dto = new AdmitidoDTO();
+                    dto.setIdCohorte(cohorteId);
+                    dto.setIdAspirante(a.getId());
+                    dto.setFechageneracion(today);
+                    AdmitidoDTO saved = listaadmitidosService.create(dto);
+                    saved.setAspirante(a);
+                    created.add(listaadmitidosMap.toOutput(saved));
+                }
+            }
+        }
+
+        // Update states: ADMITIDO -> POR LEGALIZAR, VALIDADO_CALIFICADO -> CANCELADO
+        for (AspiranteDTO a : aspirantes) {
+            String tipo = a.getEstado() != null ? a.getEstado().getTipo() : null;
+            try {
+                if (EstadoAspirante.ADMITIDO.matches(tipo) && idEstadoPorLegalizar != null) {
+                    aspiranteService.updateEstado(a.getId(), idEstadoPorLegalizar);
+                } else if (EstadoAspirante.VALIDADO_CALIFICADO.matches(tipo) && idEstadoCancelado != null) {
+                    aspiranteService.updateEstado(a.getId(), idEstadoCancelado);
+                }
+            } catch (Exception ex) {
+                logger.warn("No se pudo actualizar estado de aspirante id={} : {}", a.getId(), ex.getMessage());
+            }
+        }
+
+        return ResponseEntity.ok(created);
     }
 
     @GetMapping("/admitidos/exists")
