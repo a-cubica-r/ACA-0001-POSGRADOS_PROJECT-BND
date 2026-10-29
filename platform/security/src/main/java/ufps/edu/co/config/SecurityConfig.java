@@ -27,6 +27,7 @@ public class SecurityConfig {
                         "/api-docs/**",
                         "/v3/api-docs/**",
                         "/error",
+                        "/actuator/health",
                         "/api/application/case/inscripciones/**",
                         "/api/application/case/wompi/**",
                         "/api/application/case/aspirantes/confirmar-correo",

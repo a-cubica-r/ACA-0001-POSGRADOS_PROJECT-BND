@@ -1,0 +1,126 @@
+services:
+  - type: web
+    name: posgrados-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /posgrados-project/actuator/health
+    autoDeploy: true
+    envVars:
+      # --- App ---
+      - key: APP_NAME
+        value: Posgrados API
+      - key: APP_PREFIX
+        value: /posgrados-project
+      - key: APP_BASE_URL
+        sync: false
+      - key: APP_FRONTEND_LOGIN_URL
+        sync: false
+      - key: APP_FRONTEND_RESET_PASSWORD_URL
+        sync: false
+      - key: JAVA_OPTS
+        value: -XX:MaxRAMPercentage=75 -XX:+UseSerialGC
+
+      # --- Module load markers (fail-fast checks) ---
+      - key: APP_MODULE_NAME_API_AUTH
+        value: api-auth
+      - key: APP_MODULE_NAME_API_BASE
+        value: api-base
+      - key: APP_MODULE_NAME_API_CORE
+        value: api-core
+      - key: APP_MODULE_NAME_API_REST
+        value: api-rest
+      - key: APP_MODULE_NAME_API_TEST
+        value: api-test
+      - key: APP_MODULE_NAME_API_WOMPI
+        value: api-wompi
+      - key: APP_MODULE_NAME_APPLICATION
+        value: application
+      - key: APP_MODULE_NAME_CHECK_BUILDER
+        value: check-builder
+      - key: APP_MODULE_NAME_MAIL_MODULE
+        value: mail-module
+      - key: APP_MODULE_NAME_S3_STORAGE
+        value: s3-storage
+      - key: APP_MODULE_NAME_SECURITY
+        value: security
+
+      # --- Database (MySQL) ---
+      - key: DB_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SCHEMA
+        sync: false
+      - key: DB_DRIVER
+        value: com.mysql.cj.jdbc.Driver
+      - key: DB_DIALECT
+        value: org.hibernate.dialect.MySQLDialect
+
+      # --- Security ---
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SPRING_SECURITY_USER_NAME
+        sync: false
+      - key: SPRING_SECURITY_USER_PASSWORD
+        sync: false
+
+      # --- Swagger ---
+      - key: ENABLE_API_DOCS
+        value: "true"
+      - key: ENABLE_SWAGGER_UI
+        value: "true"
+      - key: SWAGGER_API_DOCS_PATH
+        value: /api-docs
+      - key: SWAGGER_UI_PATH
+        value: /swagger-ui.html
+
+      # --- AWS (S3 + SES) ---
+      - key: AWS_ACCESS_KEY
+        sync: false
+      - key: AWS_SECRET_KEY
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_KEY_SES
+        sync: false
+      - key: AWS_BUCKET_NAME
+        sync: false
+      - key: AWS_REGION
+        value: us-east-2
+      - key: AWS_SES_REGION
+        value: us-east-2
+      - key: AWS_SES_FROM_EMAIL
+        sync: false
+
+      # --- Mail (Resend) ---
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+
+      # --- Wompi ---
+      - key: WOMPI_SIMULATED
+        sync: false
+      - key: WOMPI_API_BASE_URL
+        sync: false
+      - key: WOMPI_CHECKOUT_BASE_URL
+        value: https://checkout.wompi.co/p
+      - key: WOMPI_WIDGET_SCRIPT_URL
+        value: https://checkout.wompi.co/widget.js
+      - key: WOMPI_CURRENCY
+        value: COP
+      - key: WOMPI_PUBLIC_KEY
+        sync: false
+      - key: WOMPI_PRIVATE_KEY
+        sync: false
+      - key: WOMPI_INTEGRITY_SECRET
+        sync: false
+      - key: WOMPI_RETURN_URL
+        sync: false
+      - key: WOMPI_WEBHOOK_URL
+        sync: false
