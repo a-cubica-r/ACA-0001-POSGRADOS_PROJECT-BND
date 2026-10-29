@@ -55,7 +55,7 @@ services:
       - key: DB_PASSWORD
         sync: false
       - key: DB_SCHEMA
-        sync: false
+        value: defaultdb
       - key: DB_DRIVER
         value: com.mysql.cj.jdbc.Driver
       - key: DB_DIALECT
