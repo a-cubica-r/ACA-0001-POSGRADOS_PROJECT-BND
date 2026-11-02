@@ -52,7 +52,6 @@ class IntegracionTramitesCoreServiceTest {
         est.setApellido("Pérez");
         est.setEmail("laura@example.com");
         est.setFechalngreso(LocalDate.of(2025, 2, 3));
-        est.setProgramaId(12);
         est.setCohorteId(34);
         est.setEstadoEstudianteId(1);
 
@@ -73,6 +72,8 @@ class IntegracionTramitesCoreServiceTest {
         estado.setTipo("ACTIVO");
 
         when(estudiantesService.findByCedula("1090000001")).thenReturn(est);
+        // Como en producción: el DTO llega sin programaId y se consulta aparte.
+        when(estudiantesService.findProgramaIdByCedula("1090000001")).thenReturn(12);
         when(programaService.findById(12)).thenReturn(programa);
         when(cohorteService.findById(34)).thenReturn(cohorte);
         when(estadoService.findById(1)).thenReturn(estado);

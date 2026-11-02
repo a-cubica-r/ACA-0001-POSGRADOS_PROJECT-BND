@@ -76,6 +76,15 @@ public class EstudiantesService extends GenericService<EstudiantesEntity, Estudi
         return entityToDto(repository.findFirstByCedula(cedula));
     }
 
+    /**
+     * Programa del estudiante con esa cédula. EstudiantesMapper no copia
+     * programaId al DTO, así que la integración con Trámites (SC-03) lo lee aquí.
+     */
+    @Transactional(readOnly = true)
+    public Integer findProgramaIdByCedula(String cedula) {
+        return repository.findFirstByCedula(cedula).map(EstudiantesEntity::getProgramaId).orElse(null);
+    }
+
     @Transactional(readOnly = true)
     public boolean existsByCedula(String cedula) {
         return repository.existsByCedula(cedula);

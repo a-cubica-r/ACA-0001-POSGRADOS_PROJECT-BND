@@ -58,7 +58,9 @@ public class IntegracionTramitesCoreService {
             throw new DomainException(IntegracionTramitesErrorCode.ESTUDIANTE_NOT_FOUND, cedula);
         }
 
-        ProgramaDTO programa = est.getProgramaId() != null ? programaService.findById(est.getProgramaId()) : null;
+        // El DTO no trae programaId (EstudiantesMapper lo ignora): se consulta aparte.
+        Integer programaId = estudiantesService.findProgramaIdByCedula(cedula);
+        ProgramaDTO programa = programaId != null ? programaService.findById(programaId) : null;
         CohorteDTO cohorte = est.getCohorteId() != null ? cohorteService.findById(est.getCohorteId()) : null;
         EstadoDTO estado = est.getEstadoEstudianteId() != null ? estadoService.findById(est.getEstadoEstudianteId()) : null;
         Integer creditosRequeridos = programa != null ? programa.getCreditos() : null;
