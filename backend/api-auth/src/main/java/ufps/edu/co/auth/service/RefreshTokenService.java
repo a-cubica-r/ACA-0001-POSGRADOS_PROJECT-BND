@@ -1,4 +1,4 @@
-package ufps.edu.co.auth.processor;
+package ufps.edu.co.auth.service;
 
 import org.springframework.stereotype.Service;
 
@@ -8,11 +8,11 @@ import ufps.edu.co.auth.exception.MissingCredentialsException;
 import ufps.edu.co.auth.records.output.LoginOutput;
 
 @Service
-public class RefreshTokenProcessor implements RefreshTokenUseCase {
+public class RefreshTokenService implements RefreshTokenUseCase {
 
     private final TokenIssuer tokenIssuer;
 
-    public RefreshTokenProcessor(TokenIssuer tokenIssuer) {
+    public RefreshTokenService(TokenIssuer tokenIssuer) {
         this.tokenIssuer = tokenIssuer;
     }
 
