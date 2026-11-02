@@ -1,5 +1,6 @@
 package ufps.edu.co.services.core.crud;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -115,7 +116,7 @@ public class CalificacioncriterioCoreService implements
     public void deleteById(CALIFICACIONCRITERIO_DELETE input) {
         try {
             service.deleteById(input.id());
-        } catch (Exception e) {
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(CalificacioncriterioErrorCode.CALIFICACIONCRITERIO_NOT_FOUND, input.id());
         }
     }

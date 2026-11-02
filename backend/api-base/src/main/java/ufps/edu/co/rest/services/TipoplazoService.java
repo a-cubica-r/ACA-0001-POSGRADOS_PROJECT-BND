@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,7 +72,7 @@ public class TipoplazoService extends GenericService<TipoplazoEntity, TipoplazoD
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tipoplazo no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Tipoplazo no encontrado con id: " + id));
         repository.deleteById(id);
     }
 }

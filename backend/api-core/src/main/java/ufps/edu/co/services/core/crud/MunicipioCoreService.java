@@ -73,10 +73,7 @@ public class MunicipioCoreService implements
 
     @Override
     public void deleteById(MUNICIPIO_DELETE id) {
-        try {
-            service.deleteById(id.id());
-        } catch (Exception e) {
-        }
+        service.deleteById(id.id());
     }
 
 }

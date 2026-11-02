@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -94,13 +96,18 @@ public class PruebaService extends GenericService<PruebaEntity, PruebaDTO> {
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Prueba no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Prueba no encontrado con id: " + id));
         repository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
     public List<PruebaDTO> findByIdAspirante(Integer idAspirante) {
         return entityListToDtoList(repository.findByIdAspirante(idAspirante));
+    }
+
+    @Transactional(readOnly = true)
+    public long countByCohorte(Integer cohorteId) {
+        return repository.countByIdCohorte(cohorteId);
     }
 
     public PruebaDTO edit(Integer id, String nombre, String descripcion, LocalDate fecha, LocalTime tiempo,

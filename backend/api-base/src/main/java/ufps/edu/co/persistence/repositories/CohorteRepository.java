@@ -87,6 +87,14 @@ public interface CohorteRepository extends JpaRepository<CohorteEntity, Integer>
 	long countAspirantesEnProcesoByCohorteId(@Param("cohorteId") Integer cohorteId,
 			@Param("entidad") String entidad, @Param("tipo") String tipo);
 
+	/**
+	 * Cuántas cohortes usan un plazo (en cualquiera de sus tres roles).
+	 * Necesario antes de borrar los plazos de una cohorte eliminada.
+	 */
+	@Query("SELECT COUNT(c) FROM CohorteEntity c WHERE c.idPlazodocumentacion = :idPlazo "
+			+ "OR c.idPlazoinscripcion = :idPlazo OR c.idPlazopago = :idPlazo")
+	long countByPlazo(@Param("idPlazo") Integer idPlazo);
+
 	// Insert specific finders here
 
 	// List<CohorteEntity> findByXxx(String xxx);

@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +54,16 @@ public class CriterioevaluacionService extends GenericService<Criterioevaluacion
     }
 
     @Transactional(readOnly = true)
+    public boolean existsByIdProgramaAndNombre(Integer idPrograma, String nombre) {
+        return repository.existsByIdProgramaAndNombre(idPrograma, nombre);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByIdProgramaAndNombreAndIdNot(Integer idPrograma, String nombre, Integer id) {
+        return repository.existsByIdProgramaAndNombreAndIdNot(idPrograma, nombre, id);
+    }
+
+    @Transactional(readOnly = true)
     public CriterioevaluacionDTO findById(Integer id) {
         return entityToDto(repository.findById(id));
     }
@@ -62,14 +74,14 @@ public class CriterioevaluacionService extends GenericService<Criterioevaluacion
 
     public CriterioevaluacionDTO update(Integer id, CriterioevaluacionDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Criterioevaluacion no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Criterioevaluacion no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(toEntity(dto)));
     }
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Criterioevaluacion no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Criterioevaluacion no encontrado con id: " + id));
         repository.deleteById(id);
     }
 

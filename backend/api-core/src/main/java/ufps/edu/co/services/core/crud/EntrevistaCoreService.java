@@ -141,13 +141,9 @@ public class EntrevistaCoreService implements
 
     @Override
     public void deleteById(ENTREVISTA_DELETE input) {
-        try {
-            EntrevistaDTO entrevista = service.findById(input.id());
-            service.deleteById(input.id());
-            notifyEntrevistaEliminada(entrevista);
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Entrevista by ID: " + e.getMessage(), e);
-        }
+        EntrevistaDTO entrevista = service.findById(input.id());
+        service.deleteById(input.id());
+        notifyEntrevistaEliminada(entrevista);
     }
 
     public EntrevistaOutput completeInterview(ENTREVISTA_FIND input) {

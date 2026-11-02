@@ -104,14 +104,8 @@ public class Programadocumentos {
 
     @DeleteMapping("/documento/{documentoId}")
     public ResponseEntity<Void> deleteDocumentosrequisitoprograma(@PathVariable Integer documentoId) {
-        try {
-
-            processor.deleteById(new DOCUMENTOSREQUISITOPROGRAMA_DELETE(documentoId));
-            return ResponseEntity.noContent().build();
-
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        processor.deleteById(new DOCUMENTOSREQUISITOPROGRAMA_DELETE(documentoId));
+        return ResponseEntity.noContent().build();
     }
 
     // ###################### CASES ######################

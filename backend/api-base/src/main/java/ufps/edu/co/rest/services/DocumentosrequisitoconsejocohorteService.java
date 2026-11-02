@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,7 +79,7 @@ public class DocumentosrequisitoconsejocohorteService extends GenericService<Doc
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Documentosrequisitoconsejocohorte no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Documentosrequisitoconsejocohorte no encontrado con id: " + id));
         repository.deleteById(id);
     }
 }

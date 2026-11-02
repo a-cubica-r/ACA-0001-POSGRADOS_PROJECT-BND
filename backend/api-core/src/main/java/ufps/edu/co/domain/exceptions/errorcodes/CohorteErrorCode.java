@@ -10,6 +10,21 @@ public enum CohorteErrorCode implements BaseErrorCode {
     COHORTE_NOT_FOUND(
             "COHORTE_NOT_FOUND",
             "Cohorte no encontrada"),
+    COHORTE_PARAMETRO_REQUERIDO(
+            "COHORTE_PARAMETRO_REQUERIDO",
+            "El id de la cohorte es obligatorio"),
+    COHORTE_CON_ASPIRANTES_CONFLICT(
+            "COHORTE_CON_ASPIRANTES_CONFLICT",
+            "La cohorte tiene aspirantes registrados"),
+    COHORTE_CON_ADMITIDOS_CONFLICT(
+            "COHORTE_CON_ADMITIDOS_CONFLICT",
+            "La cohorte tiene admitidos"),
+    COHORTE_CON_PRUEBAS_CONFLICT(
+            "COHORTE_CON_PRUEBAS_CONFLICT",
+            "La cohorte tiene pruebas programadas"),
+    COHORTE_REFERENCIADO_CONFLICT(
+            "COHORTE_REFERENCIADO_CONFLICT",
+            "La cohorte está referenciada por otros registros"),
     COHORTE_DUPLICADO(
             "COHORTE_DUPLICADO",
             "Cohorte duplicada"),
@@ -24,7 +39,10 @@ public enum CohorteErrorCode implements BaseErrorCode {
             "La fecha de inicio de un plazo es posterior a su fecha de fin"),
     COHORTE_CON_ASIGNACIONES_BLOQUEADAS(
             "COHORTE_CON_ASIGNACIONES_BLOQUEADAS",
-            "No se pueden eliminar asignaciones porque existen documentos cargados que dependen de ellas");
+            "No se pueden eliminar asignaciones porque existen documentos cargados que dependen de ellas"),
+    COHORTE_ACCESO_FORBIDDEN(
+            "COHORTE_ACCESO_FORBIDDEN",
+            "No tiene acceso a esta cohorte");
 
     private final String code;
     private final String defaultMessage;

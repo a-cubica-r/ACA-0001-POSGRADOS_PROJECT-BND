@@ -1,5 +1,6 @@
 package ufps.edu.co.services.core.crud;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,7 +68,7 @@ public class GeneroCoreService implements GlobalUseCase<GENERO_CREATE, GENERO_UP
     public void deleteById(GENERO_DELETE input) {
         try {
             service.deleteById(input.id());
-        } catch (Exception e) {
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(GeneroErrorCode.GENERO_NOT_FOUND, input.id());
         }
     }

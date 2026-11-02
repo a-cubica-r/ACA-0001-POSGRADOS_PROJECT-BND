@@ -68,10 +68,6 @@ public class UsuarioCoreService implements
 
     @Override
     public void deleteById(USUARIO_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Usuario by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 }

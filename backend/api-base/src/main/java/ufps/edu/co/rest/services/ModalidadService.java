@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,7 +69,7 @@ public class ModalidadService extends GenericService<ModalidadEntity, ModalidadD
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Modalidad no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Modalidad no encontrado con id: " + id));
         repository.deleteById(id);
     }
 }

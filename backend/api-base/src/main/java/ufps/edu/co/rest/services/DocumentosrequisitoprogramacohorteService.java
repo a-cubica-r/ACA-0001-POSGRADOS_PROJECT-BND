@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -56,6 +58,11 @@ public class DocumentosrequisitoprogramacohorteService extends GenericService<Do
     }
 
     @Transactional(readOnly = true)
+    public List<DocumentosrequisitoprogramacohorteDTO> findByIdDocrequisito(Integer idDocrequisito) {
+        return entityListToDtoList(repository.findByIdDocrequisito(idDocrequisito));
+    }
+
+    @Transactional(readOnly = true)
     public Map<Integer, String> findNombreMapByCohorte(Integer idCohorte) {
         return repository.findByIdCohorteWithRequisito(idCohorte).stream()
                 .filter(dpc -> dpc.getDocumentosrequisitoprograma() != null)
@@ -77,7 +84,7 @@ public class DocumentosrequisitoprogramacohorteService extends GenericService<Do
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Documentosrequisitoprogramacohorte no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Documentosrequisitoprogramacohorte no encontrado con id: " + id));
         repository.deleteById(id);
     }
 }

@@ -1,6 +1,5 @@
 package ufps.edu.co.controllers.rest;
 
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -65,11 +64,7 @@ public class DocumentoRestController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteById(@RequestBody DOCUMENTO_DELETE request) {
-        try {
-            processor.deleteById(request);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        processor.deleteById(request);
+        return ResponseEntity.noContent().build();
     }
 }

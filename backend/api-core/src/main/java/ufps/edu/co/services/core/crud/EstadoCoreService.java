@@ -74,11 +74,7 @@ public class EstadoCoreService
 
     @Override
     public void deleteById(ESTADO_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Estado by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 
     @Override

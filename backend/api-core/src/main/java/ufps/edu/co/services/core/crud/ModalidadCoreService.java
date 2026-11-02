@@ -72,11 +72,7 @@ public class ModalidadCoreService implements GlobalUseCase<MODALIDAD_CREATE, MOD
 
     @Override
     public void deleteById(MODALIDAD_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Modalidad by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 
     @Override

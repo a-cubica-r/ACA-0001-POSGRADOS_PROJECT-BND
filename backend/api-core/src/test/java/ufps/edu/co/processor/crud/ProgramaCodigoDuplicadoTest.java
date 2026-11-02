@@ -24,6 +24,7 @@ import ufps.edu.co.records.input.entity.ProgramaInput.PROGRAMA_CREATE;
 import ufps.edu.co.records.input.entity.ProgramaInput.PROGRAMA_UPDATE;
 import ufps.edu.co.rest.dto.ProgramaDTO;
 import ufps.edu.co.rest.services.ProgramaService;
+import ufps.edu.co.rest.services.UltimocodigoprogramaService;
 import ufps.edu.co.services.core.crud.ProgramaCoreService;
 
 /**
@@ -34,6 +35,7 @@ class ProgramaCodigoDuplicadoTest {
 
     @Mock private ProgramaService service;
     @Mock private ProgramaMap map;
+    @Mock private UltimocodigoprogramaService ultimocodigoprogramaService;
 
     @InjectMocks private ProgramaCoreService processor;
 

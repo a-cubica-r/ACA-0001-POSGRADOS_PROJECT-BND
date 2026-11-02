@@ -3,10 +3,13 @@ package ufps.edu.co.services.core.crud;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ufps.edu.co.domain.exceptions.DomainException;
+import ufps.edu.co.domain.exceptions.errorcodes.DepartamentoErrorCode;
 import ufps.edu.co.maps.specific.DepartamentoMap;
 import ufps.edu.co.records.input.entity.DepartamentoInput.*;
 import ufps.edu.co.records.output.entity.DepartamentoOutput;
 import ufps.edu.co.rest.dto.DepartamentoDTO;
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import ufps.edu.co.rest.services.DepartamentoService;
 import ufps.edu.co.usecase.GlobalUseCase;
 
@@ -78,15 +81,11 @@ public class DepartamentoCoreService
 
     @Override
     public void deleteById(DEPARTAMENTO_DELETE input) {
+        DepartamentoDTO dto = map.toDto(input);
         try {
-            DepartamentoDTO dto = map.toDto(input);
-            try {
-                service.deleteById(dto.getId());
-            } catch (Exception e) {
-                throw new RuntimeException("Error deleting Departamento: " + e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Departamento: " + e.getMessage(), e);
+            service.deleteById(dto.getId());
+        } catch (RegistroNoEncontradoException e) {
+            throw new DomainException(DepartamentoErrorCode.DEPARTAMENTO_NOT_FOUND, dto.getId());
         }
     }
 

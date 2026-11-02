@@ -25,6 +25,9 @@ public class EstudiantesCoreService {
     private EstudiantesService estudiantesService;
 
     @Autowired
+    private UltimocodigoprogramaCoreService ultimocodigoprogramaCoreService;
+
+    @Autowired
     private ProgramaService programaService;
 
     @Autowired
@@ -203,19 +206,8 @@ public class EstudiantesCoreService {
             throw new RuntimeException("Programa no encontrado o sin código: " + cohorte.getIdPrograma());
         }
 
-        String ultimoCodigo = estudiantesService.findUltimoCodigoPorPrograma(cohorte.getIdPrograma());
-        String secuencial;
-        if (ultimoCodigo == null || ultimoCodigo.length() < 4) {
-            secuencial = "0000";
-        } else {
-            try {
-                int ultimo = Integer.parseInt(ultimoCodigo.substring(ultimoCodigo.length() - 4));
-                secuencial = String.format("%04d", (ultimo + 1) % 10000);
-            } catch (NumberFormatException e) {
-                log.warn("No se pudo parsear el secuencial del código '{}', comenzando en 0000", ultimoCodigo);
-                secuencial = "0000";
-            }
-        }
+        String secuencial = String.format("%04d",
+                ultimocodigoprogramaCoreService.reservarSiguiente(cohorte.getIdPrograma()));
         String codigoEstudiante = programa.getCodigo() + secuencial;
         log.info("Código generado para aspirante {}: {}", idAspirante, codigoEstudiante);
 

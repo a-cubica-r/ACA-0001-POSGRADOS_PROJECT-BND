@@ -68,10 +68,6 @@ public class TipodocumentopersonaCoreService implements
 
     @Override
     public void deleteById(TIPODOCUMENTOPERSONA_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Tipodocumentopersona by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
     }
 }

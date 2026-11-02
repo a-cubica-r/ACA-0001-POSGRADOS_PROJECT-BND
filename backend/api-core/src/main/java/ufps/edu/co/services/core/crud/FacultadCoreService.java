@@ -14,6 +14,7 @@ import ufps.edu.co.maps.specific.FacultadMap;
 import ufps.edu.co.records.input.entity.FacultadInput.*;
 import ufps.edu.co.records.output.entity.FacultadOutput;
 import ufps.edu.co.rest.dto.FacultadDTO;
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import ufps.edu.co.rest.services.FacultadService;
 import ufps.edu.co.usecase.GlobalUseCase;
 
@@ -104,8 +105,8 @@ public class FacultadCoreService implements GlobalUseCase<FACULTAD_CREATE, FACUL
             service.deleteById(input.id());
         } catch (DomainException | DataIntegrityViolationException e) {
             throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Facultad: " + e.getMessage(), e);
+        } catch (RegistroNoEncontradoException e) {
+            throw new DomainException(FacultadErrorCode.FACULTAD_NOT_FOUND, input.id());
         }
     }
 

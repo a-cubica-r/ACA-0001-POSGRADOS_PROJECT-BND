@@ -1,5 +1,8 @@
 package ufps.edu.co.services.core.crud;
 
+import ufps.edu.co.domain.exceptions.DomainException;
+import ufps.edu.co.domain.exceptions.errorcodes.PaisErrorCode;
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,8 +77,8 @@ public class PaisCoreService implements GlobalUseCase<PAIS_CREATE, PAIS_UPDATE, 
     public void deleteById(PAIS_DELETE input) {
         try {
             service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Pais by ID: " + e.getMessage(), e);
+        } catch (RegistroNoEncontradoException e) {
+            throw new DomainException(PaisErrorCode.PAIS_NOT_FOUND, input.id());
         }
     }
 

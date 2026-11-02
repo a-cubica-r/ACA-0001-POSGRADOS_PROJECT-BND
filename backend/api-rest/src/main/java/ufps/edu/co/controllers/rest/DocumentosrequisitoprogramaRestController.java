@@ -52,11 +52,7 @@ public class DocumentosrequisitoprogramaRestController {
 
     @DeleteMapping(value = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteById(@RequestBody DOCUMENTOSREQUISITOPROGRAMA_DELETE request) {
-        try {
-            processor.deleteById(request);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        processor.deleteById(request);
+        return ResponseEntity.noContent().build();
     }
 }

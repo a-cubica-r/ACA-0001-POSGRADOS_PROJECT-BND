@@ -51,7 +51,7 @@ public interface AdministrativoRepository extends JpaRepository<AdministrativoEn
 
 	List<AdministrativoEntity> findAllByIdPersona(Integer idPersona);
 
-	Optional<AdministrativoEntity> findByIdPersona(Integer idPersona);
+	Optional<AdministrativoEntity> findFirstByIdPersona(Integer idPersona);
 
 	@Query("SELECT a.id FROM AdministrativoEntity a WHERE a.idPersona = :idPersona")
 	Optional<Integer> findIdByIdPersona(@Param("idPersona") Integer idPersona);

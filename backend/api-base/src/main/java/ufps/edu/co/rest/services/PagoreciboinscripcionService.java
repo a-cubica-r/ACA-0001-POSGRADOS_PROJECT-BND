@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -101,9 +103,20 @@ public class PagoreciboinscripcionService
         return repository.findDirectorByProgramaId(programaId, pageable);
     }
 
+    @Transactional(readOnly = true)
+    public List<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByCohorteId(Integer cohorteId) {
+        return repository.findDirectorByCohorteId(cohorteId);
+    }
+
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<ufps.edu.co.rest.dto.PagoreciboDirectorProjectionDTO> findDirectorByCohorteId(
+            Integer cohorteId, org.springframework.data.domain.Pageable pageable) {
+        return repository.findDirectorByCohorteId(cohorteId, pageable);
+    }
+
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pagoreciboinscripcion no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Pagoreciboinscripcion no encontrado con id: " + id));
         repository.deleteById(id);
     }
 }

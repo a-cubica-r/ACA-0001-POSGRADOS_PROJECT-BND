@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +56,7 @@ public class ListaadmitidosService extends GenericService<AdmitidoEntity, Admiti
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Admitido no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Admitido no encontrado con id: " + id));
         repository.deleteById(id);
     }
 

@@ -78,11 +78,7 @@ public class UbicacionCoreService implements
 
     @Override
     public void deleteById(UBICACION_DELETE id) {
-        try {
-            service.deleteById(id.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Ubicacion by ID: " + e.getMessage(), e);
-        }
+        service.deleteById(id.id());
     }
 
 }

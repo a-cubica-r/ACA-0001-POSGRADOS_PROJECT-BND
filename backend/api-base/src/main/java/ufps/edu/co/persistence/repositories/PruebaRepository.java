@@ -41,6 +41,9 @@ import ufps.edu.co.persistence.entities.PruebaEntity;
 @Repository
 public interface PruebaRepository extends JpaRepository<PruebaEntity, Integer> {
 
+	long countByIdCohorte(Integer idCohorte);
+
+
 	@Query("SELECT p FROM PruebaEntity p LEFT JOIN FETCH p.estado LEFT JOIN FETCH p.tipoprueba LEFT JOIN FETCH p.ubicacion WHERE p.idAspirante = :idAspirante")
 	List<PruebaEntity> findByIdAspirante(@Param("idAspirante") Integer idAspirante);
 }

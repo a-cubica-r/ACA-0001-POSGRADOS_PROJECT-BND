@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,7 +54,7 @@ public class PoblacionindigenaService extends GenericService<PoblacionindigenaEn
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Poblacionindigena no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Poblacionindigena no encontrado con id: " + id));
         repository.deleteById(id);
     }
 }

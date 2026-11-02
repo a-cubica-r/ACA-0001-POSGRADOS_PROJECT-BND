@@ -37,6 +37,7 @@ TelosysTools/
 
 # Local secrets/config for Spring Boot (loaded via spring.config.import)
 .env.properties
+env.properties
 
 # Any SQL files (e.g., database dumps, migration scripts) that should not be committed
 .sql/

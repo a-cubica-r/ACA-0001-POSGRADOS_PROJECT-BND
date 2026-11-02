@@ -4,6 +4,8 @@
  */
 package ufps.edu.co.rest.services;
 
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -94,7 +96,7 @@ public class EntrevistaService extends GenericService<EntrevistaEntity, Entrevis
 
     public void deleteById(Integer id) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Entrevista no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Entrevista no encontrado con id: " + id));
         repository.deleteById(id);
     }
 
