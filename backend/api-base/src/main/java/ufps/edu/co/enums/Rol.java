@@ -16,7 +16,9 @@ public enum Rol implements ValorCatalogo {
     POSGRADOS("Posgrados"),
     DECANO_DE_FACULTAD("Decano de Facultad"),
     DIRECTOR_DE_PROGRAMA("Director de Programa"),
-    ASPIRANTE("Aspirante");
+    ASPIRANTE("Aspirante"),
+    /** Cuenta técnica del sistema de Trámites (SC-03): solo consulta /integracion/v1. */
+    SERVICIO_TRAMITES("Servicio Tramites");
 
     private final String valor;
 

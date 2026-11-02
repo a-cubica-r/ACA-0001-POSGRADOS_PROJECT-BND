@@ -72,6 +72,11 @@ public class EstudiantesService extends GenericService<EstudiantesEntity, Estudi
     }
 
     @Transactional(readOnly = true)
+    public EstudiantesDTO findByCedula(String cedula) {
+        return entityToDto(repository.findFirstByCedula(cedula));
+    }
+
+    @Transactional(readOnly = true)
     public boolean existsByCedula(String cedula) {
         return repository.existsByCedula(cedula);
     }

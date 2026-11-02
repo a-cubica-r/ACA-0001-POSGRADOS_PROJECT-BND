@@ -124,8 +124,9 @@ class CatalogoEnumsTest {
     @Test
     void rol_valorCoincideConTablaRoles() {
         assertEquals(List.of("Super Administrador", "Posgrados", "Decano de Facultad", "Director de Programa",
-                "Aspirante"), valores(Rol.values()));
+                "Aspirante", "Servicio Tramites"), valores(Rol.values()));
         assertEquals("SUPER_ADMINISTRADOR", Rol.SUPER_ADMINISTRADOR.getCodigo());
+        assertEquals("SERVICIO_TRAMITES", Rol.SERVICIO_TRAMITES.getCodigo());
         assertEquals("DIRECTOR_DE_PROGRAMA", Rol.DIRECTOR_DE_PROGRAMA.getCodigo());
     }
 
