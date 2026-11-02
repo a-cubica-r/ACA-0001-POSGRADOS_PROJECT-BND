@@ -1,0 +1,21 @@
+# Build output and IDE files
+**/target/
+.idea/
+.vscode/
+*.iml
+.git/
+.gitignore
+.gitattributes
+
+# Secrets: never bake them into the image (configure them in Render)
+.env*
+env.properties
+*.env
+
+# Non-runtime folders
+performance-tests/
+db/
+.info/
+*.md
+BOTS
+Tasks.txt
