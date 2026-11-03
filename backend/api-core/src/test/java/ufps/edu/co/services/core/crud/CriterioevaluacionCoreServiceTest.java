@@ -15,6 +15,7 @@ import ufps.edu.co.records.output.entity.CriterioevaluacionOutput;
 import ufps.edu.co.rest.dto.CohorteDTO;
 import ufps.edu.co.rest.dto.CriterioevaluacionDTO;
 import ufps.edu.co.rest.dto.CriteriocohorteDTO;
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import ufps.edu.co.rest.services.*;
 
 import java.math.BigDecimal;
@@ -190,7 +191,7 @@ class CriterioevaluacionCoreServiceTest {
         CriterioevaluacionDTO actual = CriterioevaluacionDTO.builder()
                 .id(11).peso(new BigDecimal("20")).build();
         when(service.findById(11)).thenReturn(actual);
-        when(service.update(eq(11), any())).thenThrow(new RuntimeException("no existe"));
+        when(service.update(eq(11), any())).thenThrow(new RegistroNoEncontradoException("no existe"));
 
         CRITERIOEVALUACION_UPDATE input = CRITERIOEVALUACION_UPDATE.builder()
                 .id(11).nombre("X").peso(new BigDecimal("20")).idPrograma(1).build();
