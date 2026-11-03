@@ -1,4 +1,4 @@
-package ufps.edu.co.auth.processor;
+package ufps.edu.co.auth.service;
 
 import org.springframework.stereotype.Service;
 
@@ -10,16 +10,14 @@ import ufps.edu.co.auth.exception.RoleMismatchException;
 import ufps.edu.co.auth.model.AuthPrincipal;
 import ufps.edu.co.auth.records.input.LoginInput;
 import ufps.edu.co.auth.records.output.LoginOutput;
-import ufps.edu.co.auth.service.CredentialService;
-import ufps.edu.co.auth.service.RoleNameNormalizer;
 
 @Service
-public class AuthenticationProcessor implements AuthenticationUseCase {
+public class AuthenticationService implements AuthenticationUseCase {
 
     private final CredentialService credentialService;
     private final TokenIssuer tokenIssuer;
 
-    public AuthenticationProcessor(CredentialService credentialService, TokenIssuer tokenIssuer) {
+    public AuthenticationService(CredentialService credentialService, TokenIssuer tokenIssuer) {
         this.credentialService = credentialService;
         this.tokenIssuer = tokenIssuer;
     }
@@ -34,12 +32,13 @@ public class AuthenticationProcessor implements AuthenticationUseCase {
         if (input == null) {
             throw new MissingCredentialsException();
         }
-        if (input.username() == null || input.username().isBlank() || input.password() == null || input.password().isBlank()) {
+        if (input.username() == null || input.username().isBlank()
+                || input.password() == null || input.password().isBlank()) {
             throw new MissingCredentialsException();
         }
 
-        String roleToValidate = requestedRole != null && !requestedRole.isBlank() 
-                ? requestedRole 
+        String roleToValidate = (requestedRole != null && !requestedRole.isBlank())
+                ? requestedRole
                 : input.requestedRole();
 
         AuthPrincipal principal = credentialService.authenticate(input.username(), input.password());
@@ -48,20 +47,18 @@ public class AuthenticationProcessor implements AuthenticationUseCase {
         }
 
         if (roleToValidate != null && !roleToValidate.isBlank()) {
-            validateUserRoleMatchesRequested(principal, roleToValidate);
+            validateRole(principal, roleToValidate);
         }
 
         return tokenIssuer.issueTokens(principal);
     }
 
-    private void validateUserRoleMatchesRequested(AuthPrincipal principal, String requestedRole) {
-        String normalizedRequestedRole = RoleNameNormalizer.normalize(requestedRole);
+    private void validateRole(AuthPrincipal principal, String requestedRole) {
+        String normalized = RoleNameNormalizer.normalize(requestedRole);
         boolean hasRole = principal.roles().stream()
-                .anyMatch(role -> RoleNameNormalizer.normalize(role).equals(normalizedRequestedRole));
-
+                .anyMatch(r -> RoleNameNormalizer.normalize(r).equals(normalized));
         if (!hasRole) {
-            throw new RoleMismatchException(
-                    "User does not have the requested role: " + requestedRole);
+            throw new RoleMismatchException("User does not have the requested role: " + requestedRole);
         }
     }
 }

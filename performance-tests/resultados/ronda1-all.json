@@ -498,9 +498,9 @@
     }
   },
   "setup_data": {
-    "superadminToken": "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ1ZnBzLXBvc2dyYWRvcyIsInN1YiI6InN1cGVyYWRtaW4iLCJpYXQiOjE3OTEyNDI0NjAsImV4cCI6MTc5MTI0OTY2MCwidWlkIjoxLCJyb2xlcyI6WyJTVVBFUl9BRE1JTklTVFJBRE9SIl0sInR5cGUiOiJBQ0NFU1MifQ.iQb_IUkNYf3t4btzBsRoKiib_v7sicUf68J1Z5NmHxk",
-    "directorToken": "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ1ZnBzLXBvc2dyYWRvcyIsInN1YiI6ImRpcmVjdG9yMSIsImlhdCI6MTc5MTI0MjQ2MCwiZXhwIjoxNzkxMjQ5NjYwLCJ1aWQiOjIsInJvbGVzIjpbIkRJUkVDVE9SX0RFX1BST0dSQU1BIl0sInR5cGUiOiJBQ0NFU1MifQ.x493PN9BwPZsULgZzEkOM9Ot75u8Lr_Dd00NtAIq8U4",
-    "posgradosToken": "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ1ZnBzLXBvc2dyYWRvcyIsInN1YiI6InBvc2dyYWRvczEiLCJpYXQiOjE3OTEyNDI0NjAsImV4cCI6MTc5MTI0OTY2MCwidWlkIjozLCJyb2xlcyI6WyJQT1NHUkFET1MiXSwidHlwZSI6IkFDQ0VTUyJ9.BE7uaQGHEnEhqxvLEZ1u3-bIADH-73yjz26po3mEH9U"
+    "superadminToken": "REDACTED",
+    "directorToken": "REDACTED",
+    "posgradosToken": "REDACTED"
   },
   "root_group": {
     "checks": [

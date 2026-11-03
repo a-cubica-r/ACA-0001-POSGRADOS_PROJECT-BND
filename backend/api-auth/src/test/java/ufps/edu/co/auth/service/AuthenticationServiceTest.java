@@ -1,4 +1,4 @@
-package ufps.edu.co.auth.processor;
+package ufps.edu.co.auth.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +13,6 @@ import ufps.edu.co.auth.exception.RoleMismatchException;
 import ufps.edu.co.auth.model.AuthPrincipal;
 import ufps.edu.co.auth.records.input.LoginInput;
 import ufps.edu.co.auth.records.output.LoginOutput;
-import ufps.edu.co.auth.service.CredentialService;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AuthenticationProcessorTest {
+class AuthenticationServiceTest {
 
     @Mock
     private CredentialService credentialService;
@@ -30,75 +29,60 @@ class AuthenticationProcessorTest {
     private TokenIssuer tokenIssuer;
 
     @InjectMocks
-    private AuthenticationProcessor processor;
+    private AuthenticationService authService;
 
     // --- Validaciones de entrada nula/vacía ---
 
     @Test
     void login_conInputNulo_lanzaMissingCredentialsException() {
-        // Dado: input completamente nulo
-        // Cuando/Entonces
-        assertThrows(MissingCredentialsException.class, () -> processor.login(null));
+        assertThrows(MissingCredentialsException.class, () -> authService.login(null));
     }
 
     @Test
     void login_conUsernameNulo_lanzaMissingCredentialsException() {
-        // Dado
         LoginInput input = new LoginInput(null, "password", null);
-        // Cuando/Entonces
-        assertThrows(MissingCredentialsException.class, () -> processor.login(input));
+        assertThrows(MissingCredentialsException.class, () -> authService.login(input));
     }
 
     @Test
     void login_conUsernameVacio_lanzaMissingCredentialsException() {
-        // Dado
         LoginInput input = new LoginInput("  ", "password", null);
-        // Cuando/Entonces
-        assertThrows(MissingCredentialsException.class, () -> processor.login(input));
+        assertThrows(MissingCredentialsException.class, () -> authService.login(input));
     }
 
     @Test
     void login_conPasswordNulo_lanzaMissingCredentialsException() {
-        // Dado
         LoginInput input = new LoginInput("usuario", null, null);
-        // Cuando/Entonces
-        assertThrows(MissingCredentialsException.class, () -> processor.login(input));
+        assertThrows(MissingCredentialsException.class, () -> authService.login(input));
     }
 
     @Test
     void login_conPasswordVacio_lanzaMissingCredentialsException() {
-        // Dado
         LoginInput input = new LoginInput("usuario", "   ", null);
-        // Cuando/Entonces
-        assertThrows(MissingCredentialsException.class, () -> processor.login(input));
+        assertThrows(MissingCredentialsException.class, () -> authService.login(input));
     }
 
     // --- Credenciales inválidas ---
 
     @Test
     void login_conCredencialesInvalidas_lanzaInvalidCredentialsException() {
-        // Dado: authenticate retorna null
         LoginInput input = new LoginInput("usuario", "wrongpass", null);
         when(credentialService.authenticate("usuario", "wrongpass")).thenReturn(null);
-        // Cuando/Entonces
-        assertThrows(InvalidCredentialsException.class, () -> processor.login(input));
+        assertThrows(InvalidCredentialsException.class, () -> authService.login(input));
     }
 
     // --- Login exitoso sin rol requerido ---
 
     @Test
     void login_sinRolRequerido_retornaLoginOutput() {
-        // Dado
         LoginInput input = new LoginInput("usuario", "pass", null);
         AuthPrincipal principal = new AuthPrincipal(1, "usuario", List.of("ASPIRANTE"));
-        LoginOutput expectedOutput = new LoginOutput("access", "refresh", 1, "usuario", List.of("ASPIRANTE"));
+        LoginOutput expected = new LoginOutput("access", "refresh", 1, "usuario", List.of("ASPIRANTE"));
         when(credentialService.authenticate("usuario", "pass")).thenReturn(principal);
-        when(tokenIssuer.issueTokens(principal)).thenReturn(expectedOutput);
+        when(tokenIssuer.issueTokens(principal)).thenReturn(expected);
 
-        // Cuando
-        LoginOutput result = processor.login(input);
+        LoginOutput result = authService.login(input);
 
-        // Entonces
         assertNotNull(result);
         assertEquals("access", result.accessToken());
         assertEquals("refresh", result.refreshToken());
@@ -110,66 +94,54 @@ class AuthenticationProcessorTest {
 
     @Test
     void login_conRolCoincidente_retornaLoginOutput() {
-        // Dado: usuario tiene ASPIRANTE y pide ASPIRANTE
         LoginInput input = new LoginInput("usuario", "pass", null);
         AuthPrincipal principal = new AuthPrincipal(1, "usuario", List.of("ASPIRANTE"));
-        LoginOutput expectedOutput = new LoginOutput("access", "refresh", 1, "usuario", List.of("ASPIRANTE"));
+        LoginOutput expected = new LoginOutput("access", "refresh", 1, "usuario", List.of("ASPIRANTE"));
         when(credentialService.authenticate("usuario", "pass")).thenReturn(principal);
-        when(tokenIssuer.issueTokens(principal)).thenReturn(expectedOutput);
+        when(tokenIssuer.issueTokens(principal)).thenReturn(expected);
 
-        // Cuando
-        LoginOutput result = processor.login(input, "ASPIRANTE");
-
-        // Entonces
-        assertNotNull(result);
+        assertNotNull(authService.login(input, "ASPIRANTE"));
     }
 
     @Test
     void login_conRolIncorrecto_lanzaRoleMismatchException() {
-        // Dado: usuario tiene ASPIRANTE pero pide DIRECTOR
         LoginInput input = new LoginInput("usuario", "pass", null);
         AuthPrincipal principal = new AuthPrincipal(1, "usuario", List.of("ASPIRANTE"));
         when(credentialService.authenticate("usuario", "pass")).thenReturn(principal);
 
-        // Cuando/Entonces
-        assertThrows(RoleMismatchException.class, () -> processor.login(input, "DIRECTOR"));
+        assertThrows(RoleMismatchException.class, () -> authService.login(input, "DIRECTOR"));
     }
 
     @Test
     void login_conRolEnInputYEnParametro_parametroTienePrioridad() {
-        // Dado: input.requestedRole = ASPIRANTE, parámetro = DIRECTOR
-        //       usuario solo tiene ASPIRANTE → el parámetro DIRECTOR debe fallar
+        // input.requestedRole=ASPIRANTE, parámetro=DIRECTOR → parámetro gana → falla
         LoginInput input = new LoginInput("usuario", "pass", "ASPIRANTE");
         AuthPrincipal principal = new AuthPrincipal(1, "usuario", List.of("ASPIRANTE"));
         when(credentialService.authenticate("usuario", "pass")).thenReturn(principal);
 
-        // Cuando/Entonces: el parámetro DIRECTOR gana y el usuario no lo tiene
-        assertThrows(RoleMismatchException.class, () -> processor.login(input, "DIRECTOR"));
+        assertThrows(RoleMismatchException.class, () -> authService.login(input, "DIRECTOR"));
     }
 
     @Test
     void login_conRolNormalizadoConAcento_comparaCorrectamente() {
-        // Dado: rol del usuario ya normalizado = ASPIRANTE; se pide con acento = Aspiranté
         LoginInput input = new LoginInput("usuario", "pass", null);
         AuthPrincipal principal = new AuthPrincipal(1, "usuario", List.of("ASPIRANTE"));
-        LoginOutput expectedOutput = new LoginOutput("access", "refresh", 1, "usuario", List.of("ASPIRANTE"));
+        LoginOutput expected = new LoginOutput("access", "refresh", 1, "usuario", List.of("ASPIRANTE"));
         when(credentialService.authenticate("usuario", "pass")).thenReturn(principal);
-        when(tokenIssuer.issueTokens(principal)).thenReturn(expectedOutput);
+        when(tokenIssuer.issueTokens(principal)).thenReturn(expected);
 
-        // Cuando: "Aspiranté" normaliza a "ASPIRANTE" → debe coincidir
-        assertDoesNotThrow(() -> processor.login(input, "Aspirante"));
+        // "Aspirante" normaliza a "ASPIRANTE" → debe coincidir
+        assertDoesNotThrow(() -> authService.login(input, "Aspirante"));
     }
 
     @Test
     void login_conRolVacioComoParametro_noValidaRol() {
-        // Dado: parámetro rol vacío → no se valida rol
         LoginInput input = new LoginInput("usuario", "pass", null);
         AuthPrincipal principal = new AuthPrincipal(1, "usuario", List.of("ASPIRANTE"));
-        LoginOutput expectedOutput = new LoginOutput("access", "refresh", 1, "usuario", List.of("ASPIRANTE"));
+        LoginOutput expected = new LoginOutput("access", "refresh", 1, "usuario", List.of("ASPIRANTE"));
         when(credentialService.authenticate("usuario", "pass")).thenReturn(principal);
-        when(tokenIssuer.issueTokens(principal)).thenReturn(expectedOutput);
+        when(tokenIssuer.issueTokens(principal)).thenReturn(expected);
 
-        // Cuando/Entonces: no lanza excepción
-        assertDoesNotThrow(() -> processor.login(input, ""));
+        assertDoesNotThrow(() -> authService.login(input, ""));
     }
 }

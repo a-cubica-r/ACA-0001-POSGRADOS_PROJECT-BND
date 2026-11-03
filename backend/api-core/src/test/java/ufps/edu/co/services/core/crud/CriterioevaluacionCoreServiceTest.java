@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +17,6 @@ import ufps.edu.co.rest.dto.CriterioevaluacionDTO;
 import ufps.edu.co.rest.dto.CriteriocohorteDTO;
 import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import ufps.edu.co.rest.services.*;
-import ufps.edu.co.services.core.crud.CalificacioncriterioCoreService;
-import ufps.edu.co.services.core.crud.CriterioevaluacionCoreService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,46 +29,38 @@ import static org.mockito.Mockito.*;
 
 import org.springframework.dao.DataIntegrityViolationException;
 
-/**
- * DEPENDE_DE_PROCESSOR - Tests sobre CriterioevaluacionProcessor.
- * Cuando se elimine la capa Processor y la lógica pase a servicio de dominio,
- * reescribir estas pruebas contra la nueva clase.
- */
 @ExtendWith(MockitoExtension.class)
-class CriterioevaluacionProcessorTest {
+class CriterioevaluacionCoreServiceTest {
 
     @Mock private CriterioevaluacionService service;
     @Mock private CriterioevaluacionMap map;
     @Mock private CohorteService cohorteService;
     @Mock private CalificacioncriterioService calificacioncriterioService;
-    @Mock private CalificacioncriterioCoreService calificacioncriterioProcessor;
+    @Mock private CalificacioncriterioCoreService calificacioncriterioCoreService;
     @Mock private AspiranteService aspiranteService;
     @Mock private CriteriocohorteService criteriocohorteService;
     @Mock private EstadoService estadoService;
 
     @InjectMocks
-    private CriterioevaluacionCoreService processor;
+    private CriterioevaluacionCoreService coreService;
 
     // ─── updateForPrograma: criterio no pertenece al programa ─────────────────
 
     @Test
     void updateForPrograma_criterioNoEncontrado_lanzaCriterioCohortemismatch() {
-        // Dado: criterio no existe
         when(service.findById(10)).thenReturn(null);
 
         CRITERIO_UPDATE_BODY body = CRITERIO_UPDATE_BODY.builder()
                 .nombre("Nombre").activo(true).descripcion("Desc")
                 .peso(new BigDecimal("20")).build();
 
-        // Cuando/Entonces
         DomainException ex = assertThrows(DomainException.class,
-                () -> processor.updateForPrograma(1, 10, body));
+                () -> coreService.updateForPrograma(1, 10, body));
         assertEquals(CriterioevaluacionErrorCode.CRITERIO_COHORTE_MISMATCH, ex.getCode());
     }
 
     @Test
     void updateForPrograma_criterioDeOtroPrograma_lanzaCriterioCohortemismatch() {
-        // Dado: criterio existe pero su programaId=99, se pide para programa=1
         CriterioevaluacionDTO criterio = CriterioevaluacionDTO.builder()
                 .id(10).nombre("Crit").idprograma(99).build();
         when(service.findById(10)).thenReturn(criterio);
@@ -79,9 +69,8 @@ class CriterioevaluacionProcessorTest {
                 .nombre("Nuevo").activo(true).descripcion("Desc")
                 .peso(new BigDecimal("20")).build();
 
-        // Cuando/Entonces
         DomainException ex = assertThrows(DomainException.class,
-                () -> processor.updateForPrograma(1, 10, body));
+                () -> coreService.updateForPrograma(1, 10, body));
         assertEquals(CriterioevaluacionErrorCode.CRITERIO_COHORTE_MISMATCH, ex.getCode());
     }
 
@@ -89,25 +78,21 @@ class CriterioevaluacionProcessorTest {
 
     @Test
     void deleteForPrograma_criterioNoEncontrado_lanzaCriterioCohortemismatch() {
-        // Dado
         when(service.findById(10)).thenReturn(null);
 
-        // Cuando/Entonces
         DomainException ex = assertThrows(DomainException.class,
-                () -> processor.deleteForPrograma(1, 10));
+                () -> coreService.deleteForPrograma(1, 10));
         assertEquals(CriterioevaluacionErrorCode.CRITERIO_COHORTE_MISMATCH, ex.getCode());
     }
 
     @Test
     void deleteForPrograma_criterioDeOtroPrograma_lanzaCriterioCohortemismatch() {
-        // Dado: criterio con programaId=5, se pide para programa=1
         CriterioevaluacionDTO criterio = CriterioevaluacionDTO.builder()
                 .id(10).nombre("Crit").idprograma(5).build();
         when(service.findById(10)).thenReturn(criterio);
 
-        // Cuando/Entonces
         DomainException ex = assertThrows(DomainException.class,
-                () -> processor.deleteForPrograma(1, 10));
+                () -> coreService.deleteForPrograma(1, 10));
         assertEquals(CriterioevaluacionErrorCode.CRITERIO_COHORTE_MISMATCH, ex.getCode());
     }
 
@@ -115,7 +100,6 @@ class CriterioevaluacionProcessorTest {
 
     @Test
     void createForCohorte_cohorteNoEncontrada_lanzaCohorteProgmramaMismatch() {
-        // Dado: cohorte no existe
         when(cohorteService.findById(5)).thenReturn(null);
 
         ufps.edu.co.records.input.entity.CriterioevaluacionInput.CRITERIO_CREATE_BODY body =
@@ -123,15 +107,13 @@ class CriterioevaluacionProcessorTest {
                         .nombre("Crit").activo(true).descripcion("Desc")
                         .peso(new BigDecimal("20")).build();
 
-        // Cuando/Entonces
         DomainException ex = assertThrows(DomainException.class,
-                () -> processor.createForCohorte(1, 5, body));
+                () -> coreService.createForCohorte(1, 5, body));
         assertEquals(CriterioevaluacionErrorCode.COHORTE_PROGRAMA_MISMATCH, ex.getCode());
     }
 
     @Test
     void createForCohorte_cohorteDeOtroPrograma_lanzaCohorteProgmramaMismatch() {
-        // Dado: cohorte con idPrograma=9, se pide para programa=1
         CohorteDTO cohorte = CohorteDTO.builder().id(5).idPrograma(9).build();
         when(cohorteService.findById(5)).thenReturn(cohorte);
 
@@ -140,9 +122,8 @@ class CriterioevaluacionProcessorTest {
                         .nombre("Crit").activo(true).descripcion("Desc")
                         .peso(new BigDecimal("20")).build();
 
-        // Cuando/Entonces
         DomainException ex = assertThrows(DomainException.class,
-                () -> processor.createForCohorte(1, 5, body));
+                () -> coreService.createForCohorte(1, 5, body));
         assertEquals(CriterioevaluacionErrorCode.COHORTE_PROGRAMA_MISMATCH, ex.getCode());
     }
 
@@ -150,7 +131,6 @@ class CriterioevaluacionProcessorTest {
 
     @Test
     void desactivarCriterio_criterioConCalificaciones_lanzaCalificacionesBloqueado() {
-        // Dado: criterio del programa correcto, pero con calificaciones registradas
         CriterioevaluacionDTO criterio = CriterioevaluacionDTO.builder()
                 .id(10).nombre("Crit").idprograma(1).activo(true).build();
         CriteriocohorteDTO criteriocohorte = CriteriocohorteDTO.builder().id(55).build();
@@ -158,15 +138,13 @@ class CriterioevaluacionProcessorTest {
         when(criteriocohorteService.findByIdCriterio(10)).thenReturn(List.of(criteriocohorte));
         when(calificacioncriterioService.existsByCriterio(55)).thenReturn(true);
 
-        // Cuando/Entonces
         DomainException ex = assertThrows(DomainException.class,
-                () -> processor.desactivarCriterio(1, 10));
+                () -> coreService.desactivarCriterio(1, 10));
         assertEquals(CriterioevaluacionErrorCode.CRITERIO_CON_CALIFICACIONES_BLOQUEADO, ex.getCode());
     }
 
     @Test
     void desactivarCriterio_sinCalificaciones_desactivaExitosamente() {
-        // Dado: criterio del programa correcto, sin calificaciones
         CriterioevaluacionDTO criterio = CriterioevaluacionDTO.builder()
                 .id(10).nombre("Crit").idprograma(1).activo(true).build();
         CriterioevaluacionOutput outputEsperado = CriterioevaluacionOutput.builder()
@@ -176,24 +154,20 @@ class CriterioevaluacionProcessorTest {
         when(service.update(eq(10), any())).thenReturn(criterio);
         when(map.toOutput(criterio)).thenReturn(outputEsperado);
 
-        // Cuando
-        CriterioevaluacionOutput resultado = processor.desactivarCriterio(1, 10);
+        CriterioevaluacionOutput resultado = coreService.desactivarCriterio(1, 10);
 
-        // Entonces: activo debe ser false y se llamó a update
         assertNotNull(resultado);
         verify(service).update(eq(10), argThat(dto -> Boolean.FALSE.equals(dto.getActivo())));
     }
 
     @Test
     void desactivarCriterio_criterioDeOtroPrograma_lanzaCriterioCohortemismatch() {
-        // Dado: criterio con programaId=99, se pide para programa=1
         CriterioevaluacionDTO criterio = CriterioevaluacionDTO.builder()
                 .id(10).nombre("Crit").idprograma(99).activo(true).build();
         when(service.findById(10)).thenReturn(criterio);
 
-        // Cuando/Entonces
         DomainException ex = assertThrows(DomainException.class,
-                () -> processor.desactivarCriterio(1, 10));
+                () -> coreService.desactivarCriterio(1, 10));
         assertEquals(CriterioevaluacionErrorCode.CRITERIO_COHORTE_MISMATCH, ex.getCode());
     }
 
@@ -209,7 +183,7 @@ class CriterioevaluacionProcessorTest {
         CRITERIOEVALUACION_UPDATE input = CRITERIOEVALUACION_UPDATE.builder()
                 .id(10).nombre("Repetido").peso(new BigDecimal("20")).idPrograma(1).build();
 
-        assertThrows(DataIntegrityViolationException.class, () -> processor.update(input));
+        assertThrows(DataIntegrityViolationException.class, () -> coreService.update(input));
     }
 
     @Test
@@ -222,7 +196,7 @@ class CriterioevaluacionProcessorTest {
         CRITERIOEVALUACION_UPDATE input = CRITERIOEVALUACION_UPDATE.builder()
                 .id(11).nombre("X").peso(new BigDecimal("20")).idPrograma(1).build();
 
-        DomainException ex = assertThrows(DomainException.class, () -> processor.update(input));
+        DomainException ex = assertThrows(DomainException.class, () -> coreService.update(input));
         assertEquals(CriterioevaluacionErrorCode.CRITERIOEVALUACION_NOT_FOUND, ex.getCode());
     }
 }
