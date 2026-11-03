@@ -175,7 +175,8 @@ INSERT INTO persona (nombres, apellidos, correo, celular,
                      id_genero, id_estadocivil, id_documentopersona,
                      id_ubicacionnacimiento, id_ubicacionvivienda)
   VALUES ('Admin', 'Sistema', 'superadmin@perf.local', '3000000001', 1, 1, 1, 4, 5); -- 1
-INSERT INTO clave (valor) VALUES ('admin123'); -- 1
+-- Clave de prueba: admin123
+INSERT INTO clave (valor) VALUES ('$2a$10$btiVQ.jM9/viCPO9E5BVfexUYbOCoxBHYsqJ3Q3oocVlL1dxqMW9C'); -- 1
 INSERT INTO usuarios (nombreusuario, id_persona, id_clave, id_rol)
   VALUES ('superadmin', 1, 1, 2); -- 1
 
@@ -186,7 +187,8 @@ INSERT INTO persona (nombres, apellidos, correo, celular,
                      id_genero, id_estadocivil, id_documentopersona,
                      id_ubicacionnacimiento, id_ubicacionvivienda)
   VALUES ('Director', 'Programa Uno', 'director1@perf.local', '3000000002', 1, 1, 2, 4, 5); -- 2
-INSERT INTO clave (valor) VALUES ('director123'); -- 2
+-- Clave de prueba: director123
+INSERT INTO clave (valor) VALUES ('$2a$10$P0PehSQSZAkFQeSwUT5OZOxx94m6Ea73HUIsW9gqBYCFQ7LVJYBzu'); -- 2
 INSERT INTO usuarios (nombreusuario, id_persona, id_clave, id_rol)
   VALUES ('director1', 2, 2, 3); -- 2
 -- administrativo vincula persona 2 al cargo 1 (DIRECTOR DE PROGRAMA, programa 1)
@@ -200,7 +202,8 @@ INSERT INTO persona (nombres, apellidos, correo, celular,
                      id_genero, id_estadocivil, id_documentopersona,
                      id_ubicacionnacimiento, id_ubicacionvivienda)
   VALUES ('Coord', 'Posgrados', 'posgrados1@perf.local', '3000000003', 2, 1, 3, 4, 5); -- 3
-INSERT INTO clave (valor) VALUES ('posgrados123'); -- 3
+-- Clave de prueba: posgrados123
+INSERT INTO clave (valor) VALUES ('$2a$10$08/0jWj7rGI.Kep04NbEj.evi8QowDrOm8rGZV.U1AZ.3Yc4MUZbq'); -- 3
 INSERT INTO usuarios (nombreusuario, id_persona, id_clave, id_rol)
   VALUES ('posgrados1', 3, 3, 4); -- 3
 
@@ -208,70 +211,70 @@ INSERT INTO usuarios (nombreusuario, id_persona, id_clave, id_rol)
 INSERT INTO documentopersona (numerodocumento, id_tipodocumento, id_lugarexpedicion) VALUES ('20000000001', 1, 3); -- 4
 INSERT INTO persona (nombres,apellidos,correo,celular,id_genero,id_estadocivil,id_documentopersona,id_ubicacionnacimiento,id_ubicacionvivienda)
   VALUES ('Aspirante','Test01','aspirante01@perf.local','3100000001',1,1,4,4,5); -- 4
-INSERT INTO clave (valor) VALUES ('aspirante123'); -- 4
+INSERT INTO clave (valor) VALUES ('$2a$10$zraOL7LavV7KBHzqC.ktK.tuFjIBv5bEOCABafl0I61f51fASlNdy'); -- aspirante123 -- 4
 INSERT INTO aspirante (id_persona,id_estado,id_cohorte,id_tipovinculacion) VALUES (4,2,1,1); -- 1
 INSERT INTO usuarios (nombreusuario,id_persona,id_clave,id_rol) VALUES ('aspirante01',4,4,1); -- 4
 
 INSERT INTO documentopersona (numerodocumento, id_tipodocumento, id_lugarexpedicion) VALUES ('20000000002', 1, 3); -- 5
 INSERT INTO persona (nombres,apellidos,correo,celular,id_genero,id_estadocivil,id_documentopersona,id_ubicacionnacimiento,id_ubicacionvivienda)
   VALUES ('Aspirante','Test02','aspirante02@perf.local','3100000002',2,1,5,4,5); -- 5
-INSERT INTO clave (valor) VALUES ('aspirante123'); -- 5
+INSERT INTO clave (valor) VALUES ('$2a$10$zraOL7LavV7KBHzqC.ktK.tuFjIBv5bEOCABafl0I61f51fASlNdy'); -- aspirante123 -- 5
 INSERT INTO aspirante (id_persona,id_estado,id_cohorte,id_tipovinculacion) VALUES (5,2,1,1); -- 2
 INSERT INTO usuarios (nombreusuario,id_persona,id_clave,id_rol) VALUES ('aspirante02',5,5,1); -- 5
 
 INSERT INTO documentopersona (numerodocumento, id_tipodocumento, id_lugarexpedicion) VALUES ('20000000003', 1, 3); -- 6
 INSERT INTO persona (nombres,apellidos,correo,celular,id_genero,id_estadocivil,id_documentopersona,id_ubicacionnacimiento,id_ubicacionvivienda)
   VALUES ('Aspirante','Test03','aspirante03@perf.local','3100000003',1,2,6,4,5); -- 6
-INSERT INTO clave (valor) VALUES ('aspirante123'); -- 6
+INSERT INTO clave (valor) VALUES ('$2a$10$zraOL7LavV7KBHzqC.ktK.tuFjIBv5bEOCABafl0I61f51fASlNdy'); -- aspirante123 -- 6
 INSERT INTO aspirante (id_persona,id_estado,id_cohorte,id_tipovinculacion) VALUES (6,2,2,1); -- 3
 INSERT INTO usuarios (nombreusuario,id_persona,id_clave,id_rol) VALUES ('aspirante03',6,6,1); -- 6
 
 INSERT INTO documentopersona (numerodocumento, id_tipodocumento, id_lugarexpedicion) VALUES ('20000000004', 1, 3); -- 7
 INSERT INTO persona (nombres,apellidos,correo,celular,id_genero,id_estadocivil,id_documentopersona,id_ubicacionnacimiento,id_ubicacionvivienda)
   VALUES ('Aspirante','Test04','aspirante04@perf.local','3100000004',2,1,7,4,5); -- 7
-INSERT INTO clave (valor) VALUES ('aspirante123'); -- 7
+INSERT INTO clave (valor) VALUES ('$2a$10$zraOL7LavV7KBHzqC.ktK.tuFjIBv5bEOCABafl0I61f51fASlNdy'); -- aspirante123 -- 7
 INSERT INTO aspirante (id_persona,id_estado,id_cohorte,id_tipovinculacion) VALUES (7,2,2,2); -- 4
 INSERT INTO usuarios (nombreusuario,id_persona,id_clave,id_rol) VALUES ('aspirante04',7,7,1); -- 7
 
 INSERT INTO documentopersona (numerodocumento, id_tipodocumento, id_lugarexpedicion) VALUES ('20000000005', 1, 3); -- 8
 INSERT INTO persona (nombres,apellidos,correo,celular,id_genero,id_estadocivil,id_documentopersona,id_ubicacionnacimiento,id_ubicacionvivienda)
   VALUES ('Aspirante','Test05','aspirante05@perf.local','3100000005',1,1,8,4,5); -- 8
-INSERT INTO clave (valor) VALUES ('aspirante123'); -- 8
+INSERT INTO clave (valor) VALUES ('$2a$10$zraOL7LavV7KBHzqC.ktK.tuFjIBv5bEOCABafl0I61f51fASlNdy'); -- aspirante123 -- 8
 INSERT INTO aspirante (id_persona,id_estado,id_cohorte,id_tipovinculacion) VALUES (8,2,3,1); -- 5
 INSERT INTO usuarios (nombreusuario,id_persona,id_clave,id_rol) VALUES ('aspirante05',8,8,1); -- 8
 
 INSERT INTO documentopersona (numerodocumento, id_tipodocumento, id_lugarexpedicion) VALUES ('20000000006', 1, 3); -- 9
 INSERT INTO persona (nombres,apellidos,correo,celular,id_genero,id_estadocivil,id_documentopersona,id_ubicacionnacimiento,id_ubicacionvivienda)
   VALUES ('Aspirante','Test06','aspirante06@perf.local','3100000006',2,2,9,4,5); -- 9
-INSERT INTO clave (valor) VALUES ('aspirante123'); -- 9
+INSERT INTO clave (valor) VALUES ('$2a$10$zraOL7LavV7KBHzqC.ktK.tuFjIBv5bEOCABafl0I61f51fASlNdy'); -- aspirante123 -- 9
 INSERT INTO aspirante (id_persona,id_estado,id_cohorte,id_tipovinculacion) VALUES (9,2,3,2); -- 6
 INSERT INTO usuarios (nombreusuario,id_persona,id_clave,id_rol) VALUES ('aspirante06',9,9,1); -- 9
 
 INSERT INTO documentopersona (numerodocumento, id_tipodocumento, id_lugarexpedicion) VALUES ('20000000007', 1, 3); -- 10
 INSERT INTO persona (nombres,apellidos,correo,celular,id_genero,id_estadocivil,id_documentopersona,id_ubicacionnacimiento,id_ubicacionvivienda)
   VALUES ('Aspirante','Test07','aspirante07@perf.local','3100000007',1,1,10,4,5); -- 10
-INSERT INTO clave (valor) VALUES ('aspirante123'); -- 10
+INSERT INTO clave (valor) VALUES ('$2a$10$zraOL7LavV7KBHzqC.ktK.tuFjIBv5bEOCABafl0I61f51fASlNdy'); -- aspirante123 -- 10
 INSERT INTO aspirante (id_persona,id_estado,id_cohorte,id_tipovinculacion) VALUES (10,2,4,1); -- 7
 INSERT INTO usuarios (nombreusuario,id_persona,id_clave,id_rol) VALUES ('aspirante07',10,10,1); -- 10
 
 INSERT INTO documentopersona (numerodocumento, id_tipodocumento, id_lugarexpedicion) VALUES ('20000000008', 1, 3); -- 11
 INSERT INTO persona (nombres,apellidos,correo,celular,id_genero,id_estadocivil,id_documentopersona,id_ubicacionnacimiento,id_ubicacionvivienda)
   VALUES ('Aspirante','Test08','aspirante08@perf.local','3100000008',2,1,11,4,5); -- 11
-INSERT INTO clave (valor) VALUES ('aspirante123'); -- 11
+INSERT INTO clave (valor) VALUES ('$2a$10$zraOL7LavV7KBHzqC.ktK.tuFjIBv5bEOCABafl0I61f51fASlNdy'); -- aspirante123 -- 11
 INSERT INTO aspirante (id_persona,id_estado,id_cohorte,id_tipovinculacion) VALUES (11,2,4,2); -- 8
 INSERT INTO usuarios (nombreusuario,id_persona,id_clave,id_rol) VALUES ('aspirante08',11,11,1); -- 11
 
 INSERT INTO documentopersona (numerodocumento, id_tipodocumento, id_lugarexpedicion) VALUES ('20000000009', 1, 3); -- 12
 INSERT INTO persona (nombres,apellidos,correo,celular,id_genero,id_estadocivil,id_documentopersona,id_ubicacionnacimiento,id_ubicacionvivienda)
   VALUES ('Aspirante','Test09','aspirante09@perf.local','3100000009',1,1,12,4,5); -- 12
-INSERT INTO clave (valor) VALUES ('aspirante123'); -- 12
+INSERT INTO clave (valor) VALUES ('$2a$10$zraOL7LavV7KBHzqC.ktK.tuFjIBv5bEOCABafl0I61f51fASlNdy'); -- aspirante123 -- 12
 INSERT INTO aspirante (id_persona,id_estado,id_cohorte,id_tipovinculacion) VALUES (12,2,5,1); -- 9
 INSERT INTO usuarios (nombreusuario,id_persona,id_clave,id_rol) VALUES ('aspirante09',12,12,1); -- 12
 
 INSERT INTO documentopersona (numerodocumento, id_tipodocumento, id_lugarexpedicion) VALUES ('20000000010', 1, 3); -- 13
 INSERT INTO persona (nombres,apellidos,correo,celular,id_genero,id_estadocivil,id_documentopersona,id_ubicacionnacimiento,id_ubicacionvivienda)
   VALUES ('Aspirante','Test10','aspirante10@perf.local','3100000010',2,2,13,4,5); -- 13
-INSERT INTO clave (valor) VALUES ('aspirante123'); -- 13
+INSERT INTO clave (valor) VALUES ('$2a$10$zraOL7LavV7KBHzqC.ktK.tuFjIBv5bEOCABafl0I61f51fASlNdy'); -- aspirante123 -- 13
 INSERT INTO aspirante (id_persona,id_estado,id_cohorte,id_tipovinculacion) VALUES (13,2,5,2); -- 10
 INSERT INTO usuarios (nombreusuario,id_persona,id_clave,id_rol) VALUES ('aspirante10',13,13,1); -- 13
 
@@ -314,7 +317,7 @@ BEGIN
               v_id_doc, v_id_ubic_nac, v_id_ubic_viv);
     SET v_id_persona = LAST_INSERT_ID();
 
-    INSERT INTO clave (valor) VALUES ('perf123');
+    INSERT INTO clave (valor) VALUES ('$2a$10$UFZ3zrHY//GG.yHIP9yUQO8uoNDV0K9Beb6mLZiA3Z59..F8mOcli'); -- perf123
     SET v_id_clave = LAST_INSERT_ID();
 
     INSERT INTO aspirante (id_persona, id_estado, id_cohorte, id_tipovinculacion, puntuacion)
