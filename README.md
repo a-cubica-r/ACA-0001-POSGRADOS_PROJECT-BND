@@ -123,7 +123,7 @@ local de Maven. Para empaquetar sin pruebas:
 ## Probar
 
 ```powershell
-# Toda la suite (307 pruebas)
+# Toda la suite (336 pruebas)
 .\mvnw.cmd test
 
 # Un módulo concreto y sus dependencias
@@ -135,7 +135,7 @@ local de Maven. Para empaquetar sin pruebas:
 
 Los reportes quedan en `backend/<módulo>/target/surefire-reports/` y la cobertura (cuando corre
 `verify`) en `target/site/jacoco/`. La suite usa JUnit 5, Mockito, MockMvc y H2; **no** requiere
-MySQL. Distribución actual: `api-core` 180, `api-auth` 69, `api-rest` 54 y `api-test` 4.
+MySQL. Distribución actual: `api-core` 191, `api-auth` 69, `api-rest` 72 y `api-test` 4.
 
 ## Ejecutar
 

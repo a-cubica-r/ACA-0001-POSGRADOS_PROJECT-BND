@@ -379,11 +379,11 @@ nombre de BD (`"Super Administrador"`, `"Servicio Tramites"`) al código del enu
 ```yaml
 tests:
   framework: [JUnit 5, Mockito, MockMvc, H2]
-  total_tests: 307
+  total_tests: 336
   by_module:
-    api-core: 180
+    api-core: 191
     api-auth: 69
-    api-rest: 54
+    api-rest: 72
     api-test: 4
   api-base: sin pruebas propias
   no_cubierto: [integración real con MySQL, S3, SES, Wompi, flujo HTTP completo con seguridad real]

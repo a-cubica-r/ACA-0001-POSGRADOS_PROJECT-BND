@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import ufps.edu.co.services.core.crud.*;
@@ -18,6 +17,9 @@ import ufps.edu.co.auth.contract.PasswordHashService;
 import ufps.edu.co.domain.exceptions.DomainException;
 import ufps.edu.co.domain.exceptions.errorcodes.AspiranteErrorCode;
 import ufps.edu.co.domain.exceptions.errorcodes.UsuarioErrorCode;
+import ufps.edu.co.domain.validators.PromedioAcademico;
+import ufps.edu.co.util.CorreoNormalizer;
+import ufps.edu.co.config.EnlacesPublicos;
 import ufps.edu.co.records.input.entity.ProgramaInput;
 import ufps.edu.co.records.output.entity.*;
 import ufps.edu.co.rest.dto.*;
@@ -109,8 +111,8 @@ public class InscripcionCase {
         @Autowired
         private EmailConfirmationTokenService confirmationTokenService;
 
-        @Value("${app.base-url}")
-        private String baseUrl;
+        @Autowired
+        private EnlacesPublicos enlacesPublicos;
 
         // @Autowired
         // private EmailTemplates emailTemplates;
@@ -233,15 +235,8 @@ public class InscripcionCase {
 
                 validarFormulario(body);
 
-                if (body.promedioPonderadoAcumulado() != null) {
-                        BigDecimal promedio = body.promedioPonderadoAcumulado();
-                        if (promedio.compareTo(BigDecimal.ZERO) < 0) {
-                                throw new RuntimeException(
-                                                "El promedio ponderado acumulado debe ser un valor positivo");
-                        }
-                }
-
                 String experienciaLaboralJson = body.experienciaLaboral();
+                String correo = CorreoNormalizer.normalizar(body.email());
 
                 // 3. Ubicación del lugar de expedición del documento
                 UbicacionDTO ubicExpedicion = ubicacionService.create(
@@ -293,7 +288,7 @@ public class InscripcionCase {
                                 PersonaDTO.builder()
                                                 .nombres(body.nombres())
                                                 .apellidos(body.apellidos())
-                                                .correo(body.email())
+                                                .correo(correo)
                                                 .celular(body.telefonoContacto())
                                                 .egresadoufps(body.egresadoUfpsCucuta())
                                                 .experiencialaboral(experienciaLaboralJson)
@@ -353,23 +348,23 @@ public class InscripcionCase {
 
                 pagoProcessor.ensureInitialPaymentsForAspirante(aspirante.getId());
                 try {
-                        sesService.enviarCorreo(persona.getCorreo(), EmailTemplates.ASUNTO_INSCRIPCION,
+                        sesService.enviarCorreo(correo, EmailTemplates.ASUNTO_INSCRIPCION,
                                         EmailTemplates.cuerpoInscripcion(persona.getNombres(), persona.getApellidos(),
                                                         cohorte.getNombre(), programa.nombre()));
                 } catch (SesEmailException ex) {
                         log.error("[INSCRIPCION_EMAIL] Fallo al enviar correo de confirmación a '{}': {}",
-                                        persona.getCorreo(), ex.getMessage(), ex);
+                                        correo, ex.getMessage(), ex);
                 }
                 try {
                         String token = confirmationTokenService.generateToken(aspirante.getId());
-                        String enlace = baseUrl + "/api/application/case/aspirantes/confirmar-correo?token=" + token;
+                        String enlace = enlacesPublicos.confirmacionCorreo(token);
                         sesService.enviarCorreo(
-                                        persona.getCorreo(),
+                                        correo,
                                         EmailTemplates.ASUNTO_CONFIRMACION_CORREO,
                                         EmailTemplates.cuerpoConfirmacionCorreo(persona.getNombres(), enlace));
                 } catch (Exception ex) {
                         log.error("[VERIFICACION_EMAIL] Fallo al enviar correo de verificación a '{}': {}",
-                                        persona.getCorreo(), ex.getMessage(), ex);
+                                        correo, ex.getMessage(), ex);
                 }
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(new FormularioInscripcionOutput(persona.getId(), aspirante.getId()));
@@ -381,8 +376,15 @@ public class InscripcionCase {
                                         body.telefonoContacto());
                 }
 
-                if (body.email() != null && personaService.existsByCorreo(body.email())) {
-                        throw new DomainException(AspiranteErrorCode.CORREO_YA_REGISTRADO_CONFLICT, body.email());
+                if (body.promedioPonderadoAcumulado() != null
+                                && !PromedioAcademico.esValido(body.promedioPonderadoAcumulado())) {
+                        throw new DomainException(AspiranteErrorCode.PROMEDIO_INSCRIPCION_FUERA_DE_RANGO,
+                                        body.promedioPonderadoAcumulado());
+                }
+
+                if (body.email() != null && personaService.existsByCorreo(CorreoNormalizer.normalizar(body.email()))) {
+                        throw new DomainException(AspiranteErrorCode.CORREO_YA_REGISTRADO_CONFLICT,
+                                        CorreoNormalizer.normalizar(body.email()));
                 }
 
                 if (body.usuario() != null && usuarioService.findByNombreusuario(body.usuario()) != null) {
@@ -454,7 +456,7 @@ public class InscripcionCase {
                                 body.idMunicipioExpedicionDoc(), 
                                 body.titulosPostgrado(), 
                                 body.tituloPregrado(),
-                                body.email(),
+                                CorreoNormalizer.normalizar(body.email()),
                                 body.empresa(),
                                 body.telefonoContacto(), 
                                 body.promedioPonderadoAcumulado(),
@@ -473,15 +475,8 @@ public class InscripcionCase {
 
                 validarFormulario(form);
 
-                if (body.promedioPonderadoAcumulado() != null) {
-                        BigDecimal promedio = body.promedioPonderadoAcumulado();
-                        if (promedio.compareTo(BigDecimal.ZERO) < 0) {
-                                throw new RuntimeException(
-                                                "El promedio ponderado acumulado debe ser un valor positivo");
-                        }
-                }
-
                 String experienciaLaboralJson = body.experienciaLaboral();
+                String correo = form.email();
 
                 // 3. Ubicación del lugar de expedición del documento
                 UbicacionDTO ubicExpedicion = ubicacionService.create(
@@ -534,7 +529,7 @@ public class InscripcionCase {
                                 PersonaDTO.builder()
                                                 .nombres(body.nombres())
                                                 .apellidos(body.apellidos())
-                                                .correo(body.email())
+                                                .correo(correo)
                                                 .empresa(body.empresa())
                                                 .celular(body.telefonoContacto())
                                                 .egresadoufps(body.egresadoUfpsCucuta())
@@ -595,23 +590,23 @@ public class InscripcionCase {
 
                 pagoProcessor.ensureInitialPaymentsForAspirante(aspirante.getId());
                 try {
-                        sesService.enviarCorreo(persona.getCorreo(), EmailTemplates.ASUNTO_INSCRIPCION,
+                        sesService.enviarCorreo(correo, EmailTemplates.ASUNTO_INSCRIPCION,
                                         EmailTemplates.cuerpoInscripcion(persona.getNombres(), persona.getApellidos(),
                                                         cohorte.getNombre(), programa.nombre()));
                 } catch (SesEmailException ex) {
                         log.error("[INSCRIPCION_EMAIL] Fallo al enviar correo de confirmación a '{}': {}",
-                                        persona.getCorreo(), ex.getMessage(), ex);
+                                        correo, ex.getMessage(), ex);
                 }
                 try {
                         String token = confirmationTokenService.generateToken(aspirante.getId());
-                        String enlace = baseUrl + "/api/application/case/aspirantes/confirmar-correo?token=" + token;
+                        String enlace = enlacesPublicos.confirmacionCorreo(token);
                         sesService.enviarCorreo(
-                                        persona.getCorreo(),
+                                        correo,
                                         EmailTemplates.ASUNTO_CONFIRMACION_CORREO,
                                         EmailTemplates.cuerpoConfirmacionCorreo(persona.getNombres(), enlace));
                 } catch (Exception ex) {
                         log.error("[VERIFICACION_EMAIL] Fallo al enviar correo de verificación a '{}': {}",
-                                        persona.getCorreo(), ex.getMessage(), ex);
+                                        correo, ex.getMessage(), ex);
                 }
 
                 // 12. Crear clave y usuario

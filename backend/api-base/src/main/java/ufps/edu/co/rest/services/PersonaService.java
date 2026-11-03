@@ -14,6 +14,7 @@ import ufps.edu.co.persistence.entities.PersonaEntity;
 import ufps.edu.co.persistence.repositories.PersonaRepository;
 import ufps.edu.co.rest.dto.PersonaDTO;
 import ufps.edu.co.rest.services.commons.GenericService;
+import ufps.edu.co.util.CorreoNormalizer;
 
 /**
  * REST service for entity "Persona" <br>
@@ -42,6 +43,7 @@ public class PersonaService extends GenericService<PersonaEntity, PersonaDTO> {
     }
 
     public PersonaDTO create(PersonaDTO dto) {
+        dto.setCorreo(CorreoNormalizer.normalizar(dto.getCorreo()));
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
 
@@ -49,12 +51,20 @@ public class PersonaService extends GenericService<PersonaEntity, PersonaDTO> {
         repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Persona no encontrado con id: " + id));
         dto.setId(id);
+        dto.setCorreo(CorreoNormalizer.normalizar(dto.getCorreo()));
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
 
     @Transactional(readOnly = true)
     public boolean existsByCorreo(String correo) {
-        return correo != null && repository.existsByCorreoIgnoreCase(correo);
+        String correoNormalizado = CorreoNormalizer.normalizar(correo);
+        return correoNormalizado != null && repository.existsByCorreoIgnoreCase(correoNormalizado);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByCorreoAndIdNot(String correo, Integer id) {
+        String correoNormalizado = CorreoNormalizer.normalizar(correo);
+        return correoNormalizado != null && repository.existsByCorreoIgnoreCaseAndIdNot(correoNormalizado, id);
     }
 
     /**
@@ -64,7 +74,7 @@ public class PersonaService extends GenericService<PersonaEntity, PersonaDTO> {
     public void updateCorreo(Integer id, String correo) {
         PersonaEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Persona no encontrado con id: " + id));
-        entity.setCorreo(correo);
+        entity.setCorreo(CorreoNormalizer.normalizar(correo));
         repository.save(entity);
     }
 

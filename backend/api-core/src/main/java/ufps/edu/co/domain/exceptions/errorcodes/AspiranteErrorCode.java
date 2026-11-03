@@ -33,7 +33,16 @@ public enum AspiranteErrorCode implements BaseErrorCode {
         "No se pudo enviar el correo de confirmación de inscripción"),
     ESTADO_TRANSICION_INVALIDA_CONFLICT(
         "ESTADO_TRANSICION_INVALIDA_CONFLICT",
-        "El aspirante no se encuentra en el estado requerido para esta operación");
+        "El aspirante no se encuentra en el estado requerido para esta operación"),
+    PROMEDIO_INSCRIPCION_FUERA_DE_RANGO(
+        "PROMEDIO_INSCRIPCION_FUERA_DE_RANGO",
+        "El promedio ponderado acumulado debe estar entre 0.0 y 5.0, con máximo dos decimales"),
+    CORREO_FORMATO_INVALIDO(
+        "CORREO_FORMATO_INVALIDO",
+        "El correo electrónico no tiene un formato válido"),
+    CORREO_ENVIO_UNAVAILABLE(
+        "CORREO_ENVIO_UNAVAILABLE",
+        "No se pudo enviar el correo. Verifica que la dirección sea correcta e inténtalo de nuevo más tarde");
 
     private final String code;
     private final String defaultMessage;
