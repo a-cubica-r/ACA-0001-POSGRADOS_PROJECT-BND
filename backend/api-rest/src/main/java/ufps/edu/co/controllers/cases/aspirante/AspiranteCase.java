@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ufps.edu.co.domain.exceptions.*;
 import ufps.edu.co.domain.exceptions.errorcodes.*;
+import ufps.edu.co.config.EnlacesPublicos;
 import ufps.edu.co.services.core.cases.*;
 import ufps.edu.co.services.core.crud.*;
 import ufps.edu.co.records.input.entity.AspiranteInput.*;
@@ -23,6 +24,7 @@ import ufps.edu.co.rest.dto.*;
 import ufps.edu.co.rest.services.*;
 import ufps.edu.co.services.*;
 import ufps.edu.co.utils.*;
+import ufps.edu.co.util.CorreoNormalizer;
 import ufps.edu.co.enums.EstadoAspirante;
 import ufps.edu.co.enums.EstadoPagoInscripcion;
 import ufps.edu.co.enums.EstadoPagoMatricula;
@@ -86,11 +88,11 @@ public class AspiranteCase {
     @Autowired
     private EmailConfirmationTokenService confirmationTokenService;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
-
     @Value("${app.frontend-login-url}")
     private String frontendLoginUrl;
+
+    @Autowired
+    private EnlacesPublicos enlacesPublicos;
 
     @Autowired
     private PersonaService personaService;
@@ -457,7 +459,7 @@ public class AspiranteCase {
             throw new DomainException(AspiranteErrorCode.ESTADO_TRANSICION_INVALIDA_CONFLICT, estadoActual);
         }
         String token = confirmationTokenService.generateToken(idAspirante);
-        String enlace = baseUrl + "/api/application/case/aspirantes/confirmar-correo?token=" + token;
+        String enlace = enlacesPublicos.confirmacionCorreo(token);
         String nombrePersona = personaService.findNombreById(aspirante.getIdPersona());
         String correo = personaService.findCorreoById(aspirante.getIdPersona());
         try {
@@ -467,8 +469,8 @@ public class AspiranteCase {
                     EmailTemplates.cuerpoConfirmacionCorreo(nombrePersona, enlace));
         } catch (Exception ex) {
             log.error("[CONFIRMACION_EMAIL] Fallo al enviar correo de confirmación a '{}': {}",
-                    correo, ex.getMessage(), ex);
-            throw new RuntimeException("No se pudo enviar el correo de confirmación", ex);
+                    correo, ex.getClass().getSimpleName());
+            throw new DomainException(AspiranteErrorCode.CORREO_ENVIO_UNAVAILABLE, idAspirante);
         }
         return ResponseEntity.ok().build();
     }
@@ -492,9 +494,15 @@ public class AspiranteCase {
             throw new DomainException(AspiranteErrorCode.ASPIRANTE_NOT_FOUND, idAspirante);
         }
         if (correoNuevo == null || correoNuevo.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo correoNuevo es requerido");
+            throw new DomainException(AspiranteErrorCode.CORREO_FORMATO_INVALIDO, correoNuevo);
         }
-        String correo = correoNuevo.trim().toLowerCase(java.util.Locale.ROOT);
+        String correo = CorreoNormalizer.normalizar(correoNuevo);
+        if (!CorreoNormalizer.esValido(correo)) {
+            throw new DomainException(AspiranteErrorCode.CORREO_FORMATO_INVALIDO, correoNuevo);
+        }
+        if (personaService.existsByCorreoAndIdNot(correo, aspirante.getIdPersona())) {
+            throw new DomainException(AspiranteErrorCode.CORREO_YA_REGISTRADO_CONFLICT, correo);
+        }
         personaService.updateCorreo(aspirante.getIdPersona(), correo);
         return ResponseEntity.ok().build();
     }

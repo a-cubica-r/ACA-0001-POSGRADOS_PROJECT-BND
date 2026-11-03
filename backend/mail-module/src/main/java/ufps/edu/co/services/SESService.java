@@ -12,6 +12,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.*;
 import ufps.edu.co.exception.SesEmailException;
+import ufps.edu.co.util.CorreoNormalizer;
 
 @Service
 public class SESService {
@@ -35,6 +36,7 @@ public class SESService {
         }
 
         public void enviarCorreo(String destinatario, String asunto, String cuerpoHtml) {
+                destinatario = CorreoNormalizer.normalizar(destinatario);
                 SendEmailRequest request = SendEmailRequest.builder()
                                 .source(fromEmail)
                                 .destination(Destination.builder()
@@ -67,6 +69,7 @@ public class SESService {
 
         @Async
         public void enviarCorreoAsync(String destinatario, String asunto, String cuerpoHtml) {
+                destinatario = CorreoNormalizer.normalizar(destinatario);
                 try {
                         enviarCorreo(destinatario, asunto, cuerpoHtml);
                 } catch (Exception e) {

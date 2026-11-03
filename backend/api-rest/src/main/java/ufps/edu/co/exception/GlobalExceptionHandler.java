@@ -182,6 +182,7 @@ public class GlobalExceptionHandler {
         if (code.endsWith("_ALREADY_EXISTS") || code.endsWith("_DUPLICADO")) return HttpStatus.CONFLICT;
         if (code.endsWith("_CONFLICT")) return HttpStatus.CONFLICT;
         if (code.endsWith("_FORBIDDEN")) return HttpStatus.FORBIDDEN;
+        if (code.endsWith("_UNAVAILABLE")) return HttpStatus.SERVICE_UNAVAILABLE;
         return HttpStatus.BAD_REQUEST;
     }
 }
