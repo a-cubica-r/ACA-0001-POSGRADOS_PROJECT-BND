@@ -61,5 +61,9 @@ public class RegistroAspiranteController {
     }
 
     public static record RegistroUsuarioRequest(Integer idPersona, String usuario, String contrasena) {
+        @Override
+        public String toString() {
+            return "RegistroUsuarioRequest[idPersona=" + idPersona + ", usuario=" + usuario + ", contrasena=***]";
+        }
     }
 }

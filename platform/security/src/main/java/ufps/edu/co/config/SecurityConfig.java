@@ -2,6 +2,7 @@ package ufps.edu.co.config;
 
 import java.util.Arrays;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import ufps.edu.co.security.JwtAuthenticationFilter;
 import ufps.edu.co.enums.Rol;
 
 @Configuration
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class SecurityConfig {
 
         // Rutas totalmente públicas: autenticación, documentación y catálogos de consulta.

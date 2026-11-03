@@ -88,5 +88,10 @@ public class RecuperarContrasenaController {
 
     public static record SolicitarRecuperacionRequest(String correo) {}
 
-    public static record CambiarContrasenaRequest(String token, String nuevaContrasena) {}
+    public static record CambiarContrasenaRequest(String token, String nuevaContrasena) {
+        @Override
+        public String toString() {
+            return "CambiarContrasenaRequest[token=***, nuevaContrasena=***]";
+        }
+    }
 }
