@@ -77,6 +77,11 @@ public class SecurityConfig {
                         "/api/dev/endpoint/semestre/listall"
         };
 
+        // Integración con Trámites (SC-03): solo la cuenta técnica y el super admin.
+        private static final String[] SERVICIO_TRAMITES_PATHS = {
+                        "/api/application/case/integracion/v1/**"
+        };
+
         // Catch-all: solo super admin.
         private static final String[] SUPER_ADMIN_PATHS = {
                         "/**"
@@ -105,6 +110,10 @@ public class SecurityConfig {
                                                 // Rutas públicas sin autenticación.
                                                 .requestMatchers(PUBLIC_PATHS)
                                                 .permitAll()
+
+                                                // Cuenta técnica de Trámites: no hereda ninguna otra ruta.
+                                                .requestMatchers(HttpMethod.GET, SERVICIO_TRAMITES_PATHS)
+                                                .hasAnyRole(Rol.SUPER_ADMINISTRADOR.getCodigo(), Rol.SERVICIO_TRAMITES.getCodigo())
 
                                                 // Posgrados y super admin.
                                                 .requestMatchers(POSGRADOS_PATHS)

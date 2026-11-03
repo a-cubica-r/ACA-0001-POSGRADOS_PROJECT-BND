@@ -23,6 +23,9 @@ public interface EstudiantesRepository extends JpaRepository<EstudiantesEntity, 
 
     boolean existsByCedula(String cedula);
 
+    /** La cédula no tiene índice UNIQUE; existsByCedula la valida al registrar. */
+    Optional<EstudiantesEntity> findFirstByCedula(String cedula);
+
     boolean existsByCedulaAndIdNot(String cedula, Integer id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
