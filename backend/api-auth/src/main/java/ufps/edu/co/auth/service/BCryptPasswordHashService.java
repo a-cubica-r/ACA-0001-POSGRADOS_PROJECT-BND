@@ -1,18 +1,20 @@
 package ufps.edu.co.auth.service;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import ufps.edu.co.auth.config.AuthProperties;
 import ufps.edu.co.auth.contract.PasswordHashService;
+import ufps.edu.co.auth.util.PasswordFormats;
 
 @Service
 public class BCryptPasswordHashService implements PasswordHashService {
 
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
     private final AuthProperties properties;
 
-    public BCryptPasswordHashService(AuthProperties properties) {
+    public BCryptPasswordHashService(PasswordEncoder passwordEncoder, AuthProperties properties) {
+        this.passwordEncoder = passwordEncoder;
         this.properties = properties;
     }
 
@@ -22,8 +24,8 @@ public class BCryptPasswordHashService implements PasswordHashService {
             return false;
         }
 
-        if (isBcrypt(storedPassword)) {
-            return encoder.matches(rawPassword, storedPassword);
+        if (PasswordFormats.isBcrypt(storedPassword)) {
+            return passwordEncoder.matches(rawPassword, storedPassword);
         }
 
         return properties.getAuth().getPassword().isAllowPlainTextLegacy() && rawPassword.equals(storedPassword);
@@ -31,15 +33,11 @@ public class BCryptPasswordHashService implements PasswordHashService {
 
     @Override
     public String encode(String rawPassword) {
-        return encoder.encode(rawPassword);
+        return passwordEncoder.encode(rawPassword);
     }
 
     @Override
     public boolean needsRehash(String storedPassword) {
-        return !isBcrypt(storedPassword);
-    }
-
-    private Boolean isBcrypt(String value) {
-        return value != null && (value.startsWith("$2a$") || value.startsWith("$2b$") || value.startsWith("$2y$"));
+        return !PasswordFormats.isBcrypt(storedPassword);
     }
 }
