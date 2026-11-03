@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import ufps.edu.co.services.core.crud.*;
 // import ufps.edu.co.rest.services.TipodocumentoService;
+import ufps.edu.co.auth.contract.PasswordHashService;
 import ufps.edu.co.domain.exceptions.DomainException;
 import ufps.edu.co.domain.exceptions.errorcodes.AspiranteErrorCode;
 import ufps.edu.co.domain.exceptions.errorcodes.UsuarioErrorCode;
@@ -94,6 +95,9 @@ public class InscripcionCase {
         private ClaveService claveService;
 
         @Autowired
+        private PasswordHashService passwordHashService;
+
+        @Autowired
         private UsuarioService usuarioService;
 
         @Autowired
@@ -169,6 +173,11 @@ public class InscripcionCase {
         }
 
         public record RegistrarUsuarioRequest(Integer idPersona, String usuario, String contrasena) {
+            @Override
+            public String toString() {
+                return "RegistrarUsuarioRequest[idPersona=" + idPersona + ", usuario=" + usuario
+                                + ", contrasena=***]";
+            }
         }
 
         public record RegistrarUsuarioOutput(Integer idUsuario, String nombreusuario, Integer idPersona) {
@@ -204,6 +213,10 @@ public class InscripcionCase {
                         Integer idTipoVinculacion,
                         String usuario,
                         String contrasena) {
+            @Override
+            public String toString() {
+                return "RegistrarNuevoUsuarioRequest[usuario=" + usuario + ", contrasena=***]";
+            }
         }
 
         public record RegistrarNuevoUsuarioOutput(Integer idPersona, Integer idAspirante, Integer idUsuario,
@@ -405,7 +418,7 @@ public class InscripcionCase {
                 }
 
                 ClaveDTO clave = claveService.create(ClaveDTO.builder()
-                                .valor(body.contrasena())
+                                .valor(passwordHashService.encode(body.contrasena()))
                                 .build());
 
                 UsuarioDTO usuario = usuarioService.create(UsuarioDTO.builder()
@@ -603,7 +616,7 @@ public class InscripcionCase {
 
                 // 12. Crear clave y usuario
                 ClaveDTO clave = claveService.create(ClaveDTO.builder()
-                                .valor(body.contrasena())
+                                .valor(passwordHashService.encode(body.contrasena()))
                                 .build());
 
                 UsuarioDTO usuario = usuarioService.create(UsuarioDTO.builder()

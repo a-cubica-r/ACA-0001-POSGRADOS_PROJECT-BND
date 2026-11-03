@@ -6,4 +6,9 @@ public record LoginInput(
         @NotBlank String username,
         @NotBlank String password,
         @NotBlank String requestedRole) {
+
+    @Override
+    public String toString() {
+        return "LoginInput[username=" + username + ", requestedRole=" + requestedRole + ", password=***]";
+    }
 }

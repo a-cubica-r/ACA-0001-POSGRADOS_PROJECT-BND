@@ -11,4 +11,10 @@ public record AuthenticatedUser(
     public AuthenticatedUser {
         roles = roles == null ? List.of() : List.copyOf(roles);
     }
+
+    @Override
+    public String toString() {
+        return "AuthenticatedUser[userId=" + userId + ", username=" + username
+                + ", passwordHash=***, roles=" + roles + "]";
+    }
 }

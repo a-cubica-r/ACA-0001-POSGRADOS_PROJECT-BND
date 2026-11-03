@@ -61,7 +61,6 @@ public class ClaveMap extends
     public ClaveOutput toOutput(ClaveDTO dto) {
         return ClaveOutput.builder()
                 .id(dto.getId())
-                .valor(dto.getValor())
                 .build();
     }
 
