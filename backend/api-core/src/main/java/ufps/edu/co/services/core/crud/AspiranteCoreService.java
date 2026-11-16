@@ -342,6 +342,7 @@ public class AspiranteCoreService implements
         long validados = service.countValidadosByCohorte(cohorte.getId());
         long calificados = service.countCalificadosByCohorte(cohorte.getId());
         long admitidos = service.countAdmitidosByCohorte(cohorte.getId());
+        long legalizados = service.countLegalizadosByCohorte(cohorte.getId());
 
         FechasCohorte fechas = FechasCohorte.desde(cohorte);
         return ProgramaInicioOutput.builder()
@@ -363,6 +364,7 @@ public class AspiranteCoreService implements
                 .totalValidados(validados)
                 .totalCalificados(calificados)
                 .totalAdmitidos(admitidos)
+                .totalLegalizados(legalizados)
                 .build();
     }
 
@@ -386,6 +388,7 @@ public class AspiranteCoreService implements
                         long validados = service.countValidadosByCohorte(cohorteId);
                         long calificados = service.countCalificadosByCohorte(cohorteId);
                         long admitidos = service.countAdmitidosByCohorte(cohorteId);
+                        long legalizados = service.countLegalizadosByCohorte(cohorteId);
 
                         FechasCohorte fechas = FechasCohorte.desde(cohorte);
                         return ProgramaInicioOutput.builder()
@@ -407,6 +410,7 @@ public class AspiranteCoreService implements
                                 .totalValidados(validados)
                                 .totalCalificados(calificados)
                                 .totalAdmitidos(admitidos)
+                                .totalLegalizados(legalizados)
                                 .build();
                     })
                     .toList();
@@ -968,6 +972,7 @@ public class AspiranteCoreService implements
             long validados = service.countValidadosByCohorte(id);
             long calificados = service.countCalificadosByCohorte(id);
             long admitidos = service.countAdmitidosByCohorte(id);
+            long legalizados = service.countLegalizadosByCohorte(id);
 
             FechasCohorte fechas = FechasCohorte.desde(row);
             return CohorteResumenOutput.builder()
@@ -990,6 +995,7 @@ public class AspiranteCoreService implements
                     .totalValidados(validados)
                     .totalCalificados(calificados)
                     .totalAdmitidos(admitidos)
+                    .totalLegalizados(legalizados)
                     .build();
         }).toList();
     }

@@ -203,6 +203,10 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
                 valores(EstadoAspirante.POR_LEGALIZAR, EstadoAspirante.LEGALIZADO, EstadoAspirante.ADMITIDO));
     }
 
+    public long countLegalizadosByCohorte(Integer cohorteId) {
+        return repository.countByIdCohorteAndEstadoTipoIn(cohorteId, valores(EstadoAspirante.LEGALIZADO));
+    }
+
     @Transactional(readOnly = true)
     public List<AspiranteDTO> findAValidarByCohorte(int cohorteId) {
         return entityListToDtoList(repository.findByIdCohorteAndEstadoTipoIn(

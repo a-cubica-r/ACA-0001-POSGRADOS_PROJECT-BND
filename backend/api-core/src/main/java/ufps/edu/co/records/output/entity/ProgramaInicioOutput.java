@@ -12,7 +12,8 @@ public record ProgramaInicioOutput(
         long totalPazysalvo,
         long totalValidados,
         long totalCalificados,
-        long totalAdmitidos
+        long totalAdmitidos,
+        long totalLegalizados
 ) implements OutputResponse {
 
     @Builder
