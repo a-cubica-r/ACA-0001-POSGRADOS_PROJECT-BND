@@ -35,7 +35,7 @@ USER spring
 
 # Render injects PORT at runtime; 8080 is the local fallback
 ENV PORT=8080 \
-    JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+UseSerialGC"
+    JAVA_OPTS="-XX:MaxRAMPercentage=55 -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=48m -XX:MaxMetaspaceSize=200m -Xss512k -XX:+ExitOnOutOfMemoryError"
 EXPOSE 8080
 
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -Dserver.port=${PORT} -jar /app/app.jar"]
