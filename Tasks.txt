@@ -1,7 +1,0 @@
-Recordar que en la clase 'CredentialService.java' del paquete 
-'package ufps.edu.co.auth.service;' en api-auth, usa el repository 
-de Usuario, y a ese repository hay que definirle un método llamado 
-'Optional<UsuarioEntity> findByNombreusuario(String nombreusuario);'
-
-Arreglar los maps de ofertaacademica -> Semestre
-Arreglar los maps de cohorte (cohorte actual)

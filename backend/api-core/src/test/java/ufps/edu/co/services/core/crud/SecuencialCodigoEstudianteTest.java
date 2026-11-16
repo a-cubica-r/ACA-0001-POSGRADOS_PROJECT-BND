@@ -1,11 +1,10 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import ufps.edu.co.services.core.crud.SecuencialCodigoEstudiante;
 
 /**
  * D-00 — Regla única del secuencial del código de estudiante.

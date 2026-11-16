@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.cases;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -34,7 +34,6 @@ import ufps.edu.co.rest.dto.UbicacionDTO;
 import ufps.edu.co.rest.services.DocumentopersonaService;
 import ufps.edu.co.rest.services.PersonaService;
 import ufps.edu.co.rest.services.UbicacionService;
-import ufps.edu.co.services.core.cases.PersonaCompletaCoreService;
 
 /**
  * D-00 — POST /superadmin/persona/crear-completo: validaciones antes de

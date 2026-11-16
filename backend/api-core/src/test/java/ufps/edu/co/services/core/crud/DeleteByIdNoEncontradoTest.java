@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -24,9 +24,6 @@ import ufps.edu.co.records.input.entity.SedeInput.SEDE_DELETE;
 import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import ufps.edu.co.rest.services.PlazoService;
 import ufps.edu.co.rest.services.SedeService;
-import ufps.edu.co.services.core.crud.PlazoCoreService;
-import ufps.edu.co.services.core.crud.SedeCoreService;
-import ufps.edu.co.services.core.crud.UbicacionCoreService;
 
 /**
  * D-09 T1 — El deleteById de los CoreService deja de convertir cualquier fallo

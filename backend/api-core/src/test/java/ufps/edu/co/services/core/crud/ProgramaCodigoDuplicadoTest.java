@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,7 +25,6 @@ import ufps.edu.co.records.input.entity.ProgramaInput.PROGRAMA_UPDATE;
 import ufps.edu.co.rest.dto.ProgramaDTO;
 import ufps.edu.co.rest.services.ProgramaService;
 import ufps.edu.co.rest.services.UltimocodigoprogramaService;
-import ufps.edu.co.services.core.crud.ProgramaCoreService;
 
 /**
  * D-08 (D-08.2) — Unicidad del código de programa validada antes de guardar.

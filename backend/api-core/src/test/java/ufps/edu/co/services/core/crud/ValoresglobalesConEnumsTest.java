@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +11,6 @@ import ufps.edu.co.enums.PrefijoValorGlobal;
 import ufps.edu.co.maps.specific.ValoresglobalesMap;
 import ufps.edu.co.rest.dto.ValoresglobalesDTO;
 import ufps.edu.co.rest.services.ValoresglobalesService;
-import ufps.edu.co.services.core.crud.ValoresglobalesCoreService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -97,12 +97,6 @@ services:
       - key: AWS_SES_FROM_EMAIL
         sync: false
 
-      # --- Mail (Resend) ---
-      - key: RESEND_API_KEY
-        sync: false
-      - key: MAIL_FROM
-        sync: false
-
       # --- Wompi ---
       - key: WOMPI_SIMULATED
         sync: false

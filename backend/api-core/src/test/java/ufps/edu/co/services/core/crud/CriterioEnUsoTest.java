@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,8 +31,6 @@ import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.rest.services.CriterioevaluacionService;
 import ufps.edu.co.rest.services.CriteriocohorteService;
 import ufps.edu.co.rest.services.EstadoService;
-import ufps.edu.co.services.core.crud.CalificacioncriterioCoreService;
-import ufps.edu.co.services.core.crud.CriterioevaluacionCoreService;
 
 /**
  * PLN0010 T2 — Un criterio asignado a una cohorte no se borra: responde 409

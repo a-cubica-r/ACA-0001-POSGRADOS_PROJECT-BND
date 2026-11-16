@@ -17,7 +17,7 @@ estudiantes. La rama desplegada actualmente es `render`.
 | JWT | JJWT 0.12.6 |
 | Documentación HTTP | springdoc-openapi 3.0.2 (`/api-docs`, `/swagger-ui.html`) |
 | Almacenamiento | AWS S3 |
-| Correo | AWS SES (Resend queda como configuración heredada) |
+| Correo | AWS SES |
 | Pagos | Wompi (gateway real o simulado) |
 | PDF / recibos | Thymeleaf + Flying Saucer + ZXing + OpenPDF |
 | Pruebas | JUnit 5, Mockito, MockMvc, H2 para pruebas de persistencia |
@@ -88,7 +88,6 @@ commitees valores reales.** Estas son solo las variables necesarias:
 | S3 | `AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_REGION`, `AWS_BUCKET_NAME` |
 | SES | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_KEY_SES`, `AWS_SES_FROM_EMAIL`, `AWS_SES_REGION` |
 | Wompi | `WOMPI_SIMULATED`, `WOMPI_API_BASE_URL`, `WOMPI_CHECKOUT_BASE_URL`, `WOMPI_WIDGET_SCRIPT_URL`, `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_INTEGRITY_SECRET`, `WOMPI_CURRENCY`, `WOMPI_RETURN_URL`, `WOMPI_WEBHOOK_URL` |
-| Resend (heredado) | `RESEND_API_KEY`, `MAIL_FROM` |
 | Docker / Render | `PORT`, `JAVA_OPTS` |
 
 Los `APP_MODULE_NAME_*` son obligatorios: cada `*ModuleStartupCheck` falla al arrancar si falta el
@@ -265,10 +264,9 @@ credenciales locales de ejemplo; **no lo apuntes a Railway ni a ningún esquema 
 
 ## Documentación adicional
 
-- `BOTS`: mapa operativo resumido (módulos, capas, rutas y seguridad).
 - `.agents/`: capa de conocimiento para agentes (arquitectura, entorno, referencia por módulo,
   decisiones y estado del trabajo).
-- `.info/`, `notas.md`, `Tasks.txt` y los `SC-*.md`: documentación histórica; puede estar
+- `.info/` (incluye `historico/notas.md`): documentación histórica; puede estar
   desactualizada. Si contradice al código, manda el código.
 
 ## Autores

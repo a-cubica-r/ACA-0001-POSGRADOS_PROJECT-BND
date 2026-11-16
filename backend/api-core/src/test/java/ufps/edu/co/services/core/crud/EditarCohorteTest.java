@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -37,7 +37,6 @@ import ufps.edu.co.rest.services.DocumentosrequisitoprogramacohorteService;
 import ufps.edu.co.rest.services.PlazoService;
 import ufps.edu.co.rest.services.SemestreService;
 import ufps.edu.co.rest.services.TipoplazoService;
-import ufps.edu.co.services.core.crud.AspiranteCoreService;
 
 /**
  * D-00 - Editar cohorte con las seis fechas y separar el plazo que las cohortes
