@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,7 +24,6 @@ import ufps.edu.co.rest.dto.DocumentosrequisitoprogramaDTO;
 import ufps.edu.co.rest.dto.DocumentosrequisitoprogramacohorteDTO;
 import ufps.edu.co.rest.services.DocumentosrequisitoprogramaService;
 import ufps.edu.co.rest.services.DocumentosrequisitoprogramacohorteService;
-import ufps.edu.co.services.core.crud.DocumentosrequisitoprogramaCoreService;
 
 /**
  * PLN0010 T2 — Un documento requerido asignado a una cohorte no se borra (409

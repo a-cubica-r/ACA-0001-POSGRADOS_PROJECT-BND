@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,7 +27,6 @@ import ufps.edu.co.records.input.entity.FacultadInput.FACULTAD_DELETE;
 import ufps.edu.co.records.input.entity.FacultadInput.FACULTAD_UPDATE;
 import ufps.edu.co.rest.dto.FacultadDTO;
 import ufps.edu.co.rest.services.FacultadService;
-import ufps.edu.co.services.core.crud.FacultadCoreService;
 
 /**
  * D-08 (D-08.3 y D-08.2) — Facultad: errores propios en vez de 500/404

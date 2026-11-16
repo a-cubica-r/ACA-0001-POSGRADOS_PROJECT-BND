@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,7 +27,6 @@ import ufps.edu.co.records.output.entity.UltimocodigoprogramaOutput;
 import ufps.edu.co.rest.dto.UltimocodigoprogramaDTO;
 import ufps.edu.co.rest.services.EstudiantesService;
 import ufps.edu.co.rest.services.UltimocodigoprogramaService;
-import ufps.edu.co.services.core.crud.UltimocodigoprogramaCoreService;
 
 /**
  * D-00 — Consecutivo del código de estudiante: reserva, edición manual y

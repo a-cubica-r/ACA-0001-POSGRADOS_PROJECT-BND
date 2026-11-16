@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ufps.edu.co.records.output.entity.PasoProcesoOutput;
 import ufps.edu.co.rest.services.AspiranteService;
-import ufps.edu.co.services.core.crud.AspiranteCoreService;
 
 import java.util.List;
 import java.util.stream.Stream;

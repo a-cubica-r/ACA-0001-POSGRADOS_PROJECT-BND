@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,7 +44,6 @@ import ufps.edu.co.rest.services.AspiranteService;
 import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.rest.services.PlazoService;
 import ufps.edu.co.rest.services.PruebaService;
-import ufps.edu.co.services.core.crud.CohorteCoreService;
 
 /**
  * D-09 T3 — Eliminar cohorte: conflicto con código propio según el uso,

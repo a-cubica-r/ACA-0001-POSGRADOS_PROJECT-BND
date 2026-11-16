@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -24,7 +24,6 @@ import ufps.edu.co.rest.services.CriteriocohorteService;
 import ufps.edu.co.rest.services.CriterioevaluacionService;
 import ufps.edu.co.rest.services.DocumentosrequisitoconsejocohorteService;
 import ufps.edu.co.rest.services.DocumentosrequisitoprogramacohorteService;
-import ufps.edu.co.services.core.crud.AspiranteCoreService;
 
 /**
  * D-00 - Las seis fechas de una cohorte se derivan de sus tres plazos y se

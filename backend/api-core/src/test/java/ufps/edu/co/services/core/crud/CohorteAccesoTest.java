@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,7 +17,6 @@ import ufps.edu.co.domain.exceptions.DomainException;
 import ufps.edu.co.domain.exceptions.errorcodes.CohorteErrorCode;
 import ufps.edu.co.rest.dto.CohorteDTO;
 import ufps.edu.co.rest.services.CohorteService;
-import ufps.edu.co.services.core.crud.CohorteCoreService;
 
 /**
  * D-00 T2 — Regla de acceso a una cohorte: Posgrados y Super Administrador

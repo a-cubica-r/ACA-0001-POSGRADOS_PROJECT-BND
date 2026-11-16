@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.crud;
+package ufps.edu.co.services.core.crud;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -46,8 +46,6 @@ import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.rest.services.EstudiantesService;
 import ufps.edu.co.rest.services.ProgramaService;
 import ufps.edu.co.rest.services.UltimocodigoprogramaService;
-import ufps.edu.co.services.core.crud.CohorteCoreService;
-import ufps.edu.co.services.core.crud.ProgramaCoreService;
 
 /**
  * D-05 — Eliminar programa: conflictos con código propio, cascada de lo que le

@@ -1,4 +1,4 @@
-package ufps.edu.co.processor.integracion;
+package ufps.edu.co.services.core.integracion;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,7 +24,6 @@ import ufps.edu.co.rest.services.CohorteService;
 import ufps.edu.co.rest.services.EstadoService;
 import ufps.edu.co.rest.services.EstudiantesService;
 import ufps.edu.co.rest.services.ProgramaService;
-import ufps.edu.co.services.core.integracion.IntegracionTramitesCoreService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
