@@ -338,8 +338,10 @@ public class AspiranteCoreService implements
         }
 
         long totalInscritos = service.countByCohorte(cohorte.getId());
+        long pazYSalvo = service.countPazYSalvoByCohorte(cohorte.getId());
         long validados = service.countValidadosByCohorte(cohorte.getId());
         long calificados = service.countCalificadosByCohorte(cohorte.getId());
+        long admitidos = service.countAdmitidosByCohorte(cohorte.getId());
 
         FechasCohorte fechas = FechasCohorte.desde(cohorte);
         return ProgramaInicioOutput.builder()
@@ -356,14 +358,11 @@ public class AspiranteCoreService implements
                         .fechaInicioPago(fechas.fechaInicioPago())
                         .fechaFinPago(fechas.fechaFinPago())
                         .build())
-                .validacion(ProgramaInicioOutput.ValidacionResumen.builder()
-                        .totalInscritos(totalInscritos)
-                        .aspirantesValidados(validados)
-                        .build())
-                .calificacion(ProgramaInicioOutput.CalificacionResumen.builder()
-                        .totalValidados(validados)
-                        .aspirantesCalificados(calificados)
-                        .build())
+                .totalInscritos(totalInscritos)
+                .totalPazysalvo(pazYSalvo)
+                .totalValidados(validados)
+                .totalCalificados(calificados)
+                .totalAdmitidos(admitidos)
                 .build();
     }
 
@@ -383,8 +382,10 @@ public class AspiranteCoreService implements
                                 : null;
 
                         long totalInscritos = service.countByCohorte(cohorteId);
+                        long pazYSalvo = service.countPazYSalvoByCohorte(cohorteId);
                         long validados = service.countValidadosByCohorte(cohorteId);
                         long calificados = service.countCalificadosByCohorte(cohorteId);
+                        long admitidos = service.countAdmitidosByCohorte(cohorteId);
 
                         FechasCohorte fechas = FechasCohorte.desde(cohorte);
                         return ProgramaInicioOutput.builder()
@@ -401,14 +402,11 @@ public class AspiranteCoreService implements
                                         .fechaInicioPago(fechas.fechaInicioPago())
                                         .fechaFinPago(fechas.fechaFinPago())
                                         .build())
-                                .validacion(ProgramaInicioOutput.ValidacionResumen.builder()
-                                        .totalInscritos(totalInscritos)
-                                        .aspirantesValidados(validados)
-                                        .build())
-                                .calificacion(ProgramaInicioOutput.CalificacionResumen.builder()
-                                        .totalValidados(validados)
-                                        .aspirantesCalificados(calificados)
-                                        .build())
+                                .totalInscritos(totalInscritos)
+                                .totalPazysalvo(pazYSalvo)
+                                .totalValidados(validados)
+                                .totalCalificados(calificados)
+                                .totalAdmitidos(admitidos)
                                 .build();
                     })
                     .toList();
