@@ -6,6 +6,4 @@ import ufps.edu.co.auth.records.output.LoginOutput;
 public interface AuthenticationUseCase {
 
     LoginOutput login(LoginInput input);
-
-    LoginOutput login(LoginInput input, String requestedRole);
 }

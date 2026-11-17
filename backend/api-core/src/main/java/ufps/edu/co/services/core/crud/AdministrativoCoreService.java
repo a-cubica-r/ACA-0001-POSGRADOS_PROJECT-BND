@@ -42,24 +42,18 @@ public class AdministrativoCoreService implements
 
     @Override
     public AdministrativoOutput create(ADMINISTRATIVO_CREATE input) {
-        try {
-            AdministrativoDTO dto = map.toDto(input);
-            AdministrativoDTO created = service.create(dto);
-            return map.toOutput(created);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Administrativo: " + e.getMessage(), e);
-        }
+        AdministrativoDTO dto = map.toDto(input);
+        AdministrativoDTO created = service.create(dto);
+        return map.toOutput(created);
+
     }
 
     @Override
     public AdministrativoOutput update(ADMINISTRATIVO_UPDATE input) {
-        try {
-            AdministrativoDTO dto = map.toDto(input);
-            AdministrativoDTO updated = service.update(input.id(), dto);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Administrativo: " + e.getMessage(), e);
-        }
+        AdministrativoDTO dto = map.toDto(input);
+        AdministrativoDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
+
     }
 
     @Override
@@ -70,129 +64,99 @@ public class AdministrativoCoreService implements
     @Override
     @Transactional(readOnly = true)
     public AdministrativoOutput findById(ADMINISTRATIVO_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Administrativo: " + e.getMessage(), e);
-        }
+        return map.toOutput(service.findById(input.id()));
+
     }
 
     @Override
     public List<AdministrativoOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Administrativos: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override
     public void delete(ADMINISTRATIVO_DELETE input) {
-        try {
-            service.deleteById(input.id());
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting Administrativo: " + e.getMessage(), e);
-        }
+        service.deleteById(input.id());
+
     }
 
     // #region PERSONALIZADOS
 
     public List<AdministrativoOutput> findPosiblesDirectores() {
-        try {
-            return service.findPosiblesDirectores().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding posibles directores: " + e.getMessage(), e);
-        }
+        return service.findPosiblesDirectores().stream().map(map::toOutput).toList();
+
     }
 
     public List<ProgramaOutput> findProgramasFacultad(ADMINISTRATIVO_FIND input) {
-        try {
-            if (input != null && input.id() != null) {
-                AdministrativoDTO admin = service.findById(input.id());
-                PrinterObjects.printNotorious(admin);
-                if (admin != null && admin.getCargo() != null && admin.getCargo().getIdFacultad() != null) {
-                    return programaProcessor.findByIdFacultad(admin.getCargo().getIdFacultad());
-                }
-                throw new RuntimeException("Administrativo no tiene cargo asignado o cargo no tiene facultad asociada");
+        if (input != null && input.id() != null) {
+            AdministrativoDTO admin = service.findById(input.id());
+            PrinterObjects.printNotorious(admin);
+            if (admin != null && admin.getCargo() != null && admin.getCargo().getIdFacultad() != null) {
+                return programaProcessor.findByIdFacultad(admin.getCargo().getIdFacultad());
             }
-            throw new RuntimeException("Input inválido: id de administrativo es requerido");
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding programas de facultad: " + e.getMessage(), e);
+            throw new RuntimeException("Administrativo no tiene cargo asignado o cargo no tiene facultad asociada");
         }
+        throw new RuntimeException("Input inválido: id de administrativo es requerido");
+
     }
 
     public List<CohorteOutput> findCohortesActivasFacultad(ADMINISTRATIVO_FIND input) {
-        try {
-            List<ProgramaOutput> programas = findProgramasFacultad(input);
-            return programas.stream()
-                    .flatMap(programa -> cohorteProcessor.findActivasByIdPrograma(programa.id()).stream())
-                    .toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding active cohorts for facultad: " + e.getMessage(), e);
-        }
+        List<ProgramaOutput> programas = findProgramasFacultad(input);
+        return programas.stream()
+                .flatMap(programa -> cohorteProcessor.findActivasByIdPrograma(programa.id()).stream())
+                .toList();
+
     }
 
     public List<CohorteInscritosOutput> findCohortesActivasFacultadConInscritos(ADMINISTRATIVO_FIND input) {
-        try {
-            List<CohorteOutput> cohortes = findCohortesActivasFacultad(input);
-            return cohortes.stream()
-                    .map(cohorte -> CohorteInscritosOutput.builder()
-                            .cohorte(cohorte)
-                            .inscritosEnProceso(
-                                    cohorteProcessor.countAspirantesEnProcesoByCohorteId(cohorte.id()))
-                            .build())
-                    .toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error counting aspirantes by cohort: " + e.getMessage(), e);
-        }
+        List<CohorteOutput> cohortes = findCohortesActivasFacultad(input);
+        return cohortes.stream()
+                .map(cohorte -> CohorteInscritosOutput.builder()
+                        .cohorte(cohorte)
+                        .inscritosEnProceso(
+                                cohorteProcessor.countAspirantesEnProcesoByCohorteId(cohorte.id()))
+                        .build())
+                .toList();
+
     }
 
     public ProgramaOutput createProgramaFacultad(ADMINISTRATIVO_FIND input, PROGRAMA_CREATE_WITH_RELATIONS request) {
-        try {
-            Integer idFacultad = resolveFacultadId(input);
-            return programaProcessor.createWithRelations(request, idFacultad);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating programa for facultad: " + e.getMessage(), e);
-        }
+        Integer idFacultad = resolveFacultadId(input);
+        return programaProcessor.createWithRelations(request, idFacultad);
+
     }
 
     public ProgramaOutput updateProgramaFacultad(ADMINISTRATIVO_FIND input, PROGRAMA_UPDATE_WITH_RELATIONS request) {
-        try {
-            Integer idFacultad = resolveFacultadId(input);
-            return programaProcessor.updateWithRelations(request, idFacultad);
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating programa for facultad: " + e.getMessage(), e);
-        }
+        Integer idFacultad = resolveFacultadId(input);
+        return programaProcessor.updateWithRelations(request, idFacultad);
+
     }
 
     public Integer findProgramaDirectorByUsuarioId(Integer idUsuario) {
-        try {
-            if (idUsuario == null) {
-                throw new RuntimeException("Id de usuario es requerido");
-            }
-
-            UsuarioDTO usuario = usuarioService.findById(idUsuario);
-            if (usuario == null || usuario.getIdPersona() == null) {
-                throw new RuntimeException("No existe un usuario asociado al id enviado");
-            }
-
-            Integer adminId = service.findIdByIdPersona(usuario.getIdPersona());
-            if (adminId == null) {
-                throw new RuntimeException("El usuario no pertenece a un administrativo");
-            }
-            Integer idPrograma = service.findIdProgramaByIdPersona(usuario.getIdPersona());
-            if (idPrograma == null) {
-                throw new RuntimeException("El administrativo no tiene cargo de programa asignado");
-            }
-            String cargoNombre = service.findCargoNombreByIdPersona(usuario.getIdPersona());
-            if (cargoNombre == null || !"DIRECTOR DE PROGRAMA".equalsIgnoreCase(cargoNombre.trim())) {
-                throw new RuntimeException("El usuario no pertenece a un director de programa");
-            }
-
-            return idPrograma;
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding programa director by usuario id: " + e.getMessage(), e);
+        if (idUsuario == null) {
+            throw new RuntimeException("Id de usuario es requerido");
         }
+
+        UsuarioDTO usuario = usuarioService.findById(idUsuario);
+        if (usuario == null || usuario.getIdPersona() == null) {
+            throw new RuntimeException("No existe un usuario asociado al id enviado");
+        }
+
+        Integer adminId = service.findIdByIdPersona(usuario.getIdPersona());
+        if (adminId == null) {
+            throw new RuntimeException("El usuario no pertenece a un administrativo");
+        }
+        Integer idPrograma = service.findIdProgramaByIdPersona(usuario.getIdPersona());
+        if (idPrograma == null) {
+            throw new RuntimeException("El administrativo no tiene cargo de programa asignado");
+        }
+        String cargoNombre = service.findCargoNombreByIdPersona(usuario.getIdPersona());
+        if (cargoNombre == null || !"DIRECTOR DE PROGRAMA".equalsIgnoreCase(cargoNombre.trim())) {
+            throw new RuntimeException("El usuario no pertenece a un director de programa");
+        }
+
+        return idPrograma;
+
     }
 
     private Integer resolveFacultadId(ADMINISTRATIVO_FIND input) {

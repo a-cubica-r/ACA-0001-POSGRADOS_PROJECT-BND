@@ -49,12 +49,9 @@ public class TipoplazoRestController {
 
     @PutMapping("/update")
     public ResponseEntity<TipoplazoOutput> update(@RequestBody TIPOPLAZO_UPDATE request) {
-        try {
-            TipoplazoOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        TipoplazoOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

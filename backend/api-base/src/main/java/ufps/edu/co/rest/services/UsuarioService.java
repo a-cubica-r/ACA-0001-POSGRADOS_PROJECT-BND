@@ -100,6 +100,16 @@ public class UsuarioService extends GenericService<UsuarioEntity, UsuarioDTO> {
     }
 
     @Transactional(readOnly = true)
+    public boolean existsByNombreusuario(String nombreusuario) {
+        return repository.existsByNombreusuario(nombreusuario);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByNombreusuarioAndIdNot(String nombreusuario, Integer id) {
+        return repository.existsByNombreusuarioAndIdNot(nombreusuario, id);
+    }
+
+    @Transactional(readOnly = true)
     public Integer findIdPersonaByNombreusuario(String nombreusuario) {
         return repository.findIdPersonaByNombreusuario(nombreusuario).orElse(null);
     }
@@ -115,7 +125,7 @@ public class UsuarioService extends GenericService<UsuarioEntity, UsuarioDTO> {
 
     public UsuarioDTO update(Integer id, UsuarioDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Usuario no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

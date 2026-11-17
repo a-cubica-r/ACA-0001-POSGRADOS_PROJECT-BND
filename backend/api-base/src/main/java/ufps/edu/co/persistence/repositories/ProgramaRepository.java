@@ -21,4 +21,8 @@ public interface ProgramaRepository extends JpaRepository<ProgramaEntity, Intege
 	List<ProgramaEntity> findByIdFacultad(@Param("idFacultad") Integer idFacultad);
 
 	Optional<ProgramaEntity> findFirstByCodigo(String codigo);
+
+	boolean existsByRegistrosnies(String registrosnies);
+
+	boolean existsByRegistrosniesAndIdNot(String registrosnies, Integer id);
 }

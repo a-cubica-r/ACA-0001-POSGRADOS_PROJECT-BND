@@ -70,12 +70,9 @@ public class DepartamentoRestController {
      */
     @PutMapping("/update")
     public ResponseEntity<DepartamentoOutput> update(@RequestBody DEPARTAMENTO_UPDATE request) {
-        try {
-            DepartamentoOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated); // 200 OK
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build(); // 404 Not found
-        }
+        DepartamentoOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated); // 200 OK
+
     }
 
     /**

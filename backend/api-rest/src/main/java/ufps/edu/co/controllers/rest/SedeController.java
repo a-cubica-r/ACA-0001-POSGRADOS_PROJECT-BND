@@ -50,22 +50,16 @@ public class SedeController {
 
     @PutMapping("/update")
     public ResponseEntity<SedeOutput> update(@RequestBody SEDE_UPDATE request) {
-        try {
-            SedeOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        SedeOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteById(@RequestBody SEDE_DELETE request) {
-        try {
-            processor.deleteById(request);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        processor.deleteById(request);
+        return ResponseEntity.noContent().build();
+
     }
 
 }

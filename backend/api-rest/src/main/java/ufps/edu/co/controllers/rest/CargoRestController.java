@@ -50,12 +50,9 @@ public class CargoRestController {
 
     @PutMapping("/update")
     public ResponseEntity<CargoOutput> update(@RequestBody CARGO_UPDATE request) {
-        try {
-            CargoOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        CargoOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

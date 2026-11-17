@@ -24,28 +24,14 @@ public class MunicipioCoreService implements
 
     @Override
     public MunicipioOutput create(MUNICIPIO_CREATE input) {
-        try {
-            MunicipioDTO dto = map.toDto(input);
-            try {
-                return map.toOutput(service.create(dto));
-            } catch (Exception e) {
-            }
-        } catch (Exception e) {
-        }
-        return null;
+        MunicipioDTO dto = map.toDto(input);
+        return map.toOutput(service.create(dto));
     }
 
     @Override
     public MunicipioOutput update(MUNICIPIO_UPDATE input) {
-        try {
-            MunicipioDTO dto = map.toDto(input);
-            try {
-                return map.toOutput(service.update(input.id(), dto));
-            } catch (Exception e) {
-            }
-        } catch (Exception e) {
-        }
-        return null;
+        MunicipioDTO dto = map.toDto(input);
+        return map.toOutput(service.update(input.id(), dto));
     }
 
     @Override
@@ -55,20 +41,12 @@ public class MunicipioCoreService implements
 
     @Override
     public MunicipioOutput findById(MUNICIPIO_FIND id) {
-        try {
-            return map.toOutput(service.findById(id.id()));
-        } catch (Exception e) {
-        }
-        return null;
+        return map.toOutput(service.findById(id.id()));
     }
 
     @Override
     public List<MunicipioOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-        }
-        return null;
+        return service.findAll().stream().map(map::toOutput).toList();
     }
 
     @Override

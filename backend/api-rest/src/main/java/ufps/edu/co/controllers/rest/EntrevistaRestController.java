@@ -49,12 +49,9 @@ public class EntrevistaRestController {
 
     @PutMapping("/update")
     public ResponseEntity<EntrevistaOutput> update(@RequestBody ENTREVISTA_UPDATE request) {
-        try {
-            EntrevistaOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        EntrevistaOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

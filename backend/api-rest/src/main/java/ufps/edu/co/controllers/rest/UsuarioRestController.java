@@ -49,12 +49,9 @@ public class UsuarioRestController {
 
     @PutMapping("/update")
     public ResponseEntity<UsuarioOutput> update(@RequestBody USUARIO_UPDATE request) {
-        try {
-            UsuarioOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        UsuarioOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

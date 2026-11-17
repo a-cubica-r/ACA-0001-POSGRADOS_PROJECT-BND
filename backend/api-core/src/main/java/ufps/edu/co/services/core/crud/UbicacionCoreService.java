@@ -24,42 +24,27 @@ public class UbicacionCoreService implements
 
     @Override
     public UbicacionOutput create(UBICACION_CREATE input) {
-        try {
-            UbicacionDTO dto = map.toDto(input);
-            try {
-                UbicacionDTO created = service.create(dto);
-                return map.toOutput(created);
-            } catch (Exception e) {
-                throw new RuntimeException("Error creating Ubicacion: " + e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Ubicacion: " + e.getMessage(), e);
-        }
+        UbicacionDTO dto = map.toDto(input);
+        UbicacionDTO created = service.create(dto);
+        return map.toOutput(created);
+
+
     }
 
     @Override
     public UbicacionOutput update(UBICACION_UPDATE input) {
-        try {
-            UbicacionDTO dto = map.toDto(input);
-            try {
-                UbicacionDTO updated = service.update(input.id(), dto);
-                return map.toOutput(updated);
-            } catch (Exception e) {
-                throw new RuntimeException("Error updating Ubicacion: " + e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Ubicacion: " + e.getMessage(), e);
-        }
+        UbicacionDTO dto = map.toDto(input);
+        UbicacionDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
+
+
     }
 
     @Override
     public UbicacionOutput findById(UBICACION_FIND input) {
-        try {
-            UbicacionDTO dto = service.findById(input.id());
-            return map.toOutput(dto);
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Ubicacion by ID: " + e.getMessage(), e);
-        }
+        UbicacionDTO dto = service.findById(input.id());
+        return map.toOutput(dto);
+
     }
 
     @Override
@@ -69,11 +54,8 @@ public class UbicacionCoreService implements
 
     @Override
     public List<UbicacionOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Ubicaciones: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override

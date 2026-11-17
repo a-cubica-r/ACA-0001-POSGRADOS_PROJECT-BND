@@ -23,24 +23,18 @@ public class CargoCoreService implements GlobalUseCase<CARGO_CREATE, CARGO_UPDAT
 
     @Override
     public CargoOutput create(CARGO_CREATE input) {
-        try {
-            CargoDTO dto = map.toDto(input);
-            CargoDTO created = service.create(dto);
-            return map.toOutput(created);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Cargo: " + e.getMessage(), e);
-        }
+        CargoDTO dto = map.toDto(input);
+        CargoDTO created = service.create(dto);
+        return map.toOutput(created);
+
     }
 
     @Override
     public CargoOutput update(CARGO_UPDATE input) {
-        try {
-            CargoDTO dto = map.toDto(input);
-            CargoDTO updated = service.update(input.id(), dto);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Cargo: " + e.getMessage(), e);
-        }
+        CargoDTO dto = map.toDto(input);
+        CargoDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
+
     }
 
     @Override
@@ -50,20 +44,14 @@ public class CargoCoreService implements GlobalUseCase<CARGO_CREATE, CARGO_UPDAT
 
     @Override
     public CargoOutput findById(CARGO_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Cargo: " + e.getMessage(), e);
-        }
+        return map.toOutput(service.findById(input.id()));
+
     }
 
     @Override
     public List<CargoOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Cargos: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override

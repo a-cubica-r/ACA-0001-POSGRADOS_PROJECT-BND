@@ -53,7 +53,7 @@ public class PaisService extends GenericService<PaisEntity, PaisDTO> {
 
     public PaisDTO update(Integer id, PaisDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pais no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Pais no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

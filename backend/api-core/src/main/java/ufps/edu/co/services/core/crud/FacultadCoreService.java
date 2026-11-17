@@ -29,43 +29,33 @@ public class FacultadCoreService implements GlobalUseCase<FACULTAD_CREATE, FACUL
 
     @Override
     public FacultadOutput create(FACULTAD_CREATE input) {
-        try {
-            FacultadDTO dto = map.toDto(input);
-            String nombre = normalizarNombre(dto.getNombre());
-            dto.setNombre(nombre);
-            validarNombreUnico(nombre, null);
+        FacultadDTO dto = map.toDto(input);
+        String nombre = normalizarNombre(dto.getNombre());
+        dto.setNombre(nombre);
+        validarNombreUnico(nombre, null);
 
-            FacultadDTO created = service.create(dto);
-            return map.toOutput(created);
-        } catch (DomainException | DataIntegrityViolationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Facultad: " + e.getMessage(), e);
-        }
+        FacultadDTO created = service.create(dto);
+        return map.toOutput(created);
+
     }
 
     @Override
     public FacultadOutput update(FACULTAD_UPDATE input) {
-        try {
-            if (input.id() == null) {
-                throw new DomainException(FacultadErrorCode.FACULTAD_PARAMETRO_REQUERIDO, "id");
-            }
-            if (service.findById(input.id()) == null) {
-                throw new DomainException(FacultadErrorCode.FACULTAD_NOT_FOUND, input.id());
-            }
-
-            FacultadDTO dto = map.toDto(input);
-            String nombre = normalizarNombre(dto.getNombre());
-            dto.setNombre(nombre);
-            validarNombreUnico(nombre, input.id());
-
-            FacultadDTO updated = service.update(input.id(), dto);
-            return map.toOutput(updated);
-        } catch (DomainException | DataIntegrityViolationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Facultad: " + e.getMessage(), e);
+        if (input.id() == null) {
+            throw new DomainException(FacultadErrorCode.FACULTAD_PARAMETRO_REQUERIDO, "id");
         }
+        if (service.findById(input.id()) == null) {
+            throw new DomainException(FacultadErrorCode.FACULTAD_NOT_FOUND, input.id());
+        }
+
+        FacultadDTO dto = map.toDto(input);
+        String nombre = normalizarNombre(dto.getNombre());
+        dto.setNombre(nombre);
+        validarNombreUnico(nombre, input.id());
+
+        FacultadDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
+
     }
 
     @Override
@@ -75,22 +65,14 @@ public class FacultadCoreService implements GlobalUseCase<FACULTAD_CREATE, FACUL
 
     @Override
     public FacultadOutput findById(FACULTAD_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (DomainException | DataIntegrityViolationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Facultad: " + e.getMessage(), e);
-        }
+        return map.toOutput(service.findById(input.id()));
+
     }
 
     @Override
     public List<FacultadOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Facultades: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override

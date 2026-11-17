@@ -47,7 +47,7 @@ public class GrupoetnicoService extends GenericService<GrupoetnicoEntity, Grupoe
 
     public GrupoetnicoDTO update(Integer id, GrupoetnicoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Grupoetnico no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Grupoetnico no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

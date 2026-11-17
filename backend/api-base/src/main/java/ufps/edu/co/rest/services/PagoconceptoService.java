@@ -47,7 +47,7 @@ public class PagoconceptoService extends GenericService<PagoconceptoEntity, Pago
 
     public PagoconceptoDTO update(Integer id, PagoconceptoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pagoconcepto no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Pagoconcepto no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

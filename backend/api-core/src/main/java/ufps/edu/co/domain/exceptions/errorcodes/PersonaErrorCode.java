@@ -7,6 +7,9 @@ import ufps.edu.co.domain.exceptions.BaseErrorCode;
 @Getter
 @AllArgsConstructor
 public enum PersonaErrorCode implements BaseErrorCode {
+    PERSONA_NOT_FOUND(
+            "PERSONA_NOT_FOUND",
+            "Persona no encontrada"),
     PERSONA_CORREO_DUPLICADO(
             "PERSONA_CORREO_DUPLICADO",
             "Ya existe una persona registrada con ese correo"),

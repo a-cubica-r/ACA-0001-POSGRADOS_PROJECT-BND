@@ -50,12 +50,9 @@ public class OtrosvaloresRestController {
 
     @PutMapping("/update")
     public ResponseEntity<OtrosvaloresOutput> update(@RequestBody OTROSVALORES_UPDATE request) {
-        try {
-            OtrosvaloresOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        OtrosvaloresOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

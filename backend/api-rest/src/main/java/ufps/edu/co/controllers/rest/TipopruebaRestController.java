@@ -49,12 +49,9 @@ public class TipopruebaRestController {
 
     @PutMapping("/update")
     public ResponseEntity<TipopruebaOutput> update(@RequestBody TIPOPRUEBA_UPDATE request) {
-        try {
-            TipopruebaOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        TipopruebaOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

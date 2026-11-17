@@ -49,12 +49,9 @@ public class PlazoRestController {
 
     @PutMapping("/update")
     public ResponseEntity<PlazoOutput> update(@RequestBody PLAZO_UPDATE request) {
-        try {
-            PlazoOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        PlazoOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

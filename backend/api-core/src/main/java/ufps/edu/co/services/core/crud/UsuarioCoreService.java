@@ -3,6 +3,8 @@ package ufps.edu.co.services.core.crud;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ufps.edu.co.domain.exceptions.DomainException;
+import ufps.edu.co.domain.exceptions.errorcodes.UsuarioErrorCode;
 import ufps.edu.co.maps.specific.UsuarioMap;
 import ufps.edu.co.records.input.entity.UsuarioInput.*;
 import ufps.edu.co.records.output.entity.UsuarioOutput;
@@ -22,24 +24,35 @@ public class UsuarioCoreService implements
 
     @Override
     public UsuarioOutput create(USUARIO_CREATE input) {
-        try {
-            UsuarioDTO dto = map.toDto(input);
-            UsuarioDTO created = service.create(dto);
-            return map.toOutput(created);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Usuario: " + e.getMessage(), e);
+        String nombreusuario = normalizar(input.nombreusuario());
+        if (nombreusuario == null || nombreusuario.isEmpty()) {
+            throw new DomainException(UsuarioErrorCode.USUARIO_PARAMETRO_REQUERIDO, "nombreusuario");
         }
+        if (service.existsByNombreusuario(nombreusuario)) {
+            throw new DomainException(UsuarioErrorCode.USUARIO_YA_EXISTE_CONFLICT, nombreusuario);
+        }
+        UsuarioDTO dto = map.toDto(input);
+        dto.setNombreusuario(nombreusuario);
+        UsuarioDTO created = service.create(dto);
+        return map.toOutput(created);
     }
 
     @Override
     public UsuarioOutput update(USUARIO_UPDATE input) {
-        try {
-            UsuarioDTO dto = map.toDto(input);
-            UsuarioDTO updated = service.update(input.id(), dto);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Usuario: " + e.getMessage(), e);
+        if (input.id() == null) {
+            throw new DomainException(UsuarioErrorCode.USUARIO_PARAMETRO_REQUERIDO, "id");
         }
+        String nombreusuario = normalizar(input.nombreusuario());
+        if (nombreusuario == null || nombreusuario.isEmpty()) {
+            throw new DomainException(UsuarioErrorCode.USUARIO_PARAMETRO_REQUERIDO, "nombreusuario");
+        }
+        if (service.existsByNombreusuarioAndIdNot(nombreusuario, input.id())) {
+            throw new DomainException(UsuarioErrorCode.USUARIO_YA_EXISTE_CONFLICT, nombreusuario);
+        }
+        UsuarioDTO dto = map.toDto(input);
+        dto.setNombreusuario(nombreusuario);
+        UsuarioDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
     }
 
     @Override
@@ -49,25 +62,21 @@ public class UsuarioCoreService implements
 
     @Override
     public UsuarioOutput findById(USUARIO_FIND input) {
-        try {
-            UsuarioDTO dto = service.findById(input.id());
-            return map.toOutput(dto);
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Usuario by ID: " + e.getMessage(), e);
-        }
+        UsuarioDTO dto = service.findById(input.id());
+        return map.toOutput(dto);
     }
 
     @Override
     public List<UsuarioOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Usuarios: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
     }
 
     @Override
     public void deleteById(USUARIO_DELETE input) {
         service.deleteById(input.id());
+    }
+
+    private String normalizar(String nombreusuario) {
+        return nombreusuario == null ? null : nombreusuario.trim();
     }
 }

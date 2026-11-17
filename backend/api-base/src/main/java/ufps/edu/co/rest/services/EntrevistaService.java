@@ -89,7 +89,7 @@ public class EntrevistaService extends GenericService<EntrevistaEntity, Entrevis
 
     public EntrevistaDTO update(Integer id, EntrevistaDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Entrevista no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Entrevista no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

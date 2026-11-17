@@ -50,12 +50,9 @@ public class EstadoRestController {
 
     @PutMapping("/update")
     public ResponseEntity<EstadoOutput> update(@RequestBody ESTADO_UPDATE request) {
-        try {
-            EstadoOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        EstadoOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

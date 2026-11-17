@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ufps.edu.co.domain.exceptions.DomainException;
+import ufps.edu.co.domain.exceptions.IntegridadSql;
 import ufps.edu.co.domain.exceptions.errorcodes.GeneroErrorCode;
 import ufps.edu.co.maps.specific.GeneroMap;
 import ufps.edu.co.records.input.entity.GeneroInput.*;
@@ -29,7 +31,10 @@ public class GeneroCoreService implements GlobalUseCase<GENERO_CREATE, GENERO_UP
         try {
             GeneroDTO dto = map.toDto(input);
             return map.toOutput(service.create(dto));
-        } catch (Exception e) {
+        } catch (DataIntegrityViolationException e) {
+            if (IntegridadSql.codigoError(e) != 1062) {
+                throw e;
+            }
             throw new DomainException(GeneroErrorCode.GENERO_DUPLICADO, input);
         }
     }
@@ -39,29 +44,21 @@ public class GeneroCoreService implements GlobalUseCase<GENERO_CREATE, GENERO_UP
         try {
             GeneroDTO dto = map.toDto(input);
             return map.toOutput(service.update(input.id(), dto));
-        } catch (Exception e) {
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(GeneroErrorCode.GENERO_NOT_FOUND, input.id());
         }
     }
 
     @Override
     public GeneroOutput findById(GENERO_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new DomainException(GeneroErrorCode.GENERO_NOT_FOUND, input.id());
-        }
+        return map.toOutput(service.findById(input.id()));
     }
 
     @Override
     public List<GeneroOutput> findAll() {
-        try {
-            return service.findAll().stream()
-                    .map(map::toOutput)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new DomainException(GeneroErrorCode.GENERO_NOT_FOUND, "findAll");
-        }
+        return service.findAll().stream()
+                .map(map::toOutput)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -118,7 +118,7 @@ public class CohorteService extends GenericService<CohorteEntity, CohorteDTO> {
 
     public CohorteDTO update(Integer id, CohorteDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cohorte no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Cohorte no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

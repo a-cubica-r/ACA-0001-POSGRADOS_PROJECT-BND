@@ -58,7 +58,7 @@ public class CriteriocohorteService extends GenericService<CriteriocohorteEntity
 
     public CriteriocohorteDTO update(Integer id, CriteriocohorteDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Criteriocohorte no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Criteriocohorte no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

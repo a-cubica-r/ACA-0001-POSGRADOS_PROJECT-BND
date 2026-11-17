@@ -24,11 +24,6 @@ public class AuthenticationService implements AuthenticationUseCase {
 
     @Override
     public LoginOutput login(LoginInput input) {
-        return login(input, null);
-    }
-
-    @Override
-    public LoginOutput login(LoginInput input, String requestedRole) {
         if (input == null) {
             throw new MissingCredentialsException();
         }
@@ -37,19 +32,17 @@ public class AuthenticationService implements AuthenticationUseCase {
             throw new MissingCredentialsException();
         }
 
-        String roleToValidate = (requestedRole != null && !requestedRole.isBlank())
-                ? requestedRole
-                : input.requestedRole();
+        String requestedRole = input.requestedRole();
+        if (requestedRole == null || requestedRole.isBlank()) {
+            throw new MissingCredentialsException("Requested role is required");
+        }
 
         AuthPrincipal principal = credentialService.authenticate(input.username(), input.password());
         if (principal == null) {
             throw new InvalidCredentialsException();
         }
 
-        if (roleToValidate != null && !roleToValidate.isBlank()) {
-            validateRole(principal, roleToValidate);
-        }
-
+        validateRole(principal, requestedRole);
         return tokenIssuer.issueTokens(principal);
     }
 

@@ -82,7 +82,7 @@ commitees valores reales.** Estas son solo las variables necesarias:
 | Aplicación | `APP_NAME`, `APP_PREFIX`, `APP_BASE_URL`, `APP_FRONTEND_LOGIN_URL`, `APP_FRONTEND_RESET_PASSWORD_URL` |
 | Seguridad básica | `SPRING_SECURITY_USER_NAME`, `SPRING_SECURITY_USER_PASSWORD` |
 | JWT | `JWT_SECRET` (obligatoria; sin valor por defecto seguro en producción) |
-| Contraseñas | `AUTH_ALLOW_PLAIN_TEXT_LEGACY` (opcional; por defecto `true` durante la transición a BCrypt) |
+| Contraseñas | `AUTH_ALLOW_PLAIN_TEXT_LEGACY` (el código actual fija `app.auth.password.allow-plain-text-legacy=false`; reactivarlo solo para migrar una base antigua) |
 | Swagger | `ENABLE_API_DOCS`, `ENABLE_SWAGGER_UI`, `SWAGGER_API_DOCS_PATH`, `SWAGGER_UI_PATH` |
 | Marcadores de módulo | `APP_MODULE_NAME_API_BASE`, `APP_MODULE_NAME_API_CORE`, `APP_MODULE_NAME_API_REST`, `APP_MODULE_NAME_API_AUTH`, `APP_MODULE_NAME_API_TEST`, `APP_MODULE_NAME_API_WOMPI`, `APP_MODULE_NAME_CHECK_BUILDER`, `APP_MODULE_NAME_APPLICATION`, `APP_MODULE_NAME_SECURITY`, `APP_MODULE_NAME_MAIL_MODULE`, `APP_MODULE_NAME_S3_STORAGE` |
 | S3 | `AWS_ACCESS_KEY`, `AWS_SECRET_KEY`, `AWS_REGION`, `AWS_BUCKET_NAME` |
@@ -93,10 +93,11 @@ commitees valores reales.** Estas son solo las variables necesarias:
 Los `APP_MODULE_NAME_*` son obligatorios: cada `*ModuleStartupCheck` falla al arrancar si falta el
 suyo. `WOMPI_SIMULATED=true` evita llamadas reales a Wompi en local.
 
-No hay perfiles `dev`/`prod` todavía (I-06). El único perfil de ejecución existente es
-`migrar-claves`, que ejecuta la migración de contraseñas a BCrypt:
+Hay dos perfiles de ejecución: `dev` (SQL visible y logs DEBUG) y `migrar-claves`, que ejecuta la
+migración de contraseñas a BCrypt:
 
 ```powershell
+.\mvnw.cmd -pl platform/application -am spring-boot:run "-Dspring-boot.run.profiles=dev"
 .\mvnw.cmd -pl platform/application -am spring-boot:run "-Dspring-boot.run.profiles=migrar-claves"
 ```
 
@@ -142,6 +143,12 @@ La aplicación arranca desde `platform/application` (único módulo ejecutable):
 
 ```powershell
 .\mvnw.cmd -pl platform/application -am spring-boot:run
+```
+
+Para desarrollo con SQL visible y logs DEBUG:
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE="dev"; .\mvnw.cmd -pl platform/application -am spring-boot:run
 ```
 
 Alternativa con el jar ya construido:

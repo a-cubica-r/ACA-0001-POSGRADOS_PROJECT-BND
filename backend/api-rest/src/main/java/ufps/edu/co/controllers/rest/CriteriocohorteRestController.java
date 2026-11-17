@@ -52,16 +52,13 @@ public class CriteriocohorteRestController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<CriteriocohorteOutput> findById(@PathVariable Integer id) {
-        try {
-            CriteriocohorteOutput criteriocohorteOutput = processor.findById(new CRITERIOCOHORTE_FIND(id));
-            if ( criteriocohorteOutput != null ) {
-                return ResponseEntity.ok(criteriocohorteOutput); // 200 OK
-            } else {
-                return ResponseEntity.notFound().build(); // 404 Not found
-            }
-        } catch (RuntimeException e) {
+        CriteriocohorteOutput criteriocohorteOutput = processor.findById(new CRITERIOCOHORTE_FIND(id));
+        if ( criteriocohorteOutput != null ) {
+            return ResponseEntity.ok(criteriocohorteOutput); // 200 OK
+        } else {
             return ResponseEntity.notFound().build(); // 404 Not found
         }
+
     }
 
     /**
@@ -85,13 +82,10 @@ public class CriteriocohorteRestController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<CriteriocohorteOutput> update(@PathVariable Integer id, @RequestBody CRITERIOCOHORTE_UPDATE request) {
-        try {
-            CRITERIOCOHORTE_UPDATE input = new CRITERIOCOHORTE_UPDATE(id, request.idCohorte(), request.idCriterio(), request.pesoSnapshot());
-            CriteriocohorteOutput updated = processor.update(input);
-            return ResponseEntity.ok(updated); // 200 OK
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build(); // 404 Not found
-        }
+        CRITERIOCOHORTE_UPDATE input = new CRITERIOCOHORTE_UPDATE(id, request.idCohorte(), request.idCriterio(), request.pesoSnapshot());
+        CriteriocohorteOutput updated = processor.update(input);
+        return ResponseEntity.ok(updated); // 200 OK
+
     }
 
     /**

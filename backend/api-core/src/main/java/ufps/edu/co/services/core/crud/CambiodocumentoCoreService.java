@@ -22,24 +22,18 @@ public class CambiodocumentoCoreService implements
 
     @Override
     public CambiodocumentoOutput create(CAMBIODOCUMENTO_CREATE input) {
-        try {
-            CambiodocumentoDTO dto = map.toDto(input);
-            CambiodocumentoDTO created = service.create(dto);
-            return map.toOutput(created);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Cambiodocumento: " + e.getMessage(), e);
-        }
+        CambiodocumentoDTO dto = map.toDto(input);
+        CambiodocumentoDTO created = service.create(dto);
+        return map.toOutput(created);
+
     }
 
     @Override
     public CambiodocumentoOutput update(CAMBIODOCUMENTO_UPDATE input) {
-        try {
-            CambiodocumentoDTO dto = map.toDto(input);
-            CambiodocumentoDTO updated = service.update(input.id(), dto);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Cambiodocumento: " + e.getMessage(), e);
-        }
+        CambiodocumentoDTO dto = map.toDto(input);
+        CambiodocumentoDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
+
     }
 
     @Override
@@ -49,21 +43,15 @@ public class CambiodocumentoCoreService implements
 
     @Override
     public CambiodocumentoOutput findById(CAMBIODOCUMENTO_FIND input) {
-        try {
-            CambiodocumentoDTO dto = service.findById(input.id());
-            return map.toOutput(dto);
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Cambiodocumento by ID: " + e.getMessage(), e);
-        }
+        CambiodocumentoDTO dto = service.findById(input.id());
+        return map.toOutput(dto);
+
     }
 
     @Override
     public List<CambiodocumentoOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Cambiodocumentos: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override

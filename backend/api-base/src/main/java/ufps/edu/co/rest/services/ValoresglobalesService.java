@@ -47,7 +47,7 @@ public class ValoresglobalesService extends GenericService<ValoresglobalesEntity
 
     public ValoresglobalesDTO update(Integer id, ValoresglobalesDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Valoresglobales no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Valoresglobales no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

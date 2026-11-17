@@ -51,12 +51,9 @@ public class MunicipioRestController {
 
     @PutMapping("/update")
     public ResponseEntity<MunicipioOutput> update(@RequestBody MUNICIPIO_UPDATE request) {
-        try {
-            MunicipioOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        MunicipioOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

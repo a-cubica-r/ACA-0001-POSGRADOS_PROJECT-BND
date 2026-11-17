@@ -7,6 +7,8 @@ import ufps.edu.co.domain.exceptions.BaseErrorCode;
 @Getter
 @AllArgsConstructor
 public enum UsuarioErrorCode implements BaseErrorCode {
+    USUARIO_NOT_FOUND("USUARIO_NOT_FOUND", "Usuario no encontrado"),
+    USUARIO_PARAMETRO_REQUERIDO("USUARIO_PARAMETRO_REQUERIDO", "Falta un parámetro requerido para procesar el usuario"),
     USUARIO_YA_EXISTE_CONFLICT("USUARIO_YA_EXISTE_CONFLICT", "El nombre de usuario ya existe");
 
     private final String code;

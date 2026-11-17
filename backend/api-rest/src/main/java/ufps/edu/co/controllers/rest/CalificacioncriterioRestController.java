@@ -68,12 +68,9 @@ public class CalificacioncriterioRestController {
 
     @PutMapping("/update")
     public ResponseEntity<CalificacioncriterioOutput> update(@RequestBody CALIFICACIONCRITERIO_UPDATE request) {
-        try {
-            CalificacioncriterioOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        CalificacioncriterioOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

@@ -74,43 +74,37 @@ public class EntrevistaCoreService implements
 
     @Override
     public EntrevistaOutput create(ENTREVISTA_CREATE input) {
-        try {
-            TipoentrevistaDTO tipoentrevista = tipoentrevistaService.findById(input.idTipoentrevista());
-            if (tipoentrevista == null) {
-                throw new RuntimeException("Modalidad no encontrada: " + input.idTipoentrevista());
-            }
-            EstadoDTO estadoInicial = estadoService.findByTipoAndEntidad(EstadoEntrevista.PENDIENTE_DE_CONFIRMACION);
-            if (estadoInicial == null) {
-                throw new RuntimeException(
-                        "Estado inicial 'PENDIENTE DE CONFIRMACION' no encontrado para entidad 'entrevista'");
-            }
-            UbicacionDTO ubicacion = ubicacionService.create(
-                    UbicacionDTO.builder().direccion(input.ubicacion()).zonaurbana(true).build());
-            EntrevistaDTO dto = map.toDto(input);
-            dto.setIdTipoentrevista(tipoentrevista.getId());
-            dto.setIdEstado(estadoInicial.getId());
-            dto.setIdUbicacion(ubicacion.getId());
-            EntrevistaDTO created = service.create(dto);
-            EntrevistaOutput output = map.toOutput(created);
-            notifyEntrevistaCreada(created, input.idAspirante());
-            return output;
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Entrevista: " + e.getMessage(), e);
+        TipoentrevistaDTO tipoentrevista = tipoentrevistaService.findById(input.idTipoentrevista());
+        if (tipoentrevista == null) {
+            throw new RuntimeException("Modalidad no encontrada: " + input.idTipoentrevista());
         }
+        EstadoDTO estadoInicial = estadoService.findByTipoAndEntidad(EstadoEntrevista.PENDIENTE_DE_CONFIRMACION);
+        if (estadoInicial == null) {
+            throw new RuntimeException(
+                    "Estado inicial 'PENDIENTE DE CONFIRMACION' no encontrado para entidad 'entrevista'");
+        }
+        UbicacionDTO ubicacion = ubicacionService.create(
+                UbicacionDTO.builder().direccion(input.ubicacion()).zonaurbana(true).build());
+        EntrevistaDTO dto = map.toDto(input);
+        dto.setIdTipoentrevista(tipoentrevista.getId());
+        dto.setIdEstado(estadoInicial.getId());
+        dto.setIdUbicacion(ubicacion.getId());
+        EntrevistaDTO created = service.create(dto);
+        EntrevistaOutput output = map.toOutput(created);
+        notifyEntrevistaCreada(created, input.idAspirante());
+        return output;
+
     }
 
     @Override
     public EntrevistaOutput update(ENTREVISTA_UPDATE input) {
-        try {
-            UbicacionDTO ubicacion = ubicacionService
-                    .create(UbicacionDTO.builder().direccion(input.ubicacion()).zonaurbana(true).build());
-            EntrevistaDTO dto = map.toDto(input);
-            dto.setIdUbicacion(ubicacion.getId());
-            EntrevistaDTO updated = service.update(input.id(), dto);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Entrevista: " + e.getMessage(), e);
-        }
+        UbicacionDTO ubicacion = ubicacionService
+                .create(UbicacionDTO.builder().direccion(input.ubicacion()).zonaurbana(true).build());
+        EntrevistaDTO dto = map.toDto(input);
+        dto.setIdUbicacion(ubicacion.getId());
+        EntrevistaDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
+
     }
 
     @Override
@@ -121,22 +115,16 @@ public class EntrevistaCoreService implements
     @Override
     @Transactional(readOnly = true)
     public EntrevistaOutput findById(ENTREVISTA_FIND input) {
-        try {
-            EntrevistaDTO dto = service.findById(input.id());
-            return map.toOutput(dto);
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Entrevista by ID: " + e.getMessage(), e);
-        }
+        EntrevistaDTO dto = service.findById(input.id());
+        return map.toOutput(dto);
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<EntrevistaOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Entrevistas: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override
@@ -147,18 +135,15 @@ public class EntrevistaCoreService implements
     }
 
     public EntrevistaOutput completeInterview(ENTREVISTA_FIND input) {
-        try {
-            EstadoDTO estadoCompletada = estadoService.findByTipoAndEntidad(EstadoEntrevista.COMPLETADA);
-            if (estadoCompletada == null) {
-                throw new RuntimeException("Estado 'COMPLETADA' no encontrado para entidad 'entrevista'");
-            }
-            EntrevistaDTO updated = service.changeEstado(input.id(), estadoCompletada.getId(),
-                    EstadoEntrevista.CONFIRMADA.getValor());
-            notifyActividadCompletada(updated);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error completing Entrevista: " + e.getMessage(), e);
+        EstadoDTO estadoCompletada = estadoService.findByTipoAndEntidad(EstadoEntrevista.COMPLETADA);
+        if (estadoCompletada == null) {
+            throw new RuntimeException("Estado 'COMPLETADA' no encontrado para entidad 'entrevista'");
         }
+        EntrevistaDTO updated = service.changeEstado(input.id(), estadoCompletada.getId(),
+                EstadoEntrevista.CONFIRMADA.getValor());
+        notifyActividadCompletada(updated);
+        return map.toOutput(updated);
+
     }
 
     public EntrevistaOutput cancelInterview(ENTREVISTA_FIND input) {
@@ -166,116 +151,95 @@ public class EntrevistaCoreService implements
     }
 
     public EntrevistaOutput cancelInterview(Integer id, String motivocambio, String canceladoPor) {
-        try {
-            EstadoDTO estadoCancelada = estadoService.findByTipoAndEntidad(EstadoEntrevista.CANCELADA);
-            if (estadoCancelada == null) {
-                throw new RuntimeException("Estado 'CANCELADA' no encontrado para entidad 'entrevista'");
-            }
-            EntrevistaDTO updated = service.changeEstadoWithMotivo(id, estadoCancelada.getId(),
-                    EstadoEntrevista.CONFIRMADA.getValor(),
-                    motivocambio);
-            notifyCancelacion(updated, canceladoPor, motivocambio);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error cancelling Entrevista: " + e.getMessage(), e);
+        EstadoDTO estadoCancelada = estadoService.findByTipoAndEntidad(EstadoEntrevista.CANCELADA);
+        if (estadoCancelada == null) {
+            throw new RuntimeException("Estado 'CANCELADA' no encontrado para entidad 'entrevista'");
         }
+        EntrevistaDTO updated = service.changeEstadoWithMotivo(id, estadoCancelada.getId(),
+                EstadoEntrevista.CONFIRMADA.getValor(),
+                motivocambio);
+        notifyCancelacion(updated, canceladoPor, motivocambio);
+        return map.toOutput(updated);
+
     }
 
     public EntrevistaOutput confirmInterview(ENTREVISTA_FIND input) {
-        try {
-            EstadoDTO estadoConfirmada = estadoService.findByTipoAndEntidad(EstadoEntrevista.CONFIRMADA);
-            if (estadoConfirmada == null) {
-                throw new RuntimeException("Estado 'CONFIRMADA' no encontrado para entidad 'entrevista'");
-            }
-            EntrevistaDTO updated = service.changeEstado(input.id(), estadoConfirmada.getId(),
-                    EstadoEntrevista.PENDIENTE_DE_CONFIRMACION.getValor());
-            notifyConfirmacionAlDirector(updated);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error confirming Entrevista: " + e.getMessage(), e);
+        EstadoDTO estadoConfirmada = estadoService.findByTipoAndEntidad(EstadoEntrevista.CONFIRMADA);
+        if (estadoConfirmada == null) {
+            throw new RuntimeException("Estado 'CONFIRMADA' no encontrado para entidad 'entrevista'");
         }
+        EntrevistaDTO updated = service.changeEstado(input.id(), estadoConfirmada.getId(),
+                EstadoEntrevista.PENDIENTE_DE_CONFIRMACION.getValor());
+        notifyConfirmacionAlDirector(updated);
+        return map.toOutput(updated);
+
     }
 
     public EntrevistaOutput requestChangeInterview(Integer id, String motivocambio) {
-        try {
-            EntrevistaDTO updated = service.requestChange(id, motivocambio);
-            notifyCambioSolicitadoAlDirector(updated, motivocambio);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error requesting change for Entrevista: " + e.getMessage(), e);
-        }
+        EntrevistaDTO updated = service.requestChange(id, motivocambio);
+        notifyCambioSolicitadoAlDirector(updated, motivocambio);
+        return map.toOutput(updated);
+
     }
 
     public EntrevistaOutput reschedule(ENTREVISTA_RESCHEDULE input) {
-        try {
-            TipoentrevistaDTO tipoentrevista = tipoentrevistaService.findById(input.idTipoentrevista());
-            if (tipoentrevista == null) {
-                throw new RuntimeException("Modalidad no encontrada: " + input.idTipoentrevista());
-            }
-            UbicacionDTO ubicacion = ubicacionService.create(
-                    UbicacionDTO.builder().direccion(input.ubicacion()).zonaurbana(true).build());
-            EntrevistaDTO updated = service.reschedule(
-                    input.id(), input.fecha(), input.tiempo(),
-                    tipoentrevista.getId(), ubicacion.getId(), input.motivocambio());
-            AspiranteDTO aspirante = aspiranteService.findById(updated.getIdAspirante());
-            sesService.enviarCorreo(aspirante.getPersona().getCorreo(), EmailTemplates.ASUNTO_REAGENDAR_ENTREVISTA,
-                    EmailTemplates.cuerpoReagendarEntrevista(aspirante.getPersona().getNombres(),
-                            input.fecha(), input.tiempo(), tipoentrevista.getTipo(), input.ubicacion()));
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error rescheduling Entrevista: " + e.getMessage(), e);
+        TipoentrevistaDTO tipoentrevista = tipoentrevistaService.findById(input.idTipoentrevista());
+        if (tipoentrevista == null) {
+            throw new RuntimeException("Modalidad no encontrada: " + input.idTipoentrevista());
         }
+        UbicacionDTO ubicacion = ubicacionService.create(
+                UbicacionDTO.builder().direccion(input.ubicacion()).zonaurbana(true).build());
+        EntrevistaDTO updated = service.reschedule(
+                input.id(), input.fecha(), input.tiempo(),
+                tipoentrevista.getId(), ubicacion.getId(), input.motivocambio());
+        AspiranteDTO aspirante = aspiranteService.findById(updated.getIdAspirante());
+        sesService.enviarCorreo(aspirante.getPersona().getCorreo(), EmailTemplates.ASUNTO_REAGENDAR_ENTREVISTA,
+                EmailTemplates.cuerpoReagendarEntrevista(aspirante.getPersona().getNombres(),
+                        input.fecha(), input.tiempo(), tipoentrevista.getTipo(), input.ubicacion()));
+        return map.toOutput(updated);
+
     }
 
     public List<EntrevistaResumenOutput> findByIdAspirante(ASPIRANTE_FIND input) {
-        try {
-            return service.findByIdAspirante(input.id()).stream().map(dto -> {
-                String direccion = dto.getUbicacion() != null ? dto.getUbicacion().getDireccion() : null;
-                String estadoNombre = dto.getEstado() != null ? dto.getEstado().getTipo() : null;
-                String tipoNombre = dto.getTipoentrevista() != null ? dto.getTipoentrevista().getTipo() : null;
-                return EntrevistaResumenOutput.builder()
-                        .id(dto.getId())
-                        .fecha(dto.getFecha())
-                        .tiempo(dto.getTiempo())
-                        .idEstado(dto.getIdEstado())
-                        .estado(estadoNombre)
-                        .idTipoentrevista(dto.getIdTipoentrevista())
-                        .tipoentrevista(tipoNombre)
-                        .ubicacion(direccion)
-                        .motivocambio(dto.getMotivocambio())
-                        .build();
-            }).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Entrevistas by Aspirante ID: " + e.getMessage(), e);
-        }
+        return service.findByIdAspirante(input.id()).stream().map(dto -> {
+            String direccion = dto.getUbicacion() != null ? dto.getUbicacion().getDireccion() : null;
+            String estadoNombre = dto.getEstado() != null ? dto.getEstado().getTipo() : null;
+            String tipoNombre = dto.getTipoentrevista() != null ? dto.getTipoentrevista().getTipo() : null;
+            return EntrevistaResumenOutput.builder()
+                    .id(dto.getId())
+                    .fecha(dto.getFecha())
+                    .tiempo(dto.getTiempo())
+                    .idEstado(dto.getIdEstado())
+                    .estado(estadoNombre)
+                    .idTipoentrevista(dto.getIdTipoentrevista())
+                    .tipoentrevista(tipoNombre)
+                    .ubicacion(direccion)
+                    .motivocambio(dto.getMotivocambio())
+                    .build();
+        }).toList();
+
     }
 
     public EntrevistaOutput editEntrevista(Integer idEntrevista, ENTREVISTA_REAGENDAR_REQUEST request) {
-        try {
-            TipoentrevistaDTO tipoentrevista = tipoentrevistaService.findById(request.idTipoentrevista());
-            if (tipoentrevista == null) {
-                throw new RuntimeException("Modalidad no encontrada: " + request.idTipoentrevista());
-            }
-            UbicacionDTO ubicacion = ubicacionService.create(
-                    UbicacionDTO.builder().direccion(request.ubicacion()).zonaurbana(true).build());
-            EntrevistaDTO updated = service.edit(idEntrevista, request.fecha(), request.tiempo(),
-                    tipoentrevista.getId(), ubicacion.getId());
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error editing Entrevista: " + e.getMessage(), e);
+        TipoentrevistaDTO tipoentrevista = tipoentrevistaService.findById(request.idTipoentrevista());
+        if (tipoentrevista == null) {
+            throw new RuntimeException("Modalidad no encontrada: " + request.idTipoentrevista());
         }
+        UbicacionDTO ubicacion = ubicacionService.create(
+                UbicacionDTO.builder().direccion(request.ubicacion()).zonaurbana(true).build());
+        EntrevistaDTO updated = service.edit(idEntrevista, request.fecha(), request.tiempo(),
+                tipoentrevista.getId(), ubicacion.getId());
+        return map.toOutput(updated);
+
     }
 
     public EntrevistaOutput rateInterview(ENTREVISTA_RATE input) {
-        try {
-            // TODO: Actualmente el método rateInterview no asigna la calificación a la
-            // entrevista. Habría que modificar el servicio para que lo haga, y luego este
-            // método funcionaría correctamente.
-            EntrevistaDTO updated = service.rateInterview(input.id(), input.calificacion());
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error rating Entrevista: " + e.getMessage(), e);
-        }
+        // TODO: Actualmente el método rateInterview no asigna la calificación a la
+        // entrevista. Habría que modificar el servicio para que lo haga, y luego este
+        // método funcionaría correctamente.
+        EntrevistaDTO updated = service.rateInterview(input.id(), input.calificacion());
+        return map.toOutput(updated);
+
     }
 
     private void notifyEntrevistaCreada(EntrevistaDTO entrevista, Integer idAspirante) {

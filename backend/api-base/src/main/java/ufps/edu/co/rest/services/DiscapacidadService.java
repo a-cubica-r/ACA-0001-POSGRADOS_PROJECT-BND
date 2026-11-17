@@ -47,7 +47,7 @@ public class DiscapacidadService extends GenericService<DiscapacidadEntity, Disc
 
     public DiscapacidadDTO update(Integer id, DiscapacidadDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Discapacidad no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Discapacidad no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

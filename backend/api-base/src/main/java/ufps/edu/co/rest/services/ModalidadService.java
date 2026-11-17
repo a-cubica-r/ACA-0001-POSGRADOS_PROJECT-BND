@@ -62,7 +62,7 @@ public class ModalidadService extends GenericService<ModalidadEntity, ModalidadD
 
     public ModalidadDTO update(Integer id, ModalidadDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Modalidad no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Modalidad no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

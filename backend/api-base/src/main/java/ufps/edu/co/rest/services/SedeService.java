@@ -70,7 +70,7 @@ public class SedeService extends GenericService<SedeEntity, SedeDTO> {
 
     public SedeDTO update(Integer id, SedeDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sede no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Sede no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

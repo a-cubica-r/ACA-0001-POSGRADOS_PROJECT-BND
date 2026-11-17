@@ -50,12 +50,9 @@ public class ModalidadRestController {
 
     @PutMapping("/update")
     public ResponseEntity<ModalidadOutput> update(@RequestBody MODALIDAD_UPDATE request) {
-        try {
-            ModalidadOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        ModalidadOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

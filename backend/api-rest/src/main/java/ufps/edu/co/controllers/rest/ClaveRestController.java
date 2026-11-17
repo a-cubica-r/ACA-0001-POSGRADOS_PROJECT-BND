@@ -56,12 +56,9 @@ public class ClaveRestController {
     @PutMapping("/update")
     public ResponseEntity<ClaveOutput> update(@RequestBody CLAVE_UPDATE request) {
         CLAVE_UPDATE cifrada = new CLAVE_UPDATE(request.id(), cifrar(request.valor()));
-        try {
-            ClaveOutput updated = processor.update(cifrada);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        ClaveOutput updated = processor.update(cifrada);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

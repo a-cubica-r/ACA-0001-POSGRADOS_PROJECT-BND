@@ -48,7 +48,7 @@ public class PagoService extends GenericService<PagoEntity, PagoDTO> {
 
     public PagoDTO update(Integer id, PagoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pago no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Pago no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

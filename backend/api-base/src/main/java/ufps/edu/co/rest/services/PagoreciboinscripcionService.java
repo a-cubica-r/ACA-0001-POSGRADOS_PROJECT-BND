@@ -82,7 +82,7 @@ public class PagoreciboinscripcionService
 
     public PagoreciboinscripcionDTO update(Integer id, PagoreciboinscripcionDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pagoreciboinscripcion no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Pagoreciboinscripcion no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

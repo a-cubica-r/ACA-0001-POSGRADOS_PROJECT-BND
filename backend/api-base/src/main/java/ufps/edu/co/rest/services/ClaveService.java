@@ -47,7 +47,7 @@ public class ClaveService extends GenericService<ClaveEntity, ClaveDTO> {
 
     public ClaveDTO update(Integer id, ClaveDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Clave no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Clave no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

@@ -38,7 +38,7 @@ public class TipopruebaService extends GenericService<TipopruebaEntity, Tipoprue
 
     public TipopruebaDTO update(Integer id, TipopruebaDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tipoprueba no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Tipoprueba no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

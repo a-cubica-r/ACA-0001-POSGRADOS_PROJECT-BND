@@ -49,7 +49,7 @@ public class PersonaService extends GenericService<PersonaEntity, PersonaDTO> {
 
     public PersonaDTO update(Integer id, PersonaDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Persona no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Persona no encontrado con id: " + id));
         dto.setId(id);
         dto.setCorreo(CorreoNormalizer.normalizar(dto.getCorreo()));
         return entityToDto(repository.save(dtoToEntity(dto)));
@@ -73,7 +73,7 @@ public class PersonaService extends GenericService<PersonaEntity, PersonaDTO> {
      */
     public void updateCorreo(Integer id, String correo) {
         PersonaEntity entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Persona no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Persona no encontrado con id: " + id));
         entity.setCorreo(CorreoNormalizer.normalizar(correo));
         repository.save(entity);
     }

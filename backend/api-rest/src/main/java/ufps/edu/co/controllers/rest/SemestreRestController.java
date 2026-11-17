@@ -49,12 +49,9 @@ public class SemestreRestController {
 
     @PutMapping("/update")
     public ResponseEntity<SemestreOutput> update(@RequestBody SEMESTRE_UPDATE request) {
-        try {
-            SemestreOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        SemestreOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

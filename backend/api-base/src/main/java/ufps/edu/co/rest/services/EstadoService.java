@@ -48,7 +48,7 @@ public class EstadoService extends GenericService<EstadoEntity, EstadoDTO> {
 
     public EstadoDTO update(Integer id, EstadoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estado no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Estado no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

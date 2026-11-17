@@ -47,7 +47,7 @@ public class RolService extends GenericService<RolEntity, RolDTO> {
 
     public RolDTO update(Integer id, RolDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Rol no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

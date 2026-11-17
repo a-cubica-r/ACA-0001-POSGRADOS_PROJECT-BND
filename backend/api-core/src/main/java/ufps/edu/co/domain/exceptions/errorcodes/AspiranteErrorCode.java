@@ -31,6 +31,12 @@ public enum AspiranteErrorCode implements BaseErrorCode {
     INSCRIPCION_CORREO_NO_ENVIADO_CONFLICT(
         "INSCRIPCION_CORREO_NO_ENVIADO_CONFLICT",
         "No se pudo enviar el correo de confirmación de inscripción"),
+    INSCRIPCION_COHORTE_REQUERIDA(
+        "INSCRIPCION_COHORTE_REQUERIDA",
+        "Se debe seleccionar una cohorte para la inscripción"),
+    INSCRIPCION_COHORTE_NO_ABIERTA_CONFLICT(
+        "INSCRIPCION_COHORTE_NO_ABIERTA_CONFLICT",
+        "La cohorte seleccionada no está abierta"),
     ESTADO_TRANSICION_INVALIDA_CONFLICT(
         "ESTADO_TRANSICION_INVALIDA_CONFLICT",
         "El aspirante no se encuentra en el estado requerido para esta operación"),

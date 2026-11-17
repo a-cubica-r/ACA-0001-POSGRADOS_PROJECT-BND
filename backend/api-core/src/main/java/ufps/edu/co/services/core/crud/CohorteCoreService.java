@@ -32,6 +32,7 @@ import ufps.edu.co.records.input.entity.CohorteInput.*;
 import ufps.edu.co.records.output.entity.CohorteDependenciasOutput;
 import ufps.edu.co.records.output.entity.CohorteOutput;
 import ufps.edu.co.rest.dto.CohorteDTO;
+import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import ufps.edu.co.rest.services.AdmitidoService;
 import ufps.edu.co.rest.services.AspiranteService;
 import ufps.edu.co.rest.services.CohorteService;
@@ -82,7 +83,10 @@ public class CohorteCoreService implements GlobalUseCase<COHORTE_CREATE, COHORTE
         try {
             CohorteDTO dto = map.toDto(input);
             return map.toOutput(service.create(dto));
-        } catch (Exception e) {
+        } catch (DataIntegrityViolationException e) {
+            if (IntegridadSql.codigoError(e) != 1062) {
+                throw e;
+            }
             throw new DomainException(CohorteErrorCode.COHORTE_DUPLICADO, input);
         }
     }
@@ -92,29 +96,21 @@ public class CohorteCoreService implements GlobalUseCase<COHORTE_CREATE, COHORTE
         try {
             CohorteDTO dto = map.toDto(input);
             return map.toOutput(service.update(input.id(), dto));
-        } catch (Exception e) {
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(CohorteErrorCode.COHORTE_NOT_FOUND, input.id());
         }
     }
 
     @Override
     public CohorteOutput findById(COHORTE_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new DomainException(CohorteErrorCode.COHORTE_NOT_FOUND, input.id());
-        }
+        return map.toOutput(service.findById(input.id()));
     }
 
     @Override
     public List<CohorteOutput> findAll() {
-        try {
-            return service.findAll().stream()
-                    .map(map::toOutput)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new DomainException(CohorteErrorCode.COHORTE_NOT_FOUND, "findAll");
-        }
+        return service.findAll().stream()
+                .map(map::toOutput)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -243,29 +239,17 @@ public class CohorteCoreService implements GlobalUseCase<COHORTE_CREATE, COHORTE
     }
 
     public long countAspirantesEnProcesoEnCohorteAbierta(Integer cohorteId) {
-        try {
-            return service.countAspirantesEnProcesoEnCohorteAbierta(cohorteId);
-        } catch (Exception e) {
-            throw new DomainException(CohorteErrorCode.COHORTE_NOT_FOUND, cohorteId);
-        }
+        return service.countAspirantesEnProcesoEnCohorteAbierta(cohorteId);
     }
 
     public List<CohorteOutput> findActivasByIdPrograma(Integer idPrograma) {
-        try {
-            return service.findActivasByIdPrograma(idPrograma).stream()
-                    .map(map::toOutput)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new DomainException(CohorteErrorCode.COHORTE_NOT_FOUND, idPrograma);
-        }
+        return service.findActivasByIdPrograma(idPrograma).stream()
+                .map(map::toOutput)
+                .collect(Collectors.toList());
     }
 
     public long countAspirantesEnProcesoByCohorteId(Integer cohorteId) {
-        try {
-            return service.countAspirantesEnProcesoByCohorteId(cohorteId);
-        } catch (Exception e) {
-            throw new DomainException(CohorteErrorCode.COHORTE_NOT_FOUND, cohorteId);
-        }
+        return service.countAspirantesEnProcesoByCohorteId(cohorteId);
     }
 
     /**

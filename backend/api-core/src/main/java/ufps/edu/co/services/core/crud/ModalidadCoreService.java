@@ -23,51 +23,33 @@ public class ModalidadCoreService implements GlobalUseCase<MODALIDAD_CREATE, MOD
 
     @Override
     public ModalidadOutput create(MODALIDAD_CREATE input) {
-        try {
-            ModalidadDTO dto = map.toDtoCreate(input);
-            try {
-                ModalidadDTO created = service.create(dto);
-                return map.toOutput(created);
-            } catch (Exception e) {
-                throw new RuntimeException("Error creating Modalidad: " + e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Modalidad: " + e.getMessage(), e);
-        }
+        ModalidadDTO dto = map.toDtoCreate(input);
+        ModalidadDTO created = service.create(dto);
+        return map.toOutput(created);
+
+
     }
 
     @Override
     public ModalidadOutput update(MODALIDAD_UPDATE input) {
-        try {
-            ModalidadDTO dto = map.toDtoUpdate(input);
-            try {
-                ModalidadDTO updated = service.update(input.id(), dto);
-                return map.toOutput(updated);
-            } catch (Exception e) {
-                throw new RuntimeException("Error updating Modalidad: " + e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Modalidad: " + e.getMessage(), e);
-        }
+        ModalidadDTO dto = map.toDtoUpdate(input);
+        ModalidadDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
+
+
     }
 
     @Override
     public ModalidadOutput findById(MODALIDAD_FIND input) {
-        try {
-            ModalidadDTO dto = service.findById(input.id());
-            return map.toOutput(dto);
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Modalidad by ID: " + e.getMessage(), e);
-        }
+        ModalidadDTO dto = service.findById(input.id());
+        return map.toOutput(dto);
+
     }
 
     @Override
     public List<ModalidadOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Modalidades: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).collect(Collectors.toList());
+
     }
 
     @Override

@@ -64,7 +64,7 @@ public class OtrosvaloresService extends GenericService<OtrosvaloresEntity, Otro
 
     public OtrosvaloresDTO update(Integer id, OtrosvaloresDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Otrosvalores no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Otrosvalores no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

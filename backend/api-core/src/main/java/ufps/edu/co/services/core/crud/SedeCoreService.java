@@ -3,8 +3,10 @@ package ufps.edu.co.services.core.crud;
 import ufps.edu.co.rest.exceptions.RegistroNoEncontradoException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ufps.edu.co.domain.exceptions.DomainException;
+import ufps.edu.co.domain.exceptions.IntegridadSql;
 import ufps.edu.co.domain.exceptions.errorcodes.SedeErrorCode;
 import ufps.edu.co.maps.specific.SedeMap;
 import ufps.edu.co.records.input.entity.SedeInput.*;
@@ -33,18 +35,24 @@ public class SedeCoreService
         try {
             SedeDTO dto = map.toDto(input);
             return map.toOutput(service.create(dto));
-        } catch (Exception e) {
+        } catch (DataIntegrityViolationException e) {
+            if (IntegridadSql.codigoError(e) != 1062) {
+                throw e;
+            }
             throw new DomainException(SedeErrorCode.SEDE_DUPLICADA, input);
         }
     }
 
     public SedeOutput createWithUbicacion(SEDE_CREATE_WITH_UBICACION input) {
+        UBICACION_CREATE ubiCreate = new UBICACION_CREATE(input.ubicacion());
+        UbicacionOutput ubicacionOutput = ubicacionProcessor.create(ubiCreate);
+        SedeDTO dto = map.toDto(new SEDE_CREATE(input.nombre(), ubicacionOutput.id()));
         try {
-            UBICACION_CREATE ubiCreate = new UBICACION_CREATE(input.ubicacion());
-            UbicacionOutput ubicacionOutput = ubicacionProcessor.create(ubiCreate);
-            SedeDTO dto = map.toDto(new SEDE_CREATE(input.nombre(), ubicacionOutput.id()));
             return map.toOutput(service.create(dto));
-        } catch (Exception e) {
+        } catch (DataIntegrityViolationException e) {
+            if (IntegridadSql.codigoError(e) != 1062) {
+                throw e;
+            }
             throw new DomainException(SedeErrorCode.SEDE_DUPLICADA, input);
         }
     }
@@ -54,29 +62,21 @@ public class SedeCoreService
         try {
             SedeDTO dto = map.toDto(input);
             return map.toOutput(service.update(input.id(), dto));
-        } catch (Exception e) {
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(SedeErrorCode.SEDE_NOT_FOUND, input.id());
         }
     }
 
     @Override
     public SedeOutput findById(SEDE_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new DomainException(SedeErrorCode.SEDE_NOT_FOUND, input.id());
-        }
+        return map.toOutput(service.findById(input.id()));
     }
 
     @Override
     public List<SedeOutput> findAll() {
-        try {
-            return service.findAll().stream()
-                    .map(map::toOutput)
-                    .toList();
-        } catch (Exception e) {
-            throw new DomainException(SedeErrorCode.SEDE_NOT_FOUND, "findAll");
-        }
+        return service.findAll().stream()
+                .map(map::toOutput)
+                .toList();
     }
 
     @Override

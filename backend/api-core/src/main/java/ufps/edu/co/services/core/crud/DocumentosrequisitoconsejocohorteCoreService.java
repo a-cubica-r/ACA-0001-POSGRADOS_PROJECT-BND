@@ -22,22 +22,16 @@ public class DocumentosrequisitoconsejocohorteCoreService implements
 
     @Override
     public DocumentosrequisitoconsejocohorteOutput create(DOCUMENTOSREQUISITOCONSEJOCOHORTE_CREATE input) {
-        try {
-            DocumentosrequisitoconsejocohorteDTO dto = map.toDto(input);
-            return map.toOutput(service.create(dto));
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Documentosrequisitoconsejocohorte: " + e.getMessage(), e);
-        }
+        DocumentosrequisitoconsejocohorteDTO dto = map.toDto(input);
+        return map.toOutput(service.create(dto));
+
     }
 
     @Override
     public DocumentosrequisitoconsejocohorteOutput update(DOCUMENTOSREQUISITOCONSEJOCOHORTE_UPDATE input) {
-        try {
-            DocumentosrequisitoconsejocohorteDTO dto = map.toDto(input);
-            return map.toOutput(service.update(input.id(), dto));
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Documentosrequisitoconsejocohorte: " + e.getMessage(), e);
-        }
+        DocumentosrequisitoconsejocohorteDTO dto = map.toDto(input);
+        return map.toOutput(service.update(input.id(), dto));
+
     }
 
     @Override
@@ -47,20 +41,14 @@ public class DocumentosrequisitoconsejocohorteCoreService implements
 
     @Override
     public DocumentosrequisitoconsejocohorteOutput findById(DOCUMENTOSREQUISITOCONSEJOCOHORTE_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Documentosrequisitoconsejocohorte by ID: " + e.getMessage(), e);
-        }
+        return map.toOutput(service.findById(input.id()));
+
     }
 
     @Override
     public List<DocumentosrequisitoconsejocohorteOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Documentosrequisitoconsejocohorte: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override
@@ -69,10 +57,7 @@ public class DocumentosrequisitoconsejocohorteCoreService implements
     }
 
     public List<DocumentosrequisitoconsejocohorteOutput> findByIdCohorte(Integer idCohorte) {
-        try {
-            return service.findByIdCohorte(idCohorte).stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Documentosrequisitoconsejocohorte by cohorte: " + e.getMessage(), e);
-        }
+        return service.findByIdCohorte(idCohorte).stream().map(map::toOutput).toList();
+
     }
 }

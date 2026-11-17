@@ -51,12 +51,9 @@ public class AdministrativoRestController {
 
     @PutMapping("/update")
     public ResponseEntity<AdministrativoOutput> update(@Valid @RequestBody ADMINISTRATIVO_UPDATE request) {
-        try {
-            AdministrativoOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        AdministrativoOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

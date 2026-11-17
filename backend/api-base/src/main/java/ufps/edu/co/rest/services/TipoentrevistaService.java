@@ -59,7 +59,7 @@ public class TipoentrevistaService extends GenericService<TipoentrevistaEntity, 
 
     public TipoentrevistaDTO update(Integer id, TipoentrevistaDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tipoentrevista no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Tipoentrevista no encontrado con id: " + id));
         dto.setId(id);
         return toDto(repository.save(dtoToEntity(dto)));
     }

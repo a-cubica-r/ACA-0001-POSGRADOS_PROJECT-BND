@@ -64,7 +64,7 @@ public class PlazoService extends GenericService<PlazoEntity, PlazoDTO> {
 
     public PlazoDTO update(Integer id, PlazoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Plazo no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Plazo no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

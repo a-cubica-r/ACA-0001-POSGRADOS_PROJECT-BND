@@ -25,58 +25,37 @@ public class DepartamentoCoreService
 
     @Override
     public DepartamentoOutput create(DEPARTAMENTO_CREATE input) {
-        try {
-            DepartamentoDTO dto = map.toDto(input);
-            try {
-                DepartamentoOutput output = map.toOutput(service.create(dto));
-                return output;
-            } catch (Exception e) {
-                throw new RuntimeException("Error creating Departamento: " + e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Departamento: " + e.getMessage(), e);
-        }
+        DepartamentoDTO dto = map.toDto(input);
+        DepartamentoOutput output = map.toOutput(service.create(dto));
+        return output;
+
+
     }
 
     @Override
     public DepartamentoOutput update(DEPARTAMENTO_UPDATE input) {
-        try {
-            DepartamentoDTO dto = map.toDto(input);
-            try {
-                DepartamentoOutput output = map.toOutput(service.update(dto.getId(), dto));
-                return output;
-            } catch (Exception e) {
-                throw new RuntimeException("Error updating Departamento: " + e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Departamento: " + e.getMessage(), e);
-        }
+        DepartamentoDTO dto = map.toDto(input);
+        DepartamentoOutput output = map.toOutput(service.update(dto.getId(), dto));
+        return output;
+
+
     }
 
     @Override
     public DepartamentoOutput findById(DEPARTAMENTO_FIND input) {
-        try {
-            DepartamentoDTO dto = map.toDto(input);
-            try {
-                DepartamentoOutput output = map.toOutput(service.findById(dto.getId()));
-                return output;
-            } catch (Exception e) {
-                throw new RuntimeException("Error finding Departamento: " + e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Departamento: " + e.getMessage(), e);
-        }
+        DepartamentoDTO dto = map.toDto(input);
+        DepartamentoOutput output = map.toOutput(service.findById(dto.getId()));
+        return output;
+
+
     }
 
     @Override
     public List<DepartamentoOutput> findAll() {
-        try {
-            List<DepartamentoDTO> dtoList = service.findAll();
-            List<DepartamentoOutput> outputList = map.toOutputList(dtoList);
-            return outputList;
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Departamentos: " + e.getMessage(), e);
-        }
+        List<DepartamentoDTO> dtoList = service.findAll();
+        List<DepartamentoOutput> outputList = map.toOutputList(dtoList);
+        return outputList;
+
     }
 
     @Override

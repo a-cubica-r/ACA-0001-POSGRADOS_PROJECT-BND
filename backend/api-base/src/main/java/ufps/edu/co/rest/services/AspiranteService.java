@@ -113,7 +113,7 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
 
     public AspiranteDTO update(Integer id, AspiranteDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Aspirante no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Aspirante no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
@@ -252,7 +252,7 @@ public class AspiranteService extends GenericService<AspiranteEntity, AspiranteD
 
     public AspiranteDTO updateEstado(Integer idAspirante, Integer idEstado) {
         AspiranteEntity entity = repository.findById(idAspirante)
-                .orElseThrow(() -> new RuntimeException("Aspirante no encontrado con id: " + idAspirante));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Aspirante no encontrado con id: " + idAspirante));
         entity.setIdEstado(idEstado);
         repository.save(entity);
         return entityToDto(repository.findById(idAspirante).orElseThrow());

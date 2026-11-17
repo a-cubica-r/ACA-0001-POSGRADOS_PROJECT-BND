@@ -50,12 +50,9 @@ public class UbicacionRestController {
 
     @PutMapping("/update")
     public ResponseEntity<UbicacionOutput> update(@RequestBody UBICACION_UPDATE request) {
-        try {
-            UbicacionOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        UbicacionOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

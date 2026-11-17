@@ -47,7 +47,7 @@ public class PoblacionindigenaService extends GenericService<PoblacionindigenaEn
 
     public PoblacionindigenaDTO update(Integer id, PoblacionindigenaDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Poblacionindigena no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Poblacionindigena no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

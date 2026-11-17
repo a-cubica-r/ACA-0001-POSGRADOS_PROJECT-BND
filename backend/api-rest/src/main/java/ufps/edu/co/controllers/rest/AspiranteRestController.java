@@ -56,12 +56,9 @@ public class AspiranteRestController {
 
     @PutMapping("/update")
     public ResponseEntity<AspiranteOutput> update(@Valid @RequestBody ASPIRANTE_UPDATE request) {
-        try {
-            AspiranteOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        AspiranteOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

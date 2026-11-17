@@ -77,12 +77,9 @@ public class ValoresglobalesRestController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<ValoresglobalesDTO> update(@PathVariable Integer id, @RequestBody ValoresglobalesDTO valoresglobalesDTO) {
-        try {
-            ValoresglobalesDTO updated = service.update(id, valoresglobalesDTO);
-            return ResponseEntity.ok(updated); // 200 OK
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build(); // 404 Not found
-        }
+        ValoresglobalesDTO updated = service.update(id, valoresglobalesDTO);
+        return ResponseEntity.ok(updated); // 200 OK
+
     }
 
     /**

@@ -47,7 +47,7 @@ public class CapacidadexepcionalService extends GenericService<Capacidadexepcion
 
     public CapacidadexepcionalDTO update(Integer id, CapacidadexepcionalDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Capacidadexepcional no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Capacidadexepcional no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

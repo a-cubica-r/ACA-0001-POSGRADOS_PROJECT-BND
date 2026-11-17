@@ -80,7 +80,7 @@ public class DocumentosrequisitoprogramaService extends GenericService<Documento
 
     public DocumentosrequisitoprogramaDTO update(Integer id, DocumentosrequisitoprogramaDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Documentosrequisitoprograma no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Documentosrequisitoprograma no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

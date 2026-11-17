@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import ufps.edu.co.domain.exceptions.DomainException;
+import ufps.edu.co.domain.exceptions.IntegridadSql;
 import ufps.edu.co.domain.exceptions.errorcodes.CriterioevaluacionErrorCode;
 import ufps.edu.co.domain.exceptions.errorcodes.CriteriocohorteErrorCode;
 import ufps.edu.co.maps.specific.CriteriocohorteMap;
@@ -55,7 +57,10 @@ public class CriteriocohorteCoreService implements
         try {
             CriteriocohorteDTO dto = map.toDto(input);
             return map.toOutput(service.create(dto));
-        } catch (Exception e) {
+        } catch (DataIntegrityViolationException e) {
+            if (IntegridadSql.codigoError(e) != 1062) {
+                throw e;
+            }
             throw new DomainException(CriteriocohorteErrorCode.CRITERIOCOHORTE_DUPLICADO, input);
         }
     }
@@ -66,9 +71,7 @@ public class CriteriocohorteCoreService implements
             assertSinCalificaciones(input.id());
             CriteriocohorteDTO dto = map.toDto(input);
             return map.toOutput(service.update(input.id(), dto));
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(CriteriocohorteErrorCode.CRITERIOCOHORTE_NOT_FOUND, input.id());
         }
     }
@@ -80,20 +83,12 @@ public class CriteriocohorteCoreService implements
 
     @Override
     public CriteriocohorteOutput findById(CRITERIOCOHORTE_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new DomainException(CriteriocohorteErrorCode.CRITERIOCOHORTE_NOT_FOUND, input.id());
-        }
+        return map.toOutput(service.findById(input.id()));
     }
 
     @Override
     public List<CriteriocohorteOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new DomainException(CriteriocohorteErrorCode.CRITERIOCOHORTE_NOT_FOUND, "findAll");
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
     }
 
     @Override
@@ -101,8 +96,6 @@ public class CriteriocohorteCoreService implements
         try {
             assertSinCalificaciones(input.id());
             service.deleteById(input.id());
-        } catch (DomainException e) {
-            throw e;
         } catch (RegistroNoEncontradoException e) {
             throw new DomainException(CriteriocohorteErrorCode.CRITERIOCOHORTE_NOT_FOUND, input.id());
         }

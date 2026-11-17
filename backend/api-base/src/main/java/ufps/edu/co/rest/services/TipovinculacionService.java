@@ -47,7 +47,7 @@ public class TipovinculacionService extends GenericService<TipovinculacionEntity
 
     public TipovinculacionDTO update(Integer id, TipovinculacionDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tipovinculacion no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Tipovinculacion no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

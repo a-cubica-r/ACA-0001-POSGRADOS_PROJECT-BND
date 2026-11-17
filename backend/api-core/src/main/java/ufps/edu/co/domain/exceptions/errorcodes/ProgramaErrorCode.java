@@ -42,7 +42,10 @@ public enum ProgramaErrorCode implements BaseErrorCode {
             "El programa está referenciado por otros registros"),
     PROGRAMA_CODIGO_DUPLICADO(
             "PROGRAMA_CODIGO_DUPLICADO",
-            "Ya existe un programa con ese código");
+            "Ya existe un programa con ese código"),
+    PROGRAMA_REGISTROSNIES_DUPLICADO(
+            "PROGRAMA_REGISTROSNIES_DUPLICADO",
+            "Ya existe un programa con ese registro SNIES");
 
     private final String code;
     private final String defaultMessage;

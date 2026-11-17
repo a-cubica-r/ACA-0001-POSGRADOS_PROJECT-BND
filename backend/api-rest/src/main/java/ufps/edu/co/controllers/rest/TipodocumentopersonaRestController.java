@@ -42,12 +42,9 @@ public class TipodocumentopersonaRestController {
 
     @PutMapping("/update")
     public ResponseEntity<TipodocumentopersonaOutput> update(@RequestBody TIPODOCUMENTOPERSONA_UPDATE request) {
-        try {
-            TipodocumentopersonaOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        TipodocumentopersonaOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

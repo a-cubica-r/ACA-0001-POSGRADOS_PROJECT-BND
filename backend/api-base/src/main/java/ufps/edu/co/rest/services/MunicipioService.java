@@ -47,7 +47,7 @@ public class MunicipioService extends GenericService<MunicipioEntity, MunicipioD
 
     public MunicipioDTO update(Integer id, MunicipioDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Municipio no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Municipio no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

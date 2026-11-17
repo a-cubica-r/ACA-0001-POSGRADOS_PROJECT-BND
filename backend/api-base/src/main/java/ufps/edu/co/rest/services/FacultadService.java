@@ -64,7 +64,7 @@ public class FacultadService extends GenericService<FacultadEntity, FacultadDTO>
 
     public FacultadDTO update(Integer id, FacultadDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Facultad no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Facultad no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

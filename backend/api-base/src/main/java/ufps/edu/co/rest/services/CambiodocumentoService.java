@@ -47,7 +47,7 @@ public class CambiodocumentoService extends GenericService<CambiodocumentoEntity
 
     public CambiodocumentoDTO update(Integer id, CambiodocumentoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cambiodocumento no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Cambiodocumento no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

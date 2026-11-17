@@ -89,7 +89,7 @@ public class PruebaService extends GenericService<PruebaEntity, PruebaDTO> {
 
     public PruebaDTO update(Integer id, PruebaDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Prueba no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Prueba no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

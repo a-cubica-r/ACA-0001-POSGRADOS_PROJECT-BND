@@ -49,12 +49,9 @@ public class CambiodocumentoRestController {
 
     @PutMapping("/update")
     public ResponseEntity<CambiodocumentoOutput> update(@RequestBody CAMBIODOCUMENTO_UPDATE request) {
-        try {
-            CambiodocumentoOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        CambiodocumentoOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

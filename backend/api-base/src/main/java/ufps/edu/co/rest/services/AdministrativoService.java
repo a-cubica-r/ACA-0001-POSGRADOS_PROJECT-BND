@@ -170,7 +170,7 @@ public class AdministrativoService extends GenericService<AdministrativoEntity, 
 
     public AdministrativoDTO update(Integer id, AdministrativoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Administrativo no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Administrativo no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

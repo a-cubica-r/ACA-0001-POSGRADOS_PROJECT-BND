@@ -64,29 +64,20 @@ public class DocumentosrequisitoprogramaPE extends DocumentosrequisitoprogramaCo
     }
 
     public List<DocumentosrequisitoprogramaOutput> findByIdPrograma(Integer idPrograma) {
-        try {
-            return service.findByIdPrograma(idPrograma).stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Documentosrequisitoprograma by programa: " + e.getMessage(), e);
-        }
+        return service.findByIdPrograma(idPrograma).stream().map(map::toOutput).toList();
     }
 
     public Listdocumentosprogramaconsejo findByIdProgramaAndConsejo(Integer idPrograma) {
-        try {
-            List<DocumentosrequisitoprogramaOutput> documentosPrograma = findByIdPrograma(idPrograma);
-            List<DocumentosrequisitoprogramaOutput> documentosConsejo = consejoService.findAll()
-                    .stream()
-                    .map(doc -> toProgramaOutput(doc, idPrograma))
-                    .toList();
+        List<DocumentosrequisitoprogramaOutput> documentosPrograma = findByIdPrograma(idPrograma);
+        List<DocumentosrequisitoprogramaOutput> documentosConsejo = consejoService.findAll()
+                .stream()
+                .map(doc -> toProgramaOutput(doc, idPrograma))
+                .toList();
 
-            return Listdocumentosprogramaconsejo.builder()
-                    .documentosConsejo(documentosConsejo)
-                    .documentosPrograma(documentosPrograma)
-                    .build();
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "Error finding Documentosrequisitoprograma by programa y consejo: " + e.getMessage(), e);
-        }
+        return Listdocumentosprogramaconsejo.builder()
+                .documentosConsejo(documentosConsejo)
+                .documentosPrograma(documentosPrograma)
+                .build();
     }
 
     private DocumentosrequisitoprogramaOutput toProgramaOutput(DocumentosrequisitoconsejoDTO consejoDoc,

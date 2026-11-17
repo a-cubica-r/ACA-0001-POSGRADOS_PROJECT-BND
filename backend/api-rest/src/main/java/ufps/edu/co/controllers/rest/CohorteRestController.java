@@ -49,12 +49,9 @@ public class CohorteRestController {
 
     @PutMapping("/update")
     public ResponseEntity<CohorteOutput> update(@RequestBody COHORTE_UPDATE request) {
-        try {
-            CohorteOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        CohorteOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

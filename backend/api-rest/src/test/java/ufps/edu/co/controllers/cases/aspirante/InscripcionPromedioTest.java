@@ -30,16 +30,19 @@ class InscripcionPromedioTest {
     @ValueSource(strings = { "5.01", "6", "-0.1", "4.567" })
     void rechazaPromediosFueraDeRangoConDomainException(String valor) {
         DomainException ex = assertThrows(DomainException.class,
-                () -> inscripcionCase.registrarFormulario(request(new BigDecimal(valor))));
+                () -> inscripcionCase.registrarNuevoUsuario(request(new BigDecimal(valor))));
 
         assertEquals(AspiranteErrorCode.PROMEDIO_INSCRIPCION_FUERA_DE_RANGO, ex.getCode());
         verifyNoInteractions(personaService);
     }
 
-    private InscripcionCase.FormularioInscripcionRequest request(BigDecimal promedio) {
-        return new InscripcionCase.FormularioInscripcionRequest(
-                "Ana", "Pérez", null, null, null, null, null, null, null, null,
-                null, null, "ANA@EXAMPLE.COM", null, "3001234567", promedio,
-                null, null, null, null, null, null, null, null, null, 1, null, "ana");
+    private InscripcionCase.RegistrarNuevoUsuarioRequest request(BigDecimal promedio) {
+        return new InscripcionCase.RegistrarNuevoUsuarioRequest(
+                "Ana", "Pérez", 1, "123456", 1, 1, null, null, null, 1,
+                null, "Ingeniería", "ana@example.com", null, "3001234567", promedio,
+                null, null, null, false, null, null,
+                new InscripcionCase.UbicacionNacimientoRequest(1, 1), null,
+                new InscripcionCase.UbicacionResidenciaRequest("URBANA", 1, 1, "Calle 1"),
+                1, 1, "ana", "Clave123*");
     }
 }

@@ -52,11 +52,8 @@ public class DocumentosrequisitoconsejoRestController {
 
     @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DocumentosrequisitoconsejoOutput> update(@RequestBody DOCUMENTOSREQUISITOCONSEJO_UPDATE request) {
-        try {
-            return ResponseEntity.ok(processor.update(request));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(processor.update(request));
+
     }
 
     @DeleteMapping(value = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)

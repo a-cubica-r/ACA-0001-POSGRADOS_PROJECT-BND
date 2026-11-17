@@ -60,7 +60,7 @@ public class EstudiantesService extends GenericService<EstudiantesEntity, Estudi
 
     public EstudiantesDTO update(Integer id, EstudiantesDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Estudiante no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

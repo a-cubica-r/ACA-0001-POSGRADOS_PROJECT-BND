@@ -5,6 +5,8 @@
 package ufps.edu.co.persistence.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import ufps.edu.co.persistence.entities.SemestreEntity;
@@ -36,5 +38,17 @@ import ufps.edu.co.persistence.entities.SemestreEntity;
  */
 @Repository
 public interface SemestreRepository extends JpaRepository<SemestreEntity, Integer> {
+
+	@Query("SELECT COUNT(s) > 0 FROM SemestreEntity s WHERE YEAR(s.fechaInicio) = :anio "
+			+ "AND MONTH(s.fechaInicio) <= 6 AND (:id IS NULL OR s.id <> :id)")
+	boolean existsPeriodo1(@Param("anio") int anio, @Param("id") Integer id);
+
+	@Query("SELECT COUNT(s) > 0 FROM SemestreEntity s WHERE YEAR(s.fechaInicio) = :anio "
+			+ "AND MONTH(s.fechaInicio) > 6 AND (:id IS NULL OR s.id <> :id)")
+	boolean existsPeriodo2(@Param("anio") int anio, @Param("id") Integer id);
+
+	boolean existsByNombreIgnoreCase(String nombre);
+
+	boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Integer id);
 
 }

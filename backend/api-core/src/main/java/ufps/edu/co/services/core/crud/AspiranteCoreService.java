@@ -136,25 +136,17 @@ public class AspiranteCoreService implements
 
     @Override
     public AspiranteOutput create(ASPIRANTE_CREATE input) {
-        try {
-            AspiranteDTO dto = map.toDto(input);
-            AspiranteDTO created = service.create(dto);
-            pagoProcessor.ensureInitialPaymentsForAspirante(created.getId());
-            return map.toOutput(created);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Aspirante: " + e.getMessage(), e);
-        }
+        AspiranteDTO dto = map.toDto(input);
+        AspiranteDTO created = service.create(dto);
+        pagoProcessor.ensureInitialPaymentsForAspirante(created.getId());
+        return map.toOutput(created);
     }
 
     @Override
     public AspiranteOutput update(ASPIRANTE_UPDATE input) {
-        try {
-            AspiranteDTO dto = map.toDto(input);
-            AspiranteDTO updated = service.update(input.id(), dto);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Aspirante: " + e.getMessage(), e);
-        }
+        AspiranteDTO dto = map.toDto(input);
+        AspiranteDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
     }
 
     @Override
@@ -164,21 +156,13 @@ public class AspiranteCoreService implements
 
     @Override
     public AspiranteOutput findById(ASPIRANTE_FIND input) {
-        try {
-            AspiranteDTO dto = service.findById(input.id());
-            return map.toOutput(dto);
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Aspirante by ID: " + e.getMessage(), e);
-        }
+        AspiranteDTO dto = service.findById(input.id());
+        return map.toOutput(dto);
     }
 
     @Override
     public List<AspiranteOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Aspirantes: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
     }
 
     @Override

@@ -22,24 +22,18 @@ public class ClaveCoreService implements
 
     @Override
     public ClaveOutput create(CLAVE_CREATE input) {
-        try {
-            ClaveDTO dto = map.toDto(input);
-            ClaveDTO created = service.create(dto);
-            return map.toOutput(created);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Clave: " + e.getMessage(), e);
-        }
+        ClaveDTO dto = map.toDto(input);
+        ClaveDTO created = service.create(dto);
+        return map.toOutput(created);
+
     }
 
     @Override
     public ClaveOutput update(CLAVE_UPDATE input) {
-        try {
-            ClaveDTO dto = map.toDto(input);
-            ClaveDTO updated = service.update(input.id(), dto);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Clave: " + e.getMessage(), e);
-        }
+        ClaveDTO dto = map.toDto(input);
+        ClaveDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
+
     }
 
     @Override
@@ -49,21 +43,15 @@ public class ClaveCoreService implements
 
     @Override
     public ClaveOutput findById(CLAVE_FIND input) {
-        try {
-            ClaveDTO dto = service.findById(input.id());
-            return map.toOutput(dto);
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Clave by ID: " + e.getMessage(), e);
-        }
+        ClaveDTO dto = service.findById(input.id());
+        return map.toOutput(dto);
+
     }
 
     @Override
     public List<ClaveOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Claves: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override

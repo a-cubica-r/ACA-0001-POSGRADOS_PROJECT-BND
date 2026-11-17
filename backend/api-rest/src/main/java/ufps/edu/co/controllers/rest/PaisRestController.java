@@ -66,12 +66,9 @@ public class PaisRestController {
      */
     @PutMapping("/update")
     public ResponseEntity<PaisOutput> update(@RequestBody PAIS_UPDATE request) {
-        try {
-            PaisOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated); // 200 OK
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build(); // 404 Not found
-        }
+        PaisOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated); // 200 OK
+
     }
 
     /**

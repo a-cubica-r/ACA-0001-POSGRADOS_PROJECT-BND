@@ -39,12 +39,9 @@ public class DocumentosrequisitoprogramaCoreService implements
 
     @Override
     public DocumentosrequisitoprogramaOutput create(DOCUMENTOSREQUISITOPROGRAMA_CREATE input) {
-        try {
-            DocumentosrequisitoprogramaDTO dto = map.toDto(input);
-            return map.toOutput(service.create(dto));
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Documentosrequisitoprograma: " + e.getMessage(), e);
-        }
+        DocumentosrequisitoprogramaDTO dto = map.toDto(input);
+        return map.toOutput(service.create(dto));
+
     }
 
     public DocumentosrequisitoprogramaOutput create(DOCUMENTOSREQUISITOPROGRAMA_CREATEDOCUMENT input, Integer idPrograma) {
@@ -83,20 +80,14 @@ public class DocumentosrequisitoprogramaCoreService implements
 
     @Override
     public DocumentosrequisitoprogramaOutput findById(DOCUMENTOSREQUISITOPROGRAMA_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Documentosrequisitoprograma by ID: " + e.getMessage(), e);
-        }
+        return map.toOutput(service.findById(input.id()));
+
     }
 
     @Override
     public List<DocumentosrequisitoprogramaOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Documentosrequisitoprograma: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override

@@ -42,12 +42,9 @@ public class GeneroRestController {
 
     @PutMapping("/update")
     public ResponseEntity<GeneroOutput> update(@RequestBody GENERO_UPDATE request) {
-        try {
-            GeneroOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        GeneroOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

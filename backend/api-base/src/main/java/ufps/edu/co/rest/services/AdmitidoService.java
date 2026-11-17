@@ -47,7 +47,7 @@ public class AdmitidoService extends GenericService<AdmitidoEntity, AdmitidoDTO>
 
     public AdmitidoDTO update(Integer id, AdmitidoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Admitido no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Admitido no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

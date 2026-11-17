@@ -65,7 +65,7 @@ public class TipoplazoService extends GenericService<TipoplazoEntity, TipoplazoD
 
     public TipoplazoDTO update(Integer id, TipoplazoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tipoplazo no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Tipoplazo no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

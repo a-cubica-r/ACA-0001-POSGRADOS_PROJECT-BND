@@ -68,7 +68,7 @@ public class DocumentosrequisitoconsejoService extends GenericService<Documentos
 
     public DocumentosrequisitoconsejoDTO update(Integer id, DocumentosrequisitoconsejoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Documentosrequisitoconsejo no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Documentosrequisitoconsejo no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

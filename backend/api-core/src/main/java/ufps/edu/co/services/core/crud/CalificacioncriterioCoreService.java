@@ -63,30 +63,25 @@ public class CalificacioncriterioCoreService implements
             throw new DomainException(CalificacioncriterioErrorCode.CALIFICACIONCRITERIO_ALREADY_EXISTS,
                     "aspirante=" + input.idAspirante() + ", criterio=" + input.idCriterio());
         }
-        try {
-            CalificacioncriterioDTO dto = map.toDto(input);
-            CalificacioncriterioOutput output = map.toOutput(service.create(dto));
-            recalcularPuntuacionAspirante(input.idAspirante());
-            actualizarEstadoCalificacion(input.idAspirante());
-            return output;
-        } catch (DomainException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Calificacioncriterio: " + e.getMessage(), e);
-        }
+        CalificacioncriterioDTO dto = map.toDto(input);
+        CalificacioncriterioOutput output = map.toOutput(service.create(dto));
+        recalcularPuntuacionAspirante(input.idAspirante());
+        actualizarEstadoCalificacion(input.idAspirante());
+        return output;
     }
 
     @Override
     public CalificacioncriterioOutput update(CALIFICACIONCRITERIO_UPDATE input) {
+        CalificacioncriterioDTO dto = map.toDto(input);
+        CalificacioncriterioOutput output;
         try {
-            CalificacioncriterioDTO dto = map.toDto(input);
-            CalificacioncriterioOutput output = map.toOutput(service.update(input.id(), dto));
-            recalcularPuntuacionAspirante(input.idAspirante());
-            actualizarEstadoCalificacion(input.idAspirante());
-            return output;
-        } catch (Exception e) {
+            output = map.toOutput(service.update(input.id(), dto));
+        } catch (RegistroNoEncontradoException e) {
             throw new DomainException(CalificacioncriterioErrorCode.CALIFICACIONCRITERIO_NOT_FOUND, input.id());
         }
+        recalcularPuntuacionAspirante(input.idAspirante());
+        actualizarEstadoCalificacion(input.idAspirante());
+        return output;
     }
 
     @Override
@@ -96,11 +91,7 @@ public class CalificacioncriterioCoreService implements
 
     @Override
     public CalificacioncriterioOutput findById(CALIFICACIONCRITERIO_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new DomainException(CalificacioncriterioErrorCode.CALIFICACIONCRITERIO_NOT_FOUND, input.id());
-        }
+        return map.toOutput(service.findById(input.id()));
     }
 
     @Override

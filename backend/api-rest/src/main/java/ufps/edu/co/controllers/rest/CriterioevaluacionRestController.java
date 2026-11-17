@@ -49,12 +49,9 @@ public class CriterioevaluacionRestController {
 
     @PutMapping("/update")
     public ResponseEntity<CriterioevaluacionOutput> update(@RequestBody CRITERIOEVALUACION_UPDATE request) {
-        try {
-            CriterioevaluacionOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        CriterioevaluacionOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

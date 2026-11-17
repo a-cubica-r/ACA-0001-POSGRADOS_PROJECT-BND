@@ -47,7 +47,7 @@ public class TipodocumentopersonaService extends GenericService<Tipodocumentoper
 
     public TipodocumentopersonaDTO update(Integer id, TipodocumentopersonaDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tipodocumentopersona no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Tipodocumentopersona no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

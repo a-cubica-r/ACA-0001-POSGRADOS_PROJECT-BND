@@ -77,7 +77,7 @@ public class DocumentosrequisitoprogramacohorteService extends GenericService<Do
 
     public DocumentosrequisitoprogramacohorteDTO update(Integer id, DocumentosrequisitoprogramacohorteDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Documentosrequisitoprogramacohorte no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Documentosrequisitoprogramacohorte no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

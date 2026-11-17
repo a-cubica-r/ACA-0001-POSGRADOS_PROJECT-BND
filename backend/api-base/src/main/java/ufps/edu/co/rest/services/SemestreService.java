@@ -63,9 +63,23 @@ public class SemestreService extends GenericService<SemestreEntity, SemestreDTO>
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
 
+    @Transactional(readOnly = true)
+    public boolean existsByPeriodo(int anio, int periodo, Integer id) {
+        return periodo == 1
+                ? repository.existsPeriodo1(anio, id)
+                : repository.existsPeriodo2(anio, id);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByNombre(String nombre, Integer id) {
+        return id == null
+                ? repository.existsByNombreIgnoreCase(nombre)
+                : repository.existsByNombreIgnoreCaseAndIdNot(nombre, id);
+    }
+
     public SemestreDTO update(Integer id, SemestreDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Semestre no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Semestre no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

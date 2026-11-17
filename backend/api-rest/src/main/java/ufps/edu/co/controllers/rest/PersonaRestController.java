@@ -51,12 +51,9 @@ public class PersonaRestController {
 
     @PutMapping("/update")
     public ResponseEntity<PersonaOutput> update(@Valid @RequestBody PERSONA_UPDATE request) {
-        try {
-            PersonaOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        PersonaOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

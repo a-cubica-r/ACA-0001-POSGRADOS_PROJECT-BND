@@ -22,24 +22,18 @@ public class EstadodocumentoCoreService implements
 
     @Override
     public EstadodocumentoOutput create(ESTADODOCUMENTO_CREATE input) {
-        try {
-            EstadodocumentoDTO dto = map.toDto(input);
-            EstadodocumentoDTO created = service.create(dto);
-            return map.toOutput(created);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Estadodocumento: " + e.getMessage(), e);
-        }
+        EstadodocumentoDTO dto = map.toDto(input);
+        EstadodocumentoDTO created = service.create(dto);
+        return map.toOutput(created);
+
     }
 
     @Override
     public EstadodocumentoOutput update(ESTADODOCUMENTO_UPDATE input) {
-        try {
-            EstadodocumentoDTO dto = map.toDto(input);
-            EstadodocumentoDTO updated = service.update(input.id(), dto);
-            return map.toOutput(updated);
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Estadodocumento: " + e.getMessage(), e);
-        }
+        EstadodocumentoDTO dto = map.toDto(input);
+        EstadodocumentoDTO updated = service.update(input.id(), dto);
+        return map.toOutput(updated);
+
     }
 
     @Override
@@ -49,21 +43,15 @@ public class EstadodocumentoCoreService implements
 
     @Override
     public EstadodocumentoOutput findById(ESTADODOCUMENTO_FIND input) {
-        try {
-            EstadodocumentoDTO dto = service.findById(input.id());
-            return map.toOutput(dto);
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Estadodocumento by ID: " + e.getMessage(), e);
-        }
+        EstadodocumentoDTO dto = service.findById(input.id());
+        return map.toOutput(dto);
+
     }
 
     @Override
     public List<EstadodocumentoOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Estadodocumentos: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override

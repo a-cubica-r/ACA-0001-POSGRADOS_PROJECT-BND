@@ -109,11 +109,7 @@ public class CriterioevaluacionCoreService implements
 
     @Override
     public CriterioevaluacionOutput findById(CRITERIOEVALUACION_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new DomainException(CriterioevaluacionErrorCode.CRITERIOEVALUACION_NOT_FOUND, input.id());
-        }
+        return map.toOutput(service.findById(input.id()));
     }
 
     @Override

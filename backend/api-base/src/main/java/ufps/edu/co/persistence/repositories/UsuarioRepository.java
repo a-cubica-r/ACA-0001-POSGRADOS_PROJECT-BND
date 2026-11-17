@@ -4,6 +4,7 @@
  */
 package ufps.edu.co.persistence.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -43,7 +44,13 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
 
 	Optional<UsuarioEntity> findByNombreusuario(String nombreusuario);
 
+	boolean existsByNombreusuario(String nombreusuario);
+
+	boolean existsByNombreusuarioAndIdNot(String nombreusuario, Integer id);
+
 	Optional<UsuarioEntity> findByIdPersona(Integer idPersona);
+
+	List<UsuarioEntity> findAllByIdPersona(Integer idPersona);
 
 	@Query("SELECT u.idPersona FROM UsuarioEntity u WHERE u.nombreusuario = :nombreusuario")
 	Optional<Integer> findIdPersonaByNombreusuario(@Param("nombreusuario") String nombreusuario);

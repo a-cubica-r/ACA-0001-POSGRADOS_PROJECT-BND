@@ -47,7 +47,7 @@ public class GeneroService extends GenericService<GeneroEntity, GeneroDTO> {
 
     public GeneroDTO update(Integer id, GeneroDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Genero no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Genero no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

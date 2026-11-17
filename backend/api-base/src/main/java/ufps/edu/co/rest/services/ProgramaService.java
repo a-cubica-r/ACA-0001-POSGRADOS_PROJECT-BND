@@ -123,13 +123,23 @@ public class ProgramaService extends GenericService<ProgramaEntity, ProgramaDTO>
                 .orElse(null);
     }
 
+    @Transactional(readOnly = true)
+    public boolean existsByRegistrosnies(String registrosnies) {
+        return repository.existsByRegistrosnies(registrosnies);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByRegistrosniesAndIdNot(String registrosnies, Integer id) {
+        return repository.existsByRegistrosniesAndIdNot(registrosnies, id);
+    }
+
     public ProgramaDTO create(ProgramaDTO dto) {
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
 
     public ProgramaDTO update(Integer id, ProgramaDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Programa no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Programa no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

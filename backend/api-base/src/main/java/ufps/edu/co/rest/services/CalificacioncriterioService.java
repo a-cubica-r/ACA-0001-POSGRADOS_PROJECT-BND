@@ -91,7 +91,7 @@ public class CalificacioncriterioService extends GenericService<Calificacioncrit
 
     public CalificacioncriterioDTO update(Integer id, CalificacioncriterioDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Calificacioncriterio no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Calificacioncriterio no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

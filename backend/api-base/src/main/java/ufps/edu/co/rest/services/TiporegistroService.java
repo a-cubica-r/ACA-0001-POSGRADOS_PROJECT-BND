@@ -52,7 +52,7 @@ public class TiporegistroService extends GenericService<TiporegistroEntity, Tipo
 
     public TiporegistroDTO update(Integer id, TiporegistroDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tiporegistro no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Tiporegistro no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

@@ -49,12 +49,9 @@ public class RolRestController {
 
     @PutMapping("/update")
     public ResponseEntity<RolOutput> update(@RequestBody ROL_UPDATE request) {
-        try {
-            RolOutput updated = processor.update(request);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        RolOutput updated = processor.update(request);
+        return ResponseEntity.ok(updated);
+
     }
 
     @DeleteMapping("/delete")

@@ -22,22 +22,16 @@ public class DocumentopersonaCoreService implements
 
     @Override
     public DocumentopersonaOutput create(DOCUMENTOPERSONA_CREATE input) {
-        try {
-            DocumentopersonaDTO dto = map.toDto(input);
-            return map.toOutput(service.create(dto));
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating Documentopersona: " + e.getMessage(), e);
-        }
+        DocumentopersonaDTO dto = map.toDto(input);
+        return map.toOutput(service.create(dto));
+
     }
 
     @Override
     public DocumentopersonaOutput update(DOCUMENTOPERSONA_UPDATE input) {
-        try {
-            DocumentopersonaDTO dto = map.toDto(input);
-            return map.toOutput(service.update(input.id(), dto));
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating Documentopersona: " + e.getMessage(), e);
-        }
+        DocumentopersonaDTO dto = map.toDto(input);
+        return map.toOutput(service.update(input.id(), dto));
+
     }
 
     @Override
@@ -47,20 +41,14 @@ public class DocumentopersonaCoreService implements
 
     @Override
     public DocumentopersonaOutput findById(DOCUMENTOPERSONA_FIND input) {
-        try {
-            return map.toOutput(service.findById(input.id()));
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding Documentopersona by ID: " + e.getMessage(), e);
-        }
+        return map.toOutput(service.findById(input.id()));
+
     }
 
     @Override
     public List<DocumentopersonaOutput> findAll() {
-        try {
-            return service.findAll().stream().map(map::toOutput).toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all Documentopersonas: " + e.getMessage(), e);
-        }
+        return service.findAll().stream().map(map::toOutput).toList();
+
     }
 
     @Override

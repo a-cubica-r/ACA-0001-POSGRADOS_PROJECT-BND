@@ -47,7 +47,7 @@ public class UbicacionService extends GenericService<UbicacionEntity, UbicacionD
 
     public UbicacionDTO update(Integer id, UbicacionDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ubicacion no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Ubicacion no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }

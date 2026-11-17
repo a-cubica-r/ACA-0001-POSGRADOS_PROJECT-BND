@@ -52,7 +52,7 @@ public class CargoService extends GenericService<CargoEntity, CargoDTO> {
 
     public CargoDTO update(Integer id, CargoDTO dto) {
         repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cargo no encontrado con id: " + id));
+                .orElseThrow(() -> new RegistroNoEncontradoException("Cargo no encontrado con id: " + id));
         dto.setId(id);
         return entityToDto(repository.save(dtoToEntity(dto)));
     }
