@@ -18,7 +18,8 @@ public enum PagoErrorCode implements BaseErrorCode {
     VALOR_GLOBAL_FORMATO_INVALIDO("VALOR_GLOBAL_FORMATO_INVALIDO", "La configuración global del valor del pago tiene un formato inválido"),
     MATRICULA_MONTO_ELEGIDO_INVALIDO("MATRICULA_MONTO_ELEGIDO_INVALIDO", "El monto elegido para matrícula no cumple el mínimo permitido"),
     WOMPI_PAGO_NO_APROBADO_CONFLICT("WOMPI_PAGO_NO_APROBADO_CONFLICT", "El pago no fue aprobado por Wompi"),
-    FACTURA_YA_EXISTE_CONFLICT("FACTURA_YA_EXISTE_CONFLICT", "Ya existe una factura para este recibo");
+    FACTURA_YA_EXISTE_CONFLICT("FACTURA_YA_EXISTE_CONFLICT", "Ya existe una factura para este recibo"),
+    PLAZO_PAGO_VENCIDO("PLAZO_PAGO_VENCIDO", "El plazo para realizar el pago ya venció");
 
     private final String code;
     private final String defaultMessage;
