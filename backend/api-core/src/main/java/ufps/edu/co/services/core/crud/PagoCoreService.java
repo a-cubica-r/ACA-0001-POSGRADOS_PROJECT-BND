@@ -199,6 +199,8 @@ public class PagoCoreService {
     @SuppressWarnings("null")
     public WompiCheckoutResponse iniciarCheckoutInscripcion(Integer idAspirante, Integer authenticatedUserId,
             boolean validarTitular) {
+        validarPlazoPagoCohorte(idAspirante);
+
         PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, ConceptoPago.INSCRIPCION);
         validarPagoPerteneceAspirante(pago, idAspirante);
 
@@ -332,6 +334,8 @@ public class PagoCoreService {
     @SuppressWarnings("null")
     public WompiCheckoutResponse iniciarCheckoutMatricula(Integer idAspirante, Integer authenticatedUserId,
             BigDecimal montoElegido, boolean validarTitular) {
+        validarPlazoPagoCohorte(idAspirante);
+
         PagoResumenDTO pago = encontrarPagoConceptoResumen(idAspirante, ConceptoPago.MATRICULA);
         validarPagoPerteneceAspirante(pago, idAspirante);
 
@@ -1344,6 +1348,17 @@ public class PagoCoreService {
                 .pago(pagoShallow)
                 .estado(null)
                 .build();
+    }
+
+    private void validarPlazoPagoCohorte(Integer idAspirante) {
+        Integer idCohorte = aspiranteService.findIdCohorteById(idAspirante);
+        if (idCohorte == null) return;
+        var cohorte = cohorteService.findById(idCohorte);
+        if (cohorte == null || cohorte.getPlazo3() == null) return;
+        var fechaFin = cohorte.getPlazo3().getFechafin();
+        if (fechaFin != null && LocalDate.now().isAfter(fechaFin)) {
+            throw new DomainException(PagoErrorCode.PLAZO_PAGO_VENCIDO, fechaFin);
+        }
     }
 
     private BigDecimal validarMontoElegidoMatricula(BigDecimal montoElegido, BigDecimal montoTotal) {
